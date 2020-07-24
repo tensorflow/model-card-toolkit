@@ -1,0 +1,243 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Model Card",
+  "$id": "https://modelcards.withgoogle.com/v0.0.1/model_card.schema.json",
+  "description": "https://modelcards.withgoogle.com/",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "description": "The version of the schema.",
+      "type": "string"
+    },
+    "model_details": {
+      "description": "Metadata about the model.",
+      "type": "object",
+      "properties": {
+        "name": {
+          "description": "The name of the model.",
+          "type": "string"
+        },
+        "overview": {
+          "description": "A description of the model card.",
+          "type": "string"
+        },
+        "owners": {
+          "description": "The individuals or teams who own the model.",
+          "type": "array",
+          "items": {"$ref": "#/definitions/owner"}
+        },
+        "version": {
+          "description": "The version of the model.",
+          "type": "object",
+          "properties": {
+            "name": {
+              "description": "The name of the version.",
+              "type": "string"
+            },
+            "date": {
+              "description": "The date the version was released.",
+              "type": "string",
+              "format": "date"
+            },
+            "diff": {
+              "description": "The changes from the previous version.",
+              "type": "string"
+            }
+          }
+        },
+        "license": {
+          "description": "The model's license for use.",
+          "type": "string"
+        },
+        "references": {
+          "description": "Links providing more information about the model.",
+          "type": "array",
+          "items": {
+              "type": "string",
+              "format": "uri"
+          }
+        },
+        "citation": {
+          "description": "How to reference this model card.",
+          "type": "string"
+        }
+      }
+    },
+    "model_parameters": {
+      "description": "Parameters for construction of the model.",
+      "type": "object",
+      "properties": {
+        "model_architecture": {
+          "description": "The architecture of the model.",
+          "type": "string"
+        },
+        "data": {
+          "description": "The datasets used to train and evaluate the model.",
+          "type": "object",
+          "properties": {
+            "train": { "$ref": "#/definitions/dataset" },
+            "eval": { "$ref": "#/definitions/dataset" }
+          }
+        }
+      }
+    },
+    "quantitative_analysis": {
+      "description": "A quantitative analysis of the model",
+      "type": "object",
+      "properties": {
+        "performance_metrics": {
+          "description": "The model performance metrics being reported.",
+          "type": "array",
+          "items": { "$ref": "#/definitions/performance_metric" }
+        },
+        "graphics": { "$ref": "#/definitions/graphics" }
+      }
+    },
+    "considerations": {
+      "description": "What considerations should be taken into account regarding the model's construction, training, and application?",
+      "type": "object",
+      "properties": {
+        "users": {
+          "description": "Who are the intended users of the model?",
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "use_cases": {
+          "description": "What are the intended use cases of the model?",
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "limitations": {
+          "description": "What are the known technical limitations of the model? E.g. What kind(s) of data should the model be expected not to perform well on? What are the factors that might degrade model performance?",
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "tradeoffs": {
+          "description": "What are the known tradeoffs in accuracy/performance of the model?",
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "ethical_considerations": {
+          "description": "What are the ethical risks involved in the application of this model?",
+          "type": "array",
+          "items": { "$ref": "#/definitions/risk" }
+        }
+      }
+    }
+  },
+  "required": ["model_details",
+               "quantitative_analysis",
+               "considerations"],
+  "additionalProperties": false,
+  "definitions": {
+    "owner": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "description": "The name of the owner.",
+          "type": "string"
+        },
+        "contact": {
+          "description": "The contact information of the owner.",
+          "type": "string"
+        }
+      }
+    },
+    "dataset": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "description": "The name of the dataset.",
+          "type": "string"
+        },
+        "link": {
+          "description": "A link to the dataset.",
+          "type": "string",
+          "format": "uri"
+        },
+        "sensitive": {
+          "description": "Does this dataset contain human or other sensitive data?",
+          "type": "boolean"
+        },
+        "graphics": { "$ref": "#/definitions/graphics" }
+      }
+    },
+    "performance_metric": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "description": "The type of performance metric.",
+          "type": "string"
+        },
+        "value": {
+          "description": "The value of the performance metric.",
+          "type": ["number", "string"]
+        },
+        "confidence_interval": {
+          "description": "The confidence interval of the metric.",
+          "type": "object",
+          "properties": {
+            "lower_bound": {
+              "description": "The lower bound of the confidence interval.",
+              "type": "number"
+            },
+            "upper_bound": {
+              "description": "The upper bound of the confidence interval.",
+              "type": "number"
+            }
+          }
+        },
+        "threshold": {
+          "description": "The decision threshold the metric was computed on.",
+          "type": "number"
+        },
+        "slice": {
+          "description": "The name of the slice this metric was computed on. By default, assume this metric is not sliced.",
+          "type": "string"
+        }
+      }
+    },
+    "graphics": {
+      "type": "object",
+      "properties": {
+        "description": {
+          "description": "A description of this collection of graphics.",
+          "type": "string"
+        },
+        "collection": {
+          "description": "A collection of graphics.",
+          "type": "array",
+          "items": { "$ref": "#definitions/graphic" }
+        }
+      }
+    },
+    "graphic": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "description": "The name of the graphic.",
+          "type": "string"
+        },
+        "image": {
+          "description": "The graphic, encoded as a base64 string.",
+          "type": "string",
+          "contentEncoding": "base64",
+          "contentMediaType": "image/png"
+        }
+      }
+    },
+    "risk": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "description": "The name of the risk.",
+          "type": "string"
+        },
+        "mitigation_strategy": {
+          "description": "Strategy used to address this risk.",
+          "type": "string"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "evalConfig": {
+    "modelSpecs": [
+      {}
+    ],
+    "slicingSpecs": [
+      {
+        "featureKeys": [
+          "weekday"
+        ]
+      },
+      {}
+    ],
+    "options": {
+      "computeConfidenceIntervals": false,
+      "minSliceSize": 1
+    }
+  },
+  "version": "0.21.6",
+  "dataLocation": "<user provided PCollection>",
+  "fileFormat": "<unknown>",
+  "modelLocations": {
+    "": "/tmp/tfx-interactive-2020-03-24T21_31_20.888155-mny0kawj/Trainer/model/6/eval_model_dir/1585085650"
+  }
+}
