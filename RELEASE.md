@@ -9,3 +9,15 @@
 ## Breaking changes
 
 ## Deprecations
+
+# Release 0.1.0
+
+## Major Features and Improvements
+
+Initial release of Model Card Toolkit.
+
+## Bug fixes and other changes
+
+## Breaking changes
+
+## Deprecations
