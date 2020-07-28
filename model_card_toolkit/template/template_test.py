@@ -41,7 +41,7 @@ _FOLDER = 'html'
 _TEMPLATE_FILE = 'default_template.html.jinja'
 
 _MODEL_DETAILS_PROPERTIES = [
-    'overview', 'owners', 'version', 'license', 'references', 'citation'
+    'overview', 'version', 'owners', 'license', 'references', 'citation'
 ]
 
 

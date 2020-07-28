@@ -63,6 +63,12 @@
             <h3>Overview</h3>
               {{  model_details.overview }}
           {% endif %}
+          {% if model_details.version %}
+            <h3>Version</h3>
+              {{ render_if_exist('name', model_details.version.name) }}
+              {{ render_if_exist('date', model_details.version.date) }}
+              {{ render_if_exist('diff', model_details.version.diff) }}
+          {% endif %}
           {% if model_details.owners %}
             <h3>Owners</h3>
               <ul>
@@ -70,12 +76,6 @@
                 <li>{{ owner.name }}, {{ owner.contact }}</li>
               {% endfor %}
               </ul>
-          {% endif %}
-          {% if model_details.version %}
-            <h3>Version</h3>
-              {{ render_if_exist('name', model_details.version.name) }}
-              {{ render_if_exist('date', model_details.version.date) }}
-              {{ render_if_exist('diff', model_details.version.diff) }}
           {% endif %}
           {% if model_details.license %}
             <h3>License</h3>
