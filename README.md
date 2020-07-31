@@ -32,10 +32,7 @@ The Model Card Toolkit is hosted on [PyPI](https://pypi.org/project/model-card-t
 
 ## Automatic Model Card Generation
 
-If your machine learning pipeline uses the [TensorFlow Extended (TFX)](https://www.tensorflow.org/tfx) platform or [ML
-Metadata](https://www.tensorflow.org/tfx/guide/mlmd), you can automate model card generation. See [this demo
-notebook](model_card_toolkit/documentation/examples/MLMD_Model_Card_Toolkit_Demo.ipynb) for a demonstration of how to integrate the MCT
-into your pipeline.
+If your machine learning pipeline uses the [TensorFlow Extended (TFX)](https://www.tensorflow.org/tfx) platform or [ML Metadata](https://www.tensorflow.org/tfx/guide/mlmd), you can automate model card generation. See `documentation/examples/MLMD_Model_Card_Toolkit_Demo.ipynb` for a demonstration of how to integrate the MCT into your pipeline.
 
 ## Schema
 
