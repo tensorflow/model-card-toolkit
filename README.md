@@ -8,6 +8,8 @@ Some use cases of model cards include:
 * Informing users of ML models to make better-informed decisions about how to use them (or how not to use them).
 * Providing model information required for effective public oversight and accountability.
 
+![Generated model card image](https://raw.githubusercontent.com/tensorflow/model-card-toolkit/master/model_card_toolkit/images/model_card.png)
+
 ## Installation
 
 The Model Card Toolkit is hosted on [PyPI](https://pypi.org/project/model-card-toolkit/), and can be installed with `pip install model-card-toolkit`.
