@@ -14,6 +14,7 @@
 # limitations under the License.
 """Tests model_card_toolkit.template."""
 
+import logging
 import os
 import re
 from typing import List, Optional
@@ -93,6 +94,7 @@ class TemplateTest(absltest.TestCase):
         auto_reload=True,
         cache_size=0)
     page = jinja_env.get_template(_TEMPLATE_FILE).render(model_card=mc)
+    logging.info(page)
 
     with self.subTest(name='title'):
       title = self.find(page, '<title>', '</title>')
@@ -266,6 +268,26 @@ class TemplateTest(absltest.TestCase):
             }]))
     self.assertRenderedTemplate(mc, ExpectedGraphic(quantitative=True))
 
+  def test_no_quantitative_analysis(self):
+    mc = model_card.ModelCard()
+    mc.model_details = {
+        'name': 'quantitative analysis',
+        'overview': 'This demonstrates a quantitative analysis graphic.',
+        'owners': [{
+            'name': 'bar',
+            'contact': 'bar@xyz.com'
+        }],
+        'version': {
+            'name': '0.4',
+            'date': '2020-01-01',
+            'diff': 'Updated dataset.',
+        },
+        'license': 'Apache 2.0',
+        'references': ['https://my_model.xyz.com', 'https://example.com'],
+        'citation': 'https://doi.org/foo/bar',
+    }
+    mc.model_parameters = model_card.ModelParameters(model_architecture='knn')
+    self.assertRenderedTemplate(mc, ExpectedGraphic())
 
 if __name__ == '__main__':
   absltest.main()

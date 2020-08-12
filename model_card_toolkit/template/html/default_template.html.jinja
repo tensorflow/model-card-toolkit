@@ -122,34 +122,32 @@
           {% endif %}
       </div>
     </div>
-    <div class="row">
-      <div class="col card">
-        {% if model_card.model_parameters.data.train.graphics.collection %}
+    {% if model_card.model_parameters.data.train.graphics.collection %}
+      <div class="row">
+        <div class="col card">
           <h2>Train Set</h2>
             {{ model_card.model_parameters.data.train.graphics.description }}
             {{ render_graphics(model_card.model_parameters.data.train.graphics.collection) }}
-        {% endif %}
+        </div>
       </div>
-    </div>
-    <div class="row">
-      <div class="col card">
-        {% if model_card.model_parameters.data.eval.graphics.collection %}
+    {% endif %}
+    {% if model_card.model_parameters.data.eval.graphics.collection %}
+      <div class="row">
+        <div class="col card">
           <h2>Eval Set</h2>
             {{ model_card.model_parameters.data.eval.graphics.description }}
             {{ render_graphics(model_card.model_parameters.data.eval.graphics.collection) }}
-        {% endif %}
         </div>
-    </div>
-    <div class="row">
-      <div class="col card">
-        {% if model_card.quantitative_analysis.graphics.collection %}
+      </div>
+    {% endif %}
+    {% if model_card.quantitative_analysis.graphics.collection %}
+      <div class="row">
+        <div class="col card">
           <h2>Quantitative Analysis</h2>
             {{ model_card.quantitative_analysis.graphics.description }}
             {{ render_graphics(model_card.quantitative_analysis.graphics.collection) }}
-        {% endif %}
         </div>
-    </div>
       </div>
-    </div>
+    {% endif %}
 </body>
 </html>

@@ -125,9 +125,7 @@
       }
     }
   },
-  "required": ["model_details",
-               "quantitative_analysis",
-               "considerations"],
+  "required": ["model_details", "considerations"],
   "additionalProperties": false,
   "definitions": {
     "owner": {
