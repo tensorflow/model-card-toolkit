@@ -115,14 +115,27 @@ class ModelParameters():
 
 
 @attr.s(auto_attribs=True)
+class ConfidenceInterval():
+  """The confidence interval of the metric."""
+  # The lower bound of the confidence interval.
+  lower_bound: float
+  # The upper bound of the confidence interval.
+  upper_bound: float
+
+
+@attr.s(auto_attribs=True)
 class PerformanceMetric():
   """The details of the performance metric."""
   # The type of performance metric.
   type: Text
   # The value of the performance metric.
   value: Union[int, float, Text]
+  # The confidence interval of the metric.
+  confidence_interval: ConfidenceInterval = attr.Factory(ConfidenceInterval)
   # The decision threshold the metric was computed on.
   threshold: Optional[float] = None
+  # The name of the slice this metric was computed on.
+  slice: Optional[Text] = None
 
 
 @attr.s(auto_attribs=True)
