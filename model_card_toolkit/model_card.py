@@ -112,6 +112,10 @@ class ModelParameters():
   model_architecture: Optional[Text] = None
   # The datasets used to train and evaluate the model.
   data: Data = attr.Factory(Data)
+  # The data format for inputs to the model.
+  input_format: Optional[Text] = None
+  # The data format for outputs from the model.
+  output_format: Optional[Text] = None
 
 
 @attr.s(auto_attribs=True)

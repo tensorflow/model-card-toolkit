@@ -44,6 +44,9 @@ _TEMPLATE_FILE = 'default_template.html.jinja'
 _MODEL_DETAILS_PROPERTIES = [
     'overview', 'version', 'owners', 'license', 'references', 'citation'
 ]
+_MODEL_PARAMETERS_PROPERTIES = [
+    'model_architecture', 'input_format', 'output_format'
+]
 
 
 @attr.s(auto_attribs=True)
@@ -118,9 +121,12 @@ class TemplateTest(absltest.TestCase):
     with self.subTest(name='h3'):
       header3s = self.find_all(page, '<h3>', '</h3>')
       expected_header3s = []
-      for model_detail in _MODEL_DETAILS_PROPERTIES:
-        if mc.model_details.get(model_detail):
-          expected_header3s += [model_detail.capitalize()]
+      for detail in _MODEL_DETAILS_PROPERTIES:
+        if mc.model_details.get(detail):
+          expected_header3s.append(detail.title())
+      for param in _MODEL_PARAMETERS_PROPERTIES:
+        if getattr(mc.model_parameters, param):
+          expected_header3s.append(param.replace('_', ' ').title())
       self.assertListEqual(header3s, expected_header3s)
 
     with self.subTest(name='owners'):
@@ -157,6 +163,24 @@ class TemplateTest(absltest.TestCase):
     with self.subTest(name='citation'):
       citation = page.split('<h3>Citation</h3>')[1].strip().split()[0]
       self.assertEqual(citation, mc.model_details['citation'])
+
+    with self.subTest(name='model architecture'):
+      if mc.model_parameters.model_architecture:
+        model_architecture = page.split(
+            '<h3>Model Architecture</h3>')[1].strip().split()[0]
+        self.assertEqual(model_architecture,
+                         mc.model_parameters.model_architecture)
+
+    with self.subTest(name='input format'):
+      if mc.model_parameters.input_format:
+        input_format = page.split('<h3>Input Format</h3>')[1].strip().split()[0]
+        self.assertEqual(input_format, mc.model_parameters.input_format)
+
+    with self.subTest(name='output format'):
+      if mc.model_parameters.output_format:
+        output_format = page.split(
+            '<h3>Output Format</h3>')[1].strip().split()[0]
+        self.assertEqual(output_format, mc.model_parameters.output_format)
 
     with self.subTest(name='graphics'):
       train_set = self.find(page, '<h2>Train Set</h2>',

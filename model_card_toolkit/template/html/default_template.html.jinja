@@ -59,6 +59,7 @@
       <div class="col card">
         <h2>Model Details</h2>
           {% set model_details = model_card.model_details %}
+          {% set model_parameters = model_card.model_parameters %}
           {% if model_details.overview %}
             <h3>Overview</h3>
               {{  model_details.overview }}
@@ -88,6 +89,18 @@
           {% if model_details.citation %}
             <h3>Citation</h3>
               {{ model_details.citation }}
+          {% endif %}
+          {% if model_parameters.model_architecture %}
+            <h3>Model Architecture</h3>
+              {{ model_parameters.model_architecture }}
+          {% endif %}
+          {% if model_parameters.input_format %}
+            <h3>Input Format</h3>
+              {{ model_parameters.input_format }}
+          {% endif %}
+          {% if model_parameters.output_format %}
+            <h3>Output Format</h3>
+              {{ model_parameters.output_format }}
           {% endif %}
       </div>
       <div class="col card">

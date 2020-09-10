@@ -78,6 +78,14 @@
             "train": { "$ref": "#/definitions/dataset" },
             "eval": { "$ref": "#/definitions/dataset" }
           }
+        },
+        "input_format": {
+          "description": "The data format for inputs to the model.",
+          "type": "string"
+        },
+        "output_format": {
+          "description": "The data format for outputs from the model.",
+          "type": "string"
         }
       }
     },
