@@ -36,17 +36,20 @@ import semantic_version
 
 from ml_metadata.metadata_store import metadata_store
 
-# Constants about versioned JSON schema files for Model Card.
+# Location of Model Card JSON schema files.
 _SCHEMA_DIR = os.path.join(os.path.dirname(__file__), 'schema')
 _SCHEMA_FILE_NAME = 'model_card.schema.json'
-# Constants about provided UI templates.
+
+# Location of UI templates.
 _UI_TEMPLATE_DIR = os.path.join(os.path.dirname(__file__), 'template')
 _DEFAULT_UI_TEMPLATE_FILE = 'html/default_template.html.jinja'
-# Constants about Model Cards Toolkit Assets (MCTA).
+
+# Location of Model Cards Toolkit Assets (MCTA).
 _MCTA_JSON_FILE = 'data/model_card.json'
 _MCTA_TEMPLATE_DIR = 'template'
 _MCTA_RESOURCE_DIR = 'resources/plots'
-# Constants about the final generated model cards.
+
+# Location of generated model cards.
 _DEFAULT_MODEL_CARD_FILE_NAME = 'model_card.html'
 _MODEL_CARDS_DIR = 'model_cards/'
 
