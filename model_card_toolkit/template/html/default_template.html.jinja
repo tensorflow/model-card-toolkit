@@ -48,64 +48,48 @@
   }
 </style>
 <title>
-  Model Card for {{ model_card.model_details.name }}
+  Model Card for {{ model_details.name }}
 </title>
 </head>
 <body>
   <h1>
-    Model Card for {{ model_card.model_details.name }}
+    Model Card for {{ model_details.name }}
   </h1>
     <div class="row">
       <div class="col card">
         <h2>Model Details</h2>
-          {% set model_details = model_card.model_details %}
-          {% set model_parameters = model_card.model_parameters %}
-          {% if model_details.overview %}
-            <h3>Overview</h3>
-              {{  model_details.overview }}
-          {% endif %}
-          {% if model_details.version %}
-            <h3>Version</h3>
+          {% if model_details.overview %}<h3>Overview</h3>
+              {{  model_details.overview }}{% endif %}
+          {% if model_details.version %}<h3>Version</h3>
               {{ render_if_exist('name', model_details.version.name) }}
               {{ render_if_exist('date', model_details.version.date) }}
               {{ render_if_exist('diff', model_details.version.diff) }}
           {% endif %}
-          {% if model_details.owners %}
-            <h3>Owners</h3>
-              <ul>
-              {% for owner in model_details.owners %}
+          {% if model_details.owners %}<h3>Owners</h3>
+              <ul>{% for owner in model_details.owners %}
                 <li>{{ owner.name }}, {{ owner.contact }}</li>
-              {% endfor %}
-              </ul>
-          {% endif %}
+              {% endfor %}</ul>{% endif %}
           {% if model_details.license %}
             <h3>License</h3>
-              {{  model_details.license }}
-          {% endif %}
+              {{  model_details.license }}{% endif %}
           {% if model_details.references %}
             <h3>References</h3>
-              {{ render_list(model_details.references) }}
-          {% endif %}
+              {{ render_list(model_details.references) }}{% endif %}
           {% if model_details.citation %}
             <h3>Citation</h3>
-              {{ model_details.citation }}
-          {% endif %}
+              {{ model_details.citation }}{% endif %}
           {% if model_parameters.model_architecture %}
             <h3>Model Architecture</h3>
-              {{ model_parameters.model_architecture }}
-          {% endif %}
+              {{ model_parameters.model_architecture }}{% endif %}
           {% if model_parameters.input_format %}
             <h3>Input Format</h3>
-              {{ model_parameters.input_format }}
-          {% endif %}
+              {{ model_parameters.input_format }}{% endif %}
           {% if model_parameters.output_format %}
             <h3>Output Format</h3>
-              {{ model_parameters.output_format }}
-          {% endif %}
+              {{ model_parameters.output_format }}{% endif %}
       </div>
       <div class="col card">
         <h2>Considerations</h2>
-          {% set considerations = model_card.considerations %}
           {% if considerations.users %}
             <h3>Intended Users</h3>
               {{ render_list(considerations.users) }}
@@ -124,41 +108,37 @@
           {% endif %}
           {% if considerations.ethical_considerations %}
             <h3>Ethical Considerations</h3>
-              <ul>
-              {% for risk in considerations.ethical_considerations %}
+              <ul>{% for risk in considerations.ethical_considerations %}
                 <li>
                   <div>Risk: {{ risk.name }}</div>
                   <div>Mitigation Strategy: {{ risk.mitigation_strategy }}</div>
-                </li>
-              {% endfor %}
-              </ul>
-          {% endif %}
+                </li>{% endfor %} </ul>{% endif %}
       </div>
     </div>
-    {% if model_card.model_parameters.data.train.graphics.collection %}
+    {% if model_parameters.data.train and model_parameters.data.train.graphics.collection %}
       <div class="row">
         <div class="col card">
           <h2>Train Set</h2>
-            {{ model_card.model_parameters.data.train.graphics.description }}
-            {{ render_graphics(model_card.model_parameters.data.train.graphics.collection) }}
+            {{ model_parameters.data.train.graphics.description }}
+            {{ render_graphics(model_parameters.data.train.graphics.collection) }}
         </div>
       </div>
     {% endif %}
-    {% if model_card.model_parameters.data.eval.graphics.collection %}
+    {% if model_parameters.data.eval and model_parameters.data.eval.graphics.collection %}
       <div class="row">
         <div class="col card">
           <h2>Eval Set</h2>
-            {{ model_card.model_parameters.data.eval.graphics.description }}
-            {{ render_graphics(model_card.model_parameters.data.eval.graphics.collection) }}
+            {{ model_parameters.data.eval.graphics.description }}
+            {{ render_graphics(model_parameters.data.eval.graphics.collection) }}
         </div>
       </div>
     {% endif %}
-    {% if model_card.quantitative_analysis.graphics.collection %}
+    {% if quantitative_analysis.graphics.collection %}
       <div class="row">
         <div class="col card">
           <h2>Quantitative Analysis</h2>
-            {{ model_card.quantitative_analysis.graphics.description }}
-            {{ render_graphics(model_card.quantitative_analysis.graphics.collection) }}
+            {{ quantitative_analysis.graphics.description }}
+            {{ render_graphics(quantitative_analysis.graphics.collection) }}
         </div>
       </div>
     {% endif %}
