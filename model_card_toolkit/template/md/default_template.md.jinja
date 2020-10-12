@@ -1,0 +1,116 @@
+{% macro render_if_exist(name, value) %}
+  {% if value %} {{name}}: {{value}}  {%- endif %}
+{% endmacro %}
+{% macro render_list(list) %}
+  {% if list %}
+    {% for item in list %}
+* {{ item }}
+{% endfor %}{%- endif %}{% endmacro %}
+{% macro render_graphics(graphics) %}
+  {% for graph in graphics %}
+    ![{{ graph.name }}](data:image/jpeg;base64,{{ graph.image }})
+  {% endfor %}
+{% endmacro %}
+# Model Card for {{ model_details.name }}
+
+## Model Details
+{% if model_details.overview %} ### Overview
+{{ model_details.overview }} {% endif %}
+
+{% if model_details.version %}
+### Version
+{{ render_if_exist('name', model_details.version.name) }}
+{{ render_if_exist('date', model_details.version.date) }}
+{{ render_if_exist('diff', model_details.version.diff) }}
+{% endif %}
+
+{% if model_details.owners %}
+### Owners
+{% for owner in model_details.owners %}
+* {{ owner.name }}, {{ owner.contact }}
+{% endfor %}
+{% endif %}
+
+{% if model_details.license %}
+### License
+{{ model_details.license }}
+{% endif %}
+
+{% if model_details.references %}
+### References
+{{ render_list(model_details.references) }}{% endif %}
+
+{% if model_details.citation %}
+### Citation
+{{ model_details.citation }}
+{% endif %}
+
+
+{% if model_parameters.model_architecture or model_parameters.input_format or model_parameters.output_format %}
+## Model Parameters
+
+{% if model_parameters.model_architecture %}
+### Model Architecture
+{{ model_parameters.model_architecture }}
+{% endif %}
+
+{% if model_parameters.input_format %}
+### Input Format
+{{ model_parameters.input_format }}
+{% endif %}
+
+{% if model_parameters.output_format %}
+### Output Format
+{{ model_parameters.output_format }}
+{% endif %}
+{% endif %}
+
+
+## Considerations
+
+{% if considerations.users %}
+### Users
+{{ render_list(considerations.users) }}{% endif %}
+
+{% if considerations.use_cases %}
+### Use Cases
+{{ render_list(considerations.use_cases) }}{% endif %}
+
+{% if considerations.limitations %}
+### Limitations
+{{ render_list(considerations.limitations) }}{% endif %}
+
+{% if considerations.tradeoffs %}
+### Tradeoffs
+{{ render_list(considerations.tradeoffs) }}{% endif %}
+
+{% if considerations.ethical_considerations %}
+### Ethical Considerations
+{% for risk in considerations.ethical_considerations %}
+* Risk: {{ risk.name }}
+  * Mitigation Strategy: {{ risk.mitigation_strategy }}
+{% endfor %}
+{% endif %}
+
+
+{% if model_parameters.data.train.graphics.collection or model_parameters.data.eval.graphics.collection or quantitative_analysis.graphics.collection %}
+## Graphics
+
+{% if model_parameters.data.train and model_parameters.data.train.graphics.collection %}
+### Train Set
+{{ model_parameters.data.train.graphics.description }}
+{{ render_graphics(model_parameters.data.train.graphics.collection) }}
+{% endif %}
+
+{% if model_parameters.data.eval and model_parameters.data.eval.graphics.collection %}
+### Eval Set
+{{ model_parameters.data.eval.graphics.description }}
+{{ render_graphics(model_parameters.data.eval.graphics.collection) }}
+{% endif %}
+
+{% if quantitative_analysis.graphics.collection %}
+### Quantitative Analysis
+{{ quantitative_analysis.graphics.description }}
+{{ render_graphics(quantitative_analysis.graphics.collection) }}
+{% endif %}
+{% endif %}

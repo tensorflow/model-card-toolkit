@@ -41,7 +41,7 @@ _SCHEMA_DIR = os.path.join(os.path.dirname(__file__), 'schema')
 _SCHEMA_FILE_NAME = 'model_card.schema.json'
 # Constants about provided UI templates.
 _UI_TEMPLATE_DIR = os.path.join(os.path.dirname(__file__), 'template')
-_DEFAULT_UI_TEMPLATE_FILE = 'html/default_template.html.jinja'
+_DEFAULT_UI_TEMPLATE_FILE = os.path.join('html', 'default_template.html.jinja')
 # Constants about Model Cards Toolkit Assets (MCTA).
 _MCTA_JSON_FILE = 'data/model_card.json'
 _MCTA_TEMPLATE_DIR = 'template'
