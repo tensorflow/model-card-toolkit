@@ -285,12 +285,12 @@ def _draw_histogram(graph: _Graph):
       ax.text(value, index, show_value, va='center')
 
   graph.figure = figure
-  graph.base64str = _figure_to_base64str(figure)
+  graph.base64str = figure_to_base64str(figure)
   # closes the figure (to limit memory consumption)
   plt.close()
 
 
-def _figure_to_base64str(fig: matplotlib.figure.Figure) -> str:
+def figure_to_base64str(fig: matplotlib.figure.Figure) -> str:
   """Converts a Matplotlib figure to a base64 string."""
   buf = io.BytesIO()
   fig.savefig(buf, bbox_inches='tight', format='png')

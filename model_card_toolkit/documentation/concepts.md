@@ -28,7 +28,7 @@ The Model Card Toolkit includes a Model Card API consisting of a [Python class](
 
 #### Graphics
 
-The `model_card_toolkit.utils.graphics._figure_to_base64str()` function can be used to convert Matplotlib figures to base64 strings.
+The `model_card_toolkit.utils.graphics.figure_to_base64str()` function can be used to convert Matplotlib figures to base64 strings.
 
 ### Model Card Documents
 
