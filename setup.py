@@ -50,8 +50,7 @@ setup(
     packages=find_packages(),
     package_data={
         'model_card_toolkit': [
-            'schema/**/*.json', 'template/**/*.jinja',
-            'template/**/*.jinja.test'
+            'schema/**/*.json', 'template/**/*.jinja'
         ]
     },
     python_requires='>=3.5,<4',

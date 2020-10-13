@@ -57,6 +57,8 @@ class ModelCardToolkitTest(absltest.TestCase):
     mc = mct.scaffold_assets()  # pylint: disable=unused-variable
     self.assertIn('default_template.html.jinja',
                   os.listdir(os.path.join(output_dir, 'template/html')))
+    self.assertIn('default_template.md.jinja',
+                  os.listdir(os.path.join(output_dir, 'template/md')))
 
   def test_scaffold_assets_with_store(self):
     output_dir = self.tmpdir
@@ -77,6 +79,8 @@ class ModelCardToolkitTest(absltest.TestCase):
     })
     self.assertIn('default_template.html.jinja',
                   os.listdir(os.path.join(output_dir, 'template/html')))
+    self.assertIn('default_template.md.jinja',
+                  os.listdir(os.path.join(output_dir, 'template/md')))
 
   def test_update_model_card_with_valid_json(self):
     mct = model_card_toolkit.ModelCardToolkit(output_dir=self.tmpdir)
