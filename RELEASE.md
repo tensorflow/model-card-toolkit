@@ -2,6 +2,14 @@
 
 # Current Version(Still in Development)
 
+## Major Features and Improvements
+
+## Bug fixes and other changes
+
+## Breaking changes
+
+## Deprecations
+
 # Release 0.1.1
 
 ## Major Features and Improvements
