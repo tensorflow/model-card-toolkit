@@ -2,6 +2,8 @@
 
 # Current Version(Still in Development)
 
+# Release 0.1.1
+
 ## Major Features and Improvements
 
 * add Markdown template
