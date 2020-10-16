@@ -201,8 +201,6 @@ class ModelCardToolkit():
     # Generate Model Card.
     jinja_env = jinja2.Environment(
         loader=jinja2.FileSystemLoader(template_dir),
-        trim_blocks=True,
-        lstrip_blocks=True,
         autoescape=True,
         auto_reload=True,
         cache_size=0)

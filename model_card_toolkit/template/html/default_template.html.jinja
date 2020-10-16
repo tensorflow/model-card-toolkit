@@ -115,7 +115,7 @@
                 </li>{% endfor %} </ul>{% endif %}
       </div>
     </div>
-    {% if model_parameters.data.train and model_parameters.data.train.graphics.collection %}
+    {% if model_parameters.data.train and model_parameters.data.train.graphics %}
       <div class="row">
         <div class="col card">
           <h2>Train Set</h2>
@@ -124,7 +124,7 @@
         </div>
       </div>
     {% endif %}
-    {% if model_parameters.data.eval and model_parameters.data.eval.graphics.collection %}
+    {% if model_parameters.data.eval and model_parameters.data.eval.graphics %}
       <div class="row">
         <div class="col card">
           <h2>Eval Set</h2>
@@ -133,7 +133,7 @@
         </div>
       </div>
     {% endif %}
-    {% if quantitative_analysis.graphics.collection %}
+    {% if quantitative_analysis and quantitative_analysis.graphics %}
       <div class="row">
         <div class="col card">
           <h2>Quantitative Analysis</h2>
