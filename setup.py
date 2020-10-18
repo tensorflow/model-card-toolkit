@@ -23,10 +23,10 @@ REQUIRED_PACKAGES = [
     'jinja2>=2.10,<3',
     'matplotlib>=3.2.0,<4',
     'jsonschema>=3.2.0,<4',
-    'tensorflow-data-validation>=0.21.0,<0.23',
-    'tensorflow-model-analysis>=0.21.0,<0.23',
-    'tensorflow-metadata>=0.21.0,<0.23',
-    'ml-metadata>=0.21.0,<0.23',
+    'tensorflow-data-validation==0.24.2',
+    'tensorflow-model-analysis==0.24.3',
+    'tensorflow-metadata==0.24.0',
+    'ml-metadata==0.24.0',
 ]
 
 # Get version from version module.
