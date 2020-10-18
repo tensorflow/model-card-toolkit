@@ -27,6 +27,7 @@ REQUIRED_PACKAGES = [
     'tensorflow-model-analysis==0.24.3',
     'tensorflow-metadata==0.24.0',
     'ml-metadata==0.24.0',
+    'semantic-version==2.8.5',
 ]
 
 # Get version from version module.
