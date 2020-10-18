@@ -19,7 +19,6 @@ from setuptools import setup
 
 REQUIRED_PACKAGES = [
     'absl-py>=0.7,<0.9',
-    'semantic-version>=2.8.0,<3',
     'jinja2>=2.10,<3',
     'matplotlib>=3.2.0,<4',
     'jsonschema>=3.2.0,<4',
@@ -28,6 +27,7 @@ REQUIRED_PACKAGES = [
     'tensorflow-metadata==0.24.0',
     'ml-metadata==0.24.0',
     'semantic-version==2.8.5',
+    'Pygments==2.6.1',
 ]
 
 # Get version from version module.
