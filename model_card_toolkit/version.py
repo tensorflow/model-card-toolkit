@@ -14,4 +14,4 @@
 """Contains the version string of the Model Card Toolkit."""
 
 # Note that setup.py uses this version.
-__version__ = '0.1.1'
+__version__ = '0.1.1.dev'
