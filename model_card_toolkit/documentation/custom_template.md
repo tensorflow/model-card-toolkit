@@ -10,7 +10,7 @@ The following is the standard way you may initialize the Model Card Toolkit.
     ... # set the model_card's fields here
     mct.update_model_card_json(model_card)
 
-When you run `mct.scaffold_assets()`, the contents of [model_card_toolkit/template](https://github.com/tensorflow/model-card-toolkit/tree/master/model_card_toolkit/template) are copied into `my_directory/template`. This includes premade templates such as [default_template.html.jinja](https://github.com/tensorflow/model-card-toolkit/blob/master/model_card_toolkit/template/html/default_template.html.jinja) and [default_template.md.jinja](https://github.com/tensorflow/model-card-toolkit/blob/master/model_card_toolkit/template/md/default_template.html.jinja).
+When you run `mct.scaffold_assets()`, the contents of [model_card_toolkit/template](https://github.com/tensorflow/model-card-toolkit/tree/master/model_card_toolkit/template) are copied into `mct_directory/template`. This includes premade templates such as [default_template.html.jinja](https://github.com/tensorflow/model-card-toolkit/blob/master/model_card_toolkit/template/html/default_template.html.jinja) and [default_template.md.jinja](https://github.com/tensorflow/model-card-toolkit/blob/master/model_card_toolkit/template/md/default_template.md.jinja).
 
 The `model_card` object generated above can be enriched with fields from [`model_card.py`](https://github.com/tensorflow/model-card-toolkit/blob/master/model_card_toolkit/model_card.py). Once you are ready to generate a Model Card document, you can pass the `model_card` back into MCT with `mct.update_model_card_json(model_card)`.
 
@@ -18,7 +18,7 @@ The `model_card` object generated above can be enriched with fields from [`model
 
 We can then generate a Model Card document using one of the default templates, via the code below.
 
-    template_path = os.path.join(my_directory, 'template/html/default_template.html.jinja')
+    template_path = os.path.join(mct_directory, 'template/html/default_template.html.jinja')
     mct.export_format(template_pah, 'model_card.html')
 
 ### Modify the Model Card Template
