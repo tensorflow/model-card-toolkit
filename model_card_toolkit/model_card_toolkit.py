@@ -34,7 +34,7 @@ from model_card_toolkit.utils import tfx_util
 
 import semantic_version
 
-from ml_metadata.metadata_store import metadata_store
+import ml_metadata as mlmd
 
 # Constants about versioned JSON schema files for Model Card.
 _SCHEMA_DIR = os.path.join(os.path.dirname(__file__), 'schema')
@@ -64,7 +64,7 @@ class ModelCardToolkit():
 
   def __init__(self,
                output_dir: Optional[Text] = None,
-               mlmd_store: Optional[metadata_store.MetadataStore] = None,
+               mlmd_store: Optional[mlmd.MetadataStore] = None,
                model_uri: Optional[Text] = None):
     """Initializes the ModelCardToolkit.
 
