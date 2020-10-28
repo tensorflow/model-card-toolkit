@@ -23,7 +23,7 @@ from model_card_toolkit.model_card import ModelCard
 import tensorflow as tf
 import tensorflow_model_analysis as tfma
 
-from ml_metadata.metadata_store import metadata_store
+import ml_metadata as mlmd
 from ml_metadata.proto import metadata_store_pb2
 from tensorflow_metadata.proto.v0 import statistics_pb2
 
@@ -48,7 +48,7 @@ class _PipelineTypes(object):
 
 
 def _get_tfx_pipeline_types(
-    store: metadata_store.MetadataStore) -> _PipelineTypes:
+    store: mlmd.MetadataStore) -> _PipelineTypes:
   """Retrieves the registered types in the given `store`.
 
   Args:
@@ -84,7 +84,7 @@ def _get_tfx_pipeline_types(
       trainer_type=execution_types[_TFX_TRAINER_TYPE])
 
 
-def _validate_model_id(store: metadata_store.MetadataStore,
+def _validate_model_id(store: mlmd.MetadataStore,
                        model_type: metadata_store_pb2.ArtifactType,
                        model_id: int) -> None:
   """Validates the given `model_id` against the `store`.
@@ -115,7 +115,7 @@ class _Direction(enum.Enum):
 
 
 def _get_one_hop_artifacts(
-    store: metadata_store.MetadataStore,
+    store: mlmd.MetadataStore,
     artifact_ids: Iterable[int],
     direction: _Direction,
     filter_type: Optional[metadata_store_pb2.ArtifactType] = None
@@ -154,7 +154,7 @@ def _get_one_hop_artifacts(
 
 
 def _get_one_hop_executions(
-    store: metadata_store.MetadataStore,
+    store: mlmd.MetadataStore,
     artifact_ids: Iterable[int],
     direction: _Direction,
     filter_type: Optional[metadata_store_pb2.ExecutionType] = None
@@ -186,7 +186,7 @@ def _get_one_hop_executions(
 
 
 def get_metrics_artifacts_for_model(
-    store: metadata_store.MetadataStore,
+    store: mlmd.MetadataStore,
     model_id: int) -> List[metadata_store_pb2.Artifact]:
   """Gets a list of evaluation artifacts from a model artifact.
 
@@ -212,7 +212,7 @@ def get_metrics_artifacts_for_model(
 
 
 def get_stats_artifacts_for_model(
-    store: metadata_store.MetadataStore,
+    store: mlmd.MetadataStore,
     model_id: int) -> List[metadata_store_pb2.Artifact]:
   """Gets a list of statistics artifacts from a model artifact.
 
@@ -279,7 +279,7 @@ def _property_value(
   return properties[name].string_value
 
 
-def generate_model_card_for_model(store: metadata_store.MetadataStore,
+def generate_model_card_for_model(store: mlmd.MetadataStore,
                                   model_id: int) -> ModelCard:
   """Populates model card properties for a model artifact.
 

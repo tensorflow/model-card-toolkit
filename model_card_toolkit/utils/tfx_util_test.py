@@ -20,7 +20,7 @@ from absl.testing import absltest
 
 from model_card_toolkit.utils import tfx_util
 from model_card_toolkit.utils.testdata import testdata_utils
-from ml_metadata.metadata_store import metadata_store
+import ml_metadata as mlmd
 from ml_metadata.proto import metadata_store_pb2
 
 
@@ -35,7 +35,7 @@ class TfxUtilsTest(absltest.TestCase):
     """Returns an empty in memory mlmd store."""
     empty_db_config = metadata_store_pb2.ConnectionConfig()
     empty_db_config.fake_database.SetInParent()
-    return metadata_store.MetadataStore(empty_db_config)
+    return mlmd.MetadataStore(empty_db_config)
 
   def test_get_metrics_artifacts_for_model(self):
     store = testdata_utils.get_tfx_pipeline_metadata_store(self.tmp_db_path)
