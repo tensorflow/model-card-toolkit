@@ -60,28 +60,6 @@ class ModelCardToolkitTest(absltest.TestCase):
     self.assertIn('default_template.md.jinja',
                   os.listdir(os.path.join(output_dir, 'template/md')))
 
-  def test_scaffold_assets_with_store(self):
-    output_dir = self.tmpdir
-    store = testdata_utils.get_tfx_pipeline_metadata_store(self.tmp_db_path)
-    mct = model_card_toolkit.ModelCardToolkit(
-        output_dir=output_dir,
-        mlmd_store=store,
-        model_uri=testdata_utils.TFX_0_21_MODEL_URI)
-    mc = mct.scaffold_assets()
-    self.assertIsNotNone(mc.model_details.name)
-    self.assertIsNotNone(mc.model_details.version.name)
-    self.assertNotEmpty(mc.quantitative_analysis.graphics.collection)
-    self.assertIn('average_loss', {
-        graphic.name for graphic in mc.quantitative_analysis.graphics.collection
-    })
-    self.assertIn('post_export_metrics/example_count', {
-        graphic.name for graphic in mc.quantitative_analysis.graphics.collection
-    })
-    self.assertIn('default_template.html.jinja',
-                  os.listdir(os.path.join(output_dir, 'template/html')))
-    self.assertIn('default_template.md.jinja',
-                  os.listdir(os.path.join(output_dir, 'template/md')))
-
   def test_update_model_card_with_valid_json(self):
     mct = model_card_toolkit.ModelCardToolkit(output_dir=self.tmpdir)
     valid_model_card = mct.scaffold_assets()
@@ -114,16 +92,31 @@ class ModelCardToolkitTest(absltest.TestCase):
     with self.assertRaisesRegex(ValueError, 'Cannot find schema version'):
       mct.update_model_card_json(model_card_invalid_version)
 
-  def test_export_format(self):
+  def test_export_format_with_with_store(self):
+    output_dir = self.tmpdir
     store = testdata_utils.get_tfx_pipeline_metadata_store(self.tmp_db_path)
     mct = model_card_toolkit.ModelCardToolkit(
-        output_dir=self.tmpdir,
+        output_dir=output_dir,
         mlmd_store=store,
         model_uri=testdata_utils.TFX_0_21_MODEL_URI)
-    model_card = mct.scaffold_assets()
-    model_card.schema_version = '0.0.1'
-    model_card.model_details.name = 'My Model'
-    mct.update_model_card_json(model_card)
+    mc = mct.scaffold_assets()
+    self.assertIsNotNone(mc.model_details.name)
+    self.assertIsNotNone(mc.model_details.version.name)
+    self.assertNotEmpty(mc.quantitative_analysis.graphics.collection)
+    self.assertIn('average_loss', {
+        graphic.name for graphic in mc.quantitative_analysis.graphics.collection
+    })
+    self.assertIn('post_export_metrics/example_count', {
+        graphic.name for graphic in mc.quantitative_analysis.graphics.collection
+    })
+    self.assertIn('default_template.html.jinja',
+                  os.listdir(os.path.join(output_dir, 'template/html')))
+    self.assertIn('default_template.md.jinja',
+                  os.listdir(os.path.join(output_dir, 'template/md')))
+
+    mc.schema_version = '0.0.1'
+    mc.model_details.name = 'My Model'
+    mct.update_model_card_json(mc)
     result = mct.export_format()
 
     model_card_path = os.path.join(self.tmpdir, 'model_cards/model_card.html')
