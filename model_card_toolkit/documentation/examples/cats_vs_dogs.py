@@ -24,6 +24,7 @@ import tensorflow_datasets as tfds
 IMAGE_SIZE = 150
 BATCH_SIZE = 32
 NUM_BATCHES = 10
+DEFAULT_TRAINING_EPOCHS = 4
 
 
 def get_data() -> Dict[Text, Any]:
@@ -72,3 +73,73 @@ def get_data() -> Dict[Text, Any]:
         validation_data['dog']['labels'].append(label)
 
   return validation_data
+
+
+def create_model(
+    training_epochs: int = DEFAULT_TRAINING_EPOCHS) -> tf.keras.Model:
+  """Create and train model used in Standalone Model Card Toolkit notebook.
+
+  This is a MobileNetV2-architecture model, using pretrained weights based on
+  ImageNet. In this function, the model weights are further trained on the
+  Cats vs Dogs dataset.
+
+  This model is based on the model from
+  https://www.tensorflow.org/guide/keras/transfer_learning.
+
+  This model is used in
+  https://github.com/tensorflow/model-card-toolkit/blob/master/model_card_toolkit/documentation/examples/Standalone_Model_Card_Toolkit_Demo.ipynb.
+
+  Args:
+    training_epochs: The number of epochs to train the model over. 4 by default.
+
+  Returns:
+    Model used in Standalone Model Card Toolkit notebook.
+  """
+  resize = lambda x, y: (tf.image.resize(x, (IMAGE_SIZE, IMAGE_SIZE)), y)
+
+  train_ds, validation_ds = tfds.load(
+      'cats_vs_dogs',
+      split=['train[:20%]', 'train[20%:25%]'],
+      as_supervised=True,  # Include labels
+  )
+  train_ds = train_ds.map(resize).cache().batch(BATCH_SIZE).prefetch(
+      buffer_size=10)
+  validation_ds = validation_ds.map(resize).cache().batch(BATCH_SIZE).prefetch(
+      buffer_size=10)
+
+  base_model = tf.keras.applications.MobileNetV2(
+      weights='imagenet',  # Load weights pre-trained on ImageNet.
+      input_shape=(IMAGE_SIZE, IMAGE_SIZE, 3),
+      include_top=False,
+  )  # Do not include the ImageNet classifier at the top.
+
+  # Freeze the convolutional base of the MobileNetV2 model
+  base_model.trainable = False
+
+  # Create new model on top
+  inputs = tf.keras.Input(shape=(IMAGE_SIZE, IMAGE_SIZE, 3))
+  data_augmentation = tf.keras.Sequential([
+      tf.keras.layers.experimental.preprocessing.RandomFlip('horizontal'),
+      tf.keras.layers.experimental.preprocessing.RandomRotation(0.1),
+  ])
+  x = data_augmentation(inputs)  # Apply random data augmentation
+  x = tf.keras.applications.mobilenet_v2.preprocess_input(x)
+
+  x = base_model(x, training=False)
+  x = tf.keras.layers.GlobalAveragePooling2D()(x)
+  x = tf.keras.layers.Dropout(0.2)(x)  # Regularize with dropout
+  outputs = tf.keras.layers.Dense(1)(x)
+  model = tf.keras.Model(inputs, outputs)
+
+  model.compile(
+      optimizer=tf.keras.optimizers.Adam(),
+      loss=tf.keras.losses.BinaryCrossentropy(from_logits=True),
+      metrics=[tf.keras.metrics.BinaryAccuracy()])
+
+  model.fit(
+      train_ds,
+      epochs=training_epochs,
+      validation_data=validation_ds,
+  )
+
+  return model
