@@ -13,6 +13,15 @@
   </ul>
   {%- endif %}
 {% endmacro %}
+{% macro render_uri_list(list) %}
+  {% if list %}
+  <ul>
+  {% for item in list %}
+    <li><a href="{{ item }}">{{ item }}</a></li>
+  {% endfor %}
+  </ul>
+  {%- endif %}
+{% endmacro %}
 {% macro render_graphics(graphics) %}
   <div class="img-container">
   {% for graph in graphics %}
@@ -74,7 +83,7 @@
               {{  model_details.license }}{% endif %}
           {% if model_details.references %}
             <h3>References</h3>
-              {{ render_list(model_details.references) }}{% endif %}
+              {{ render_uri_list(model_details.references) }}{% endif %}
           {% if model_details.citation %}
             <h3>Citation</h3>
               {{ model_details.citation }}{% endif %}

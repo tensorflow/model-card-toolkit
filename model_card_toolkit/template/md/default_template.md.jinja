@@ -1,11 +1,11 @@
 {% macro render_if_exist(name, value) %}{% if value %}
 
-{{name}}: {{value}}  {% endif %}{% endmacro %}
-{% macro render_list(list) %}{% if list %}{% for item in list %}
+{{name}}: {{value}}  {% endif %}{% endmacro %}{% macro render_list(list) %}{% if list %}{% for item in list %}
 * {{ item }}
 {% endfor %}{% endif %}
-{% endmacro %}
-{% macro render_graphics(graphics) %}{% if graphics %}  {% for graph in graphics.collection %}
+{% endmacro %}{% macro render_uri_list(list) %}{% if list %}{% for item in list %}
+* [{{ item }}]({{ item }})
+{% endfor %}{% endif %}{% endmacro %}{% macro render_graphics(graphics) %}{% if graphics %}  {% for graph in graphics.collection %}
 
 {{ graph.name }}
 
@@ -32,7 +32,7 @@
 {{ model_details.license }}
 {% endif %}{% if model_details.references %}
 ### References
-{{ render_list(model_details.references) }}{% endif %}
+{{ render_uri_list(model_details.references) }}{% endif %}
 {% if model_details.citation %}### Citation
 
 {{ model_details.citation }}{% endif %}{% if model_parameters.model_architecture or model_parameters.input_format or model_parameters.output_format %}

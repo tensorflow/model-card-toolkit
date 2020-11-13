@@ -6,6 +6,8 @@
 
 ## Bug fixes and other changes
 
+* Reference URLs in default HTML and Markdown template are now hyperlinks
+
 ## Breaking changes
 
 ## Deprecations

@@ -1,6 +1,4 @@
 
-
-
 # Model Card for Fine-tuned MobileNetV2 Model for Cat vs. Dogs
 
 ## Model Details
@@ -23,10 +21,9 @@ Apache-2.0
 
 ### References
 
-* https://www.kaggle.com/c/dogs-vs-cats
+* [https://www.kaggle.com/c/dogs-vs-cats](https://www.kaggle.com/c/dogs-vs-cats)
 
-* https://arxiv.org/abs/1801.04381
-
+* [https://arxiv.org/abs/1801.04381](https://arxiv.org/abs/1801.04381)
 
 ### Citation
 

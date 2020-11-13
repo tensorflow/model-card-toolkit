@@ -1,6 +1,4 @@
 
-
-
 # Model Card for train-only model
 
 ## Model Details
@@ -24,10 +22,9 @@ Apache 2.0
 
 ### References
 
-* https://my_model.xyz.com
+* [https://my_model.xyz.com](https://my_model.xyz.com)
 
-* https://example.com
-
+* [https://example.com](https://example.com)
 
 ### Citation
 
