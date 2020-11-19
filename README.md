@@ -12,7 +12,7 @@ Some use cases of model cards include:
 
 ## Installation
 
-The Model Card Toolkit is hosted on [PyPI](https://pypi.org/project/model-card-toolkit/), and can be installed with `pip install model-card-toolkit`.
+The Model Card Toolkit is hosted on [PyPI](https://pypi.org/project/model-card-toolkit/), and can be installed with `pip install model-card-toolkit`. See [the installation guide](model_card_toolkit/documentation/install.md) for more details.
 
 ## Getting Started
 
