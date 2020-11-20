@@ -1,4 +1,4 @@
-# How to make a custom Model Card template
+# Model Card templates
 
 [Jinja templates](https://jinja.palletsprojects.com/) are the backend structure of a Model Card document. The Model Card Toolkit comes with a few pre-made templates, but you can freely modify these templates or even build your own. In this document, we will discuss how to do this.
 
@@ -14,7 +14,7 @@ When you run `mct.scaffold_assets()`, the contents of [model_card_toolkit/templa
 
 The `model_card` object generated above can be enriched with fields from [`model_card.py`](https://github.com/tensorflow/model-card-toolkit/blob/master/model_card_toolkit/model_card.py). Once you are ready to generate a Model Card document, you can pass the `model_card` back into MCT with `mct.update_model_card_json(model_card)`.
 
-## Use a Premade Model Card Template
+### Use a Premade Model Card Template
 
 We can then generate a Model Card document using one of the default templates, via the code below.
 
@@ -25,7 +25,7 @@ We can then generate a Model Card document using one of the default templates, v
 
 You can freely modify a premade template to change styling, reorganize information, etc. You should be familiar with the [Jinja API](https://jinja.palletsprojects.com/en/2.11.x/api/) and [control structures](https://jinja.palletsprojects.com/en/2.11.x/templates/#list-of-control-structures). Model Card field names are taken from [model_card.py](https://github.com/tensorflow/model-card-toolkit/blob/master/model_card_toolkit/model_card.py).
 
-## Creating a new Model Card Template
+### Creating a new Model Card Template
 
 Creating a new Model Card template works the same as modifying an existing one.
 
