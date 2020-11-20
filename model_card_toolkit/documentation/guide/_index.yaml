@@ -1,0 +1,78 @@
+book_path: /responsible_ai/_book.yaml
+project_path: /responsible_ai/_project.yaml
+title: Model Card Toolkit
+landing_page:
+  custom_css_path: /site-assets/css/style.css
+  nav: left
+  meta_tags:
+  - name: description
+    content: >
+      Create Model Cards with Model Card Toolkit.
+  rows:
+  - classname: devsite-landing-row-100
+  - heading: Model Card Toolkit
+    options:
+    - description-50
+    items:
+      description: >
+        <p>
+        Model Card Toolkit (MCT) is a collection of tools and resources that support developers in
+        compiling the information that goes into <a href="https://modelcards.withgoogle.com/about"><Model Cards</a>
+        and aids in the creation of interfaces that will be useful for different audiences.
+        <br>
+        To guide the Model Card creator to organize model information, we provide a <a href="https://github.com/tensorflow/model-card-toolkit/blob/master/model_card_toolkit/schema/v0.0.1/model_card.schema.json">JSON schema</a>
+        , which specifies the fields to include in the Model Card. Using the model provenance
+        information stored with ML Metadata (MLMD), MCT automatically populates the JSON with
+        relevant information, such as class distributions in the data and model performance
+        statistics.
+        <br>
+        We also provide a ModelCard data API to represent an instance of the JSON schema
+        and visualize it as a Model Card. The Model Card creator can choose which metrics and graphs
+        to display in the final Model Card, including metrics that highlight areas where the model’s
+        performance might deviate from its overall performance, leading to fairness concerns.</p>
+    - code_block: |
+          <pre class = "prettyprint">
+          import model_card_toolkit
+
+          # Initialize the Model Card Toolkit with a path to store generate assets
+          model_card_output_path = ...
+          mct = model_card_toolkit.ModelCardToolkit(model_card_output_path)
+
+          # Initialize the model_card_toolkit.ModelCard, which can be freely populated
+          model_card = mct.scaffold_assets()
+          model_card.model_details.name = 'My Model'
+
+          # Write the model card data to a JSON file
+          mct.update_model_card_json(model_card)
+
+          # Return the model card document as an HTML page
+          html = mct.export_format()
+  - classname: devsite-landing-row-100
+    items:
+    - description: >
+        <h3>Resources</h3>
+
+  - classname: devsite-landing-row-cards
+    items:
+    - heading: "Use MLMD with Model Card Toolkit"
+      image_path:/resources/images/tf-logo-card-16x9.png
+      path: "https://www.tensorflow.org/responsible_ai/model_card_toolkit/tutorials/MLMD_Model_Card_Toolkit_Demo.ipynb"
+      buttons:
+      - label: "Try the notebook tutorial"
+        path: "https://www.tensorflow.org/responsible_ai/model_card_toolkit/tutorials/MLMD_Model_Card_Toolkit_Demo.ipynb"
+
+    - heading: "Use Model Card Toolkit with Scikit-Learn"
+      image_path:/resources/images/tf-logo-card-16x9.png
+      path: "https://www.tensorflow.org/responsible_ai/model_card_toolkit/tutorials/Scikit_Learn_Model_Card_Toolkit_Demo.ipynb"
+      buttons:
+      - label: "Try the notebook tutorial"
+        path: "https://www.tensorflow.org/responsible_ai/model_card_toolkit/tutorials/Scikit_Learn_Model_Card_Toolkit_Demo.ipynb"
+
+    - heading: "Try Model Card Toolkit on its own"
+      image_path:/resources/images/tf-logo-card-16x9.png
+      path: "https://www.tensorflow.org/responsible_ai/model_card_toolkit/tutorials/Standalone_Model_Card_Toolkit_Demo.ipynb"
+      buttons:
+      - label: "Try the notebook tutorial"
+        path: "https://www.tensorflow.org/responsible_ai/model_card_toolkit/tutorials/Standalone_Model_Card_Toolkit_Demo.ipynb"
+
+
