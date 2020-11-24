@@ -553,7 +553,14 @@ class GraphicsTest(parameterized.TestCase):
                                }
                            }
                        })]
-    eval_result = tfma.EvalResult(slicing_metrics, None, None, None, None, None)
+    eval_result = tfma.EvalResult(
+        slicing_metrics=slicing_metrics,
+        plots=None,
+        attributions=None,
+        config=None,
+        data_location=None,
+        file_format=None,
+        model_location=None)
     model_card = model_card_module.ModelCard()
     graphics.annotate_eval_result_plots(model_card, eval_result)
 
