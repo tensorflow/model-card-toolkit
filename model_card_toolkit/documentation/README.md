@@ -2,21 +2,28 @@
 
 ## Getting Started
 
-    import model_card_toolkit
+```
+import model_card_toolkit
 
-    # Initialize the Model Card Toolkit with a path to store generate assets
-    model_card_output_path = ...
-    mct = model_card_toolkit.ModelCardToolkit(model_card_output_path)
+# Initialize the ModelCardToolkit with a path to store generate assets
+model_card_output_path = ...
+mct = model_card_toolkit.ModelCardToolkit(model_card_output_path)
 
-    # Initialize the model_card_toolkit.ModelCard, which can be freely populated
-    model_card = mct.scaffold_assets()
-    model_card.model_details.name = 'My Model'
+# Initialize the ModelCard object, which can be freely populated
+model_card = mct.scaffold_assets()
+model_card.model_details.name = 'My Model'
 
-    # Write the model card data to a JSON file
-    mct.update_model_card_json(model_card)
+# You can also populate ModelCard with a JSON file
+with open(MODEL_CARD_JSON_FILE, 'r') as f:
+  mc_json_string = f.read()
+model_card.from_json(mc_json_string)
 
-    # Return the model card document as an HTML page
-    html = mct.export_format()
+# Write the model card data to a JSON file
+mct.update_model_card_json(model_card)
+
+# Return the model card document as an HTML page
+html = mct.export_format()
+```
 
 ## Tutorials
 

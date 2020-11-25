@@ -200,3 +200,14 @@ class ModelCard:
 
   def to_json(self) -> Text:
     return json.dumps(self.to_dict(), indent=2)
+
+  def from_json(self, json_str: Text) -> None:
+    model_card_dict = json.loads(json_str)
+    self.schema_version = model_card_dict.get('schema_version')
+    self.model_details = ModelDetails(**(model_card_dict.get('model_details')))
+    self.model_parameters = ModelParameters(
+        **(model_card_dict.get('model_parameters')))
+    self.quantitative_analysis = QuantitativeAnalysis(
+        **(model_card_dict.get('quantitative_analysis')))
+    self.considerations = Considerations(
+        **(model_card_dict.get('considerations')))
