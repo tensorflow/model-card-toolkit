@@ -5,3 +5,5 @@ toc:
   path: /responsible_ai/model_card_toolkit/guide/install
 - title: Model Card Toolkit Concepts
   path: /responsible_ai/model_card_toolkit/guide/concepts
+- title: Model Card Templates
+  path: /responsible_ai/model_card_toolkit/guide/templates
