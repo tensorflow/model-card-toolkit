@@ -97,6 +97,7 @@
             <h3>Output Format</h3>
               {{ model_parameters.output_format }}{% endif %}
       </div>
+      {% if considerations.users or considerations.use_cases or considerations.limitations or considerations.tradeoffs or considerations.ethical_considerations %}
       <div class="col card">
         <h2>Considerations</h2>
           {% if considerations.users %}
@@ -123,6 +124,7 @@
                   <div>Mitigation Strategy: {{ risk.mitigation_strategy }}</div>
                 </li>{% endfor %} </ul>{% endif %}
       </div>
+      {% endif %}
     </div>
     {% if model_parameters.data.train and model_parameters.data.train.graphics %}
       <div class="row">

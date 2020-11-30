@@ -7,6 +7,7 @@
 ## Bug fixes and other changes
 
 * Reference URLs in default HTML and Markdown template are now hyperlinks
+* Fix bug where Considerations div is displayed in HTML model cards, even if Considerations div is empty.
 
 ## Breaking changes
 
