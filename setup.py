@@ -23,10 +23,11 @@ REQUIRED_PACKAGES = [
     'jinja2>=2.10,<3',
     'matplotlib>=3.2.0,<4',
     'jsonschema>=3.2.0,<4',
-    'tensorflow-data-validation>=0.21.0,<0.23',
-    'tensorflow-model-analysis>=0.21.0,<0.23',
-    'tensorflow-metadata>=0.21.0,<0.23',
-    'ml-metadata>=0.21.0,<0.23',
+    'tensorflow-data-validation>=0.21.0,<=0.25',
+    'tensorflow-model-analysis>=0.21.0,<=0.25',
+    'tensorflow-metadata>=0.21.0,<=0.25',
+    'ml-metadata>=0.21.0,<=0.25.1',
+    'dataclasses;python_version<"3.7"'
 ]
 
 # Get version from version module.
@@ -53,7 +54,7 @@ setup(
             'schema/**/*.json', 'template/**/*.jinja'
         ]
     },
-    python_requires='>=3.5,<4',
+    python_requires='>=3.6,<4',
     install_requires=REQUIRED_PACKAGES,
     tests_require=REQUIRED_PACKAGES,
     # PyPI package information.
@@ -65,8 +66,6 @@ setup(
         'License :: OSI Approved :: Apache Software License',
         'Operating System :: OS Independent',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.5',
-        'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3 :: Only',
         'Topic :: Scientific/Engineering',

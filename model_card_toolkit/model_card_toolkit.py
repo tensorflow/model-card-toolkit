@@ -208,9 +208,9 @@ class ModelCardToolkit():
     # TODO(b/154990170) Think about how to adjust the img inside template.
     model_card_file_content = template.render(
         model_details=model_card['model_details'],
-        model_parameters=model_card['model_parameters'],
-        quantitative_analysis=model_card['quantitative_analysis'],
-        considerations=model_card['considerations'])
+        model_parameters=model_card.get('model_parameters', {}),
+        quantitative_analysis=model_card.get('quantitative_analysis', {}),
+        considerations=model_card.get('considerations', {}))
 
     # Write the model card file.
     mode_card_file_path = os.path.join(self._model_cards_dir, output_file)

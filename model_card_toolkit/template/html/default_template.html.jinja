@@ -126,7 +126,7 @@
       </div>
       {% endif %}
     </div>
-    {% if model_parameters.data.train and model_parameters.data.train.graphics %}
+    {% if model_parameters.data and model_parameters.data.train and model_parameters.data.train.graphics %}
       <div class="row">
         <div class="col card">
           <h2>Train Set</h2>
@@ -135,7 +135,7 @@
         </div>
       </div>
     {% endif %}
-    {% if model_parameters.data.eval and model_parameters.data.eval.graphics %}
+    {% if model_parameters.data and model_parameters.data.eval and model_parameters.data.eval.graphics %}
       <div class="row">
         <div class="col card">
           <h2>Eval Set</h2>

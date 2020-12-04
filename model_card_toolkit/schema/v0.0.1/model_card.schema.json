@@ -133,7 +133,7 @@
       }
     }
   },
-  "required": ["model_details", "considerations"],
+  "required": ["model_details"],
   "additionalProperties": false,
   "definitions": {
     "owner": {
@@ -191,7 +191,8 @@
               "description": "The upper bound of the confidence interval.",
               "type": "number"
             }
-          }
+          },
+          "required": ["lower_bound", "upper_bound"]
         },
         "threshold": {
           "description": "The decision threshold the metric was computed on.",
