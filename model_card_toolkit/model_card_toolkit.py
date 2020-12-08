@@ -19,8 +19,7 @@ generate Model Cards from trained models within ML pipelines.
 
 import json
 import os
-import os.path
-import shutil
+import pkgutil
 import tempfile
 from typing import Any, Dict, Optional, Text
 
@@ -28,7 +27,7 @@ from absl import logging
 import jinja2
 import jsonschema
 
-from model_card_toolkit import model_card as model_card_module
+from model_card_toolkit.model_card import ModelCard
 from model_card_toolkit.utils import graphics
 from model_card_toolkit.utils import tfx_util
 
@@ -40,7 +39,10 @@ import ml_metadata as mlmd
 _SCHEMA_DIR = os.path.join(os.path.dirname(__file__), 'schema')
 _SCHEMA_FILE_NAME = 'model_card.schema.json'
 # Constants about provided UI templates.
-_UI_TEMPLATE_DIR = os.path.join(os.path.dirname(__file__), 'template')
+_UI_TEMPLATES = (
+    'template/html/default_template.html.jinja',
+    'template/md/default_template.md.jinja',
+)
 _DEFAULT_UI_TEMPLATE_FILE = os.path.join('html', 'default_template.html.jinja')
 # Constants about Model Cards Toolkit Assets (MCTA).
 _MCTA_JSON_FILE = 'data/model_card.json'
@@ -108,7 +110,7 @@ class ModelCardToolkit():
     with open(path, 'r') as f:
       return f.read()
 
-  def scaffold_assets(self) -> model_card_module.ModelCard:
+  def scaffold_assets(self) -> ModelCard:
     """Generates the model cards tookit assets.
 
     Model cards assets include the model card json file and customizable model
@@ -122,8 +124,11 @@ class ModelCardToolkit():
 
     Returns:
       A ModelCard representing the given model.
+
+    Raises:
+      FileNotFoundError: if it failed to copy the UI template files.
     """
-    model_card = model_card_module.ModelCard()
+    model_card = ModelCard()
     if self._store:
       model_card = tfx_util.generate_model_card_for_model(
           self._store, self._artifact_with_model_uri.id)
@@ -145,12 +150,19 @@ class ModelCardToolkit():
 
     # Write JSON file.
     self._write_file(self._mcta_json_file, model_card.to_json())
+
     # Write UI template files.
-    shutil.copytree(_UI_TEMPLATE_DIR, self._mcta_template_dir)
+    for template_path in _UI_TEMPLATES:
+      template_content = pkgutil.get_data('model_card_toolkit', template_path)
+      if template_content is None:
+        raise FileNotFoundError(f"Cannot find file: '{template_path}'")
+      template_content = template_content.decode('utf8')
+      self._write_file(
+          os.path.join(self.output_dir, template_path), template_content)
+
     return model_card
 
-  def update_model_card_json(self,
-                             model_card: model_card_module.ModelCard) -> None:
+  def update_model_card_json(self, model_card: ModelCard) -> None:
     """Validates the model card and updates the JSON file in MCT assets.
 
     If model_card.schema_version is not provided, it will assign the latest
