@@ -18,7 +18,7 @@ from setuptools import find_packages
 from setuptools import setup
 
 REQUIRED_PACKAGES = [
-    'absl-py>=0.7,<0.9',
+    'absl-py>=0.9,<0.11',
     'semantic-version>=2.8.0,<3',
     'jinja2>=2.10,<3',
     'matplotlib>=3.2.0,<4',
@@ -27,7 +27,9 @@ REQUIRED_PACKAGES = [
     'tensorflow-model-analysis>=0.21.0,<=0.25',
     'tensorflow-metadata>=0.21.0,<=0.25',
     'ml-metadata>=0.21.0,<=0.25.1',
-    'dataclasses;python_version<"3.7"'
+    'dataclasses;python_version<"3.7"',
+    # To solve the new pip depenencies resolver issue.
+    'MarkupSafe>=1.1.0',
 ]
 
 # Get version from version module.

@@ -2,6 +2,8 @@
 
 # Current Version(Still in Development)
 
+* Fixed the part dependencies error for [new pip dependency resolver](https://pip.pypa.io/en/stable/user_guide/#changes-to-the-pip-dependency-resolver-in-20-3-2020).
+
 ## Major Features and Improvements
 
 ## Bug fixes and other changes
