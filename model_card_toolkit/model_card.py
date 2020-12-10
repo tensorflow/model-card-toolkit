@@ -27,7 +27,7 @@ import dataclasses
 
 
 @dataclasses.dataclass
-class Version():
+class Version:
   """The information about verions of a model."""
   # The name of the version.
   name: Optional[Text] = None
@@ -38,7 +38,7 @@ class Version():
 
 
 @dataclasses.dataclass
-class Owner():
+class Owner:
   """The information about owners of a model."""
   # The name of the owner.
   name: Optional[Text] = None
@@ -47,7 +47,7 @@ class Owner():
 
 
 @dataclasses.dataclass
-class ModelDetails():
+class ModelDetails:
   """Metadata about the model."""
   # The name of the model.
   name: Optional[Text] = None
@@ -66,7 +66,7 @@ class ModelDetails():
 
 
 @dataclasses.dataclass
-class Graphic():
+class Graphic:
   """A named inline plot."""
   # The name of the graphic.
   name: Text
@@ -75,7 +75,7 @@ class Graphic():
 
 
 @dataclasses.dataclass
-class Graphics():
+class Graphics:
   """A collection of graphics."""
   # A description of this collection of graphics.
   description: Optional[Text] = None
@@ -84,7 +84,7 @@ class Graphics():
 
 
 @dataclasses.dataclass
-class Dataset():
+class Dataset:
   """The information about a dataset used to generate a model."""
   # The name of the dataset.
   name: Optional[Text] = None
@@ -97,7 +97,7 @@ class Dataset():
 
 
 @dataclasses.dataclass
-class Data():
+class Data:
   """The related datasets used to train and evaluate the model."""
   # The training dataset
   train: Dataset = dataclasses.field(default_factory=Dataset)
@@ -106,7 +106,7 @@ class Data():
 
 
 @dataclasses.dataclass
-class ModelParameters():
+class ModelParameters:
   """Parameters for construction of the model."""
   # The architecture of the model.
   model_architecture: Optional[Text] = None
@@ -119,7 +119,7 @@ class ModelParameters():
 
 
 @dataclasses.dataclass
-class ConfidenceInterval():
+class ConfidenceInterval:
   """The confidence interval of the metric."""
   # The lower bound of the confidence interval.
   lower_bound: float
@@ -128,7 +128,7 @@ class ConfidenceInterval():
 
 
 @dataclasses.dataclass
-class PerformanceMetric():
+class PerformanceMetric:
   """The details of the performance metric."""
   # The type of performance metric.
   type: Text
@@ -143,7 +143,7 @@ class PerformanceMetric():
 
 
 @dataclasses.dataclass
-class QuantitativeAnalysis():
+class QuantitativeAnalysis:
   """The quantitative analysis of a model."""
   # The model performance metrics being reported.
   performance_metrics: List[PerformanceMetric] = dataclasses.field(
@@ -153,7 +153,7 @@ class QuantitativeAnalysis():
 
 
 @dataclasses.dataclass
-class Risk():
+class Risk:
   """The information about risks when using the model."""
   # The name of the risk.
   name: Text
@@ -162,7 +162,7 @@ class Risk():
 
 
 @dataclasses.dataclass
-class Considerations():
+class Considerations:
   """Considerations related to model construction, training, and application."""
   # Who are the intended users of the model?
   users: List[Text] = dataclasses.field(default_factory=list)
@@ -177,8 +177,8 @@ class Considerations():
 
 
 @dataclasses.dataclass
-class ModelCard(object):
-  """A class that represents assets of ModelCards created by the MCT."""
+class ModelCard:
+  """Fields used to generate the Model Card."""
   # The json schema version of the ModelCard
   schema_version: Optional[Text] = None
   # Descriptive metadata for the model.

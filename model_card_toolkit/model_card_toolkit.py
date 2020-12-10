@@ -54,14 +54,42 @@ _MODEL_CARDS_DIR = 'model_cards/'
 
 
 class ModelCardToolkit():
-  """Model Cards Toolkit (MCT) provides utilities to generate a ModelCard.
+  """ModelCardToolkit provides utilities to generate a ModelCard.
 
-  Given a model, a ModelCardToolkit finds related metadata and lineage from a
-  MLMD instance and generates a ModelCard about the model in various output
-  formats (e.g., HTML). The ModelCardToolkit includes a list of APIs designed
-  for a human-in-the-loop process to elaborate the ModelCard. It organizes the
-  ModelCard assets (e.g., structured data, plots, and UI templates) in a user
-  specified directory, and updates them incrementally via the APIs.
+  ModelCardToolkit is a tool for ML practitioners to create Model Cards,
+  documentation for model information such as owners, use cases, training and
+  evaluation data, performance, etc. A Model Card document can be displayed in
+  output formats including HTML, Markdown, etc.
+
+  The ModelCardToolkit includes an API designed for a human-in-the-loop process
+  to elaborate the ModelCard. If model training is integrated with ML Metadata
+  (e.g., TFX pipelines), the ModelCardToolkit can further populate ModelCard
+  fields by extract metadata and lineage from the model's MLMD instance.
+
+  The ModelCardToolkit organizes the ModelCard assets (e.g., structured data,
+  plots, and UI templates) in a user-specified directory, and updates them
+  incrementally via its API.
+
+
+  Example usage:
+
+  ```python
+  import model_card_toolkit
+
+  # Initialize the Model Card Toolkit with a path to store generate assets
+  model_card_output_path = ...
+  mct = model_card_toolkit.ModelCardToolkit(model_card_output_path)
+
+  # Initialize the ModelCard, which can be freely populated
+  model_card = mct.scaffold_assets()
+  model_card.model_details.name = 'My Model'
+
+  # Write the model card data to a JSON file
+  mct.update_model_card_json(model_card)
+
+  # Return the model card document as an HTML page
+  html = mct.export_format()
+  ```
   """
 
   def __init__(self,

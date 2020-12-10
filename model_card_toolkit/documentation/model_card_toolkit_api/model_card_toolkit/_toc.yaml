@@ -1,9 +1,0 @@
-toc:
-- title: model_card_toolkit
-  section:
-  - title: Overview
-    path: /responsible-ai/model_card_toolkit/api_docs/python/model_card_toolkit
-  - title: ModelCard
-    path: /responsible-ai/model_card_toolkit/api_docs/python/model_card_toolkit/ModelCard
-  - title: ModelCardToolkit
-    path: /responsible-ai/model_card_toolkit/api_docs/python/model_card_toolkit/ModelCardToolkit

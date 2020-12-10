@@ -11,7 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-"""Init module for the Model Card Toolkit."""
-from model_card_toolkit.model_card import ModelCard
+"""A module to streamline and automate generation of Model Cards."""
+from model_card_toolkit.model_card import *
 from model_card_toolkit.model_card_toolkit import ModelCardToolkit
 from model_card_toolkit.version import __version__
