@@ -36,8 +36,8 @@ import semantic_version
 import ml_metadata as mlmd
 
 # Constants about versioned JSON schema files for Model Card.
-_SCHEMA_DIR = os.path.join(os.path.dirname(__file__), 'schema')
 _SCHEMA_FILE_NAME = 'model_card.schema.json'
+_SCHEMA_VERSIONS = frozenset(('0.0.1',))
 # Constants about provided UI templates.
 _UI_TEMPLATES = (
     'template/html/default_template.html.jinja',
@@ -203,10 +203,8 @@ class ModelCardToolkit():
        Error: when the given model_card is invalid w.r.t. the schema.
     """
     if not model_card.schema_version:
-      sub_directories = [f for f in os.scandir(_SCHEMA_DIR) if f.is_dir()]
-      latest_schema_version = max(
-          sub_directories, key=lambda f: semantic_version.Version(f.name[1:]))
-      model_card.schema_version = latest_schema_version.name[1:]
+      model_card.schema_version = max(_SCHEMA_VERSIONS,
+                                      key=semantic_version.Version)
     # Validate the updated model_card first.
     schema = self._find_model_card_schema(model_card.schema_version)
     jsonschema.validate(model_card.to_dict(), schema)
@@ -278,15 +276,13 @@ class ModelCardToolkit():
     Raises:
       ValueError if cannot find the expect schema given the version.
     """
-    sub_directories = [f for f in os.scandir(_SCHEMA_DIR) if f.is_dir()]
-    # Remove the first charactor 'v' from path when comparing.
-    matching_dir = [f for f in sub_directories if str(f.name[1:]) == version]
-    if not matching_dir:
+    if version not in _SCHEMA_VERSIONS:
       raise ValueError(
           'Cannot find schema version that matches the version of the given '
           'model card. Found Versions: {}. Given Version: {}'.format(
-              str([str(f.name[1:]) for f in sub_directories]), version))
-    schema_file = os.path.join(str(matching_dir[0].path), _SCHEMA_FILE_NAME)
-    with open(schema_file) as json_file:
-      schema = json.loads(json_file.read())
+              ', '.join(_SCHEMA_VERSIONS), version))
+
+    schema_file = os.path.join('schema', 'v' + version, _SCHEMA_FILE_NAME)
+    json_file = pkgutil.get_data('model_card_toolkit', schema_file)
+    schema = json.loads(json_file)
     return schema
