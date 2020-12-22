@@ -21,23 +21,18 @@ import json
 import os
 import pkgutil
 import tempfile
-from typing import Any, Dict, Optional, Text
+from typing import Optional, Text
 
 from absl import logging
 import jinja2
-import jsonschema
 
 from model_card_toolkit.model_card import ModelCard
 from model_card_toolkit.utils import graphics
 from model_card_toolkit.utils import tfx_util
-
-import semantic_version
+from model_card_toolkit.utils import validation
 
 import ml_metadata as mlmd
 
-# Constants about versioned JSON schema files for Model Card.
-_SCHEMA_FILE_NAME = 'model_card.schema.json'
-_SCHEMA_VERSIONS = frozenset(('0.0.1',))
 # Constants about provided UI templates.
 _UI_TEMPLATES = (
     'template/html/default_template.html.jinja',
@@ -203,12 +198,9 @@ class ModelCardToolkit():
        Error: when the given model_card is invalid w.r.t. the schema.
     """
     if not model_card.schema_version:
-      model_card.schema_version = max(_SCHEMA_VERSIONS,
-                                      key=semantic_version.Version)
-    # Validate the updated model_card first.
-    schema = self._find_model_card_schema(model_card.schema_version)
-    jsonschema.validate(model_card.to_dict(), schema)
-    # Write the updated JSON to the file.
+      model_card.schema_version = validation.get_latest_schema_version()
+    validation.validate_json_schema(model_card.to_dict(),
+                                    model_card.schema_version)
     self._write_file(self._mcta_json_file, model_card.to_json())
 
   def export_format(self,
@@ -259,30 +251,3 @@ class ModelCardToolkit():
   def save_mlmd(self) -> None:
     """Saves the model card of the model artifact with `model_uri` to MLMD."""
     pass
-
-  def _find_model_card_schema(self, version: Text) -> Dict[Text, Any]:
-    """Finds the model card JSON schema of a particular version.
-
-    A model card is created w.r.t. to ModelCard json schema. The MCT contains
-    a list of known Model Card JSON schemas. The util looks for the json schema
-    file at a particular version and returns for validation.
-
-    Args:
-      version: The version of the schema.
-
-    Returns:
-      Json schema.
-
-    Raises:
-      ValueError if cannot find the expect schema given the version.
-    """
-    if version not in _SCHEMA_VERSIONS:
-      raise ValueError(
-          'Cannot find schema version that matches the version of the given '
-          'model card. Found Versions: {}. Given Version: {}'.format(
-              ', '.join(_SCHEMA_VERSIONS), version))
-
-    schema_file = os.path.join('schema', 'v' + version, _SCHEMA_FILE_NAME)
-    json_file = pkgutil.get_data('model_card_toolkit', schema_file)
-    schema = json.loads(json_file)
-    return schema

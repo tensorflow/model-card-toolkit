@@ -2,10 +2,9 @@
 
 # Current Version(Still in Development)
 
-* Fixed the part dependencies error for [new pip dependency resolver](https://pip.pypa.io/en/stable/user_guide/#changes-to-the-pip-dependency-resolver-in-20-3-2020).
-* Update how UI templates are copied to be compatible with different platforms (colab, wetlab).
-
 ## Major Features and Improvements
+
+* N/A
 
 ## Bug fixes and other changes
 
@@ -14,6 +13,9 @@
 * Update required fields in schema.
   * Removed considerations as required field.
   * Add lower_bound and upper_bound as required fields to confidence_interval.
+* Fixed the part dependencies error for [new pip dependency resolver](https://pip.pypa.io/en/stable/user_guide/#changes-to-the-pip-dependency-resolver-in-20-3-2020).
+* Update how UI templates are copied to be compatible with different platforms (colab, wetlab).
+* Add model_card_toolkit.validation.validate_json_schema(), a function to validate a Python dictionary against the Model Card JSON schema.
 
 ## Breaking changes
 
