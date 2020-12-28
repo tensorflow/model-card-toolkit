@@ -41,17 +41,20 @@
     "performance_metrics": [
       {
         "type": "accuracy",
-        "value": 0.9781249761581421
+        "value": 0.9781249761581421,
+        "threshold": 0.5
       },
       {
         "type": "accuracy",
         "value": 0.9932885766029358,
-        "slice": "cat"
+        "slice": "cat",
+        "threshold": 0.5
       },
       {
         "type": "accuracy",
         "value": 0.9649122953414917,
-        "slice": "Dog"
+        "slice": "Dog",
+        "threshold": 0.5
       }
     ],
     "graphics": {

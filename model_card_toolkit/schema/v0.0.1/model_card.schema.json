@@ -202,7 +202,12 @@
           "description": "The name of the slice this metric was computed on. By default, assume this metric is not sliced.",
           "type": "string"
         }
-      }
+      },
+      "required": ["type"],
+      "anyOf": [
+        { "required": ["value"] },
+        { "required": ["confidence_interval"] }
+      ]
     },
     "graphics": {
       "type": "object",

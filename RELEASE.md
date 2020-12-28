@@ -4,7 +4,7 @@
 
 ## Major Features and Improvements
 
-* N/A
+* In default_template.md.jinja, generate metrics table from `quantitative_analysis.performance_metrics`.
 
 ## Bug fixes and other changes
 

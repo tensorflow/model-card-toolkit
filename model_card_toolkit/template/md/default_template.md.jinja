@@ -13,6 +13,12 @@
 
 {% endfor %}
 {% endif %}{% endmacro %}
+{% macro metric_name(metric) %}{{ metric.type }}{% if metric.threshold %}@{{ metric.threshold }}{% endif %}{% if metric.slice %}, {{ metric.slice }}{% endif %}{% endmacro %}
+{% macro render_metrics_table(metrics) %}#### Metrics
+
+|Name|Value|
+-----|------{% for metric in metrics %}
+|{{ metric_name(metric) }}|{{ metric.value }}|{% endfor %}{% endmacro %}
 # Model Card for {{ model_details.name }}
 
 ## Model Details{% if model_details.overview %}
@@ -82,6 +88,6 @@
 ### Quantitative Analysis{% if quantitative_analysis.graphics.description %}
 
 {{ quantitative_analysis.graphics.description }}{% endif %}{% if quantitative_analysis.graphics.collection %}
-{{ render_graphics(quantitative_analysis.graphics) }}{% endif %}
+{{ render_graphics(quantitative_analysis.graphics) }}{% endif %}{% if quantitative_analysis.performance_metrics %}{{ render_metrics_table(quantitative_analysis.performance_metrics) }}{% endif %}
 {% endif %}
 {% endif %}
