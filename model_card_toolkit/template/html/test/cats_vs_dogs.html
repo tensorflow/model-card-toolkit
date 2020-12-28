@@ -3,6 +3,8 @@
 
 
 
+
+
 <html lang="en">
 <head>
 <style>
@@ -27,6 +29,9 @@
   .img-item {
     flex: 1;
   }
+  table, th, td { border: 1px solid black; }
+  th, td { border: 1px solid #CCC; height: 30px; }
+  caption { font-weight: bold; }
 </style>
 <title>
   Model Card for Fine-tuned MobileNetV2 Model for Cat vs. Dogs
@@ -139,7 +144,8 @@
         <div class="col card">
           <h2>Quantitative Analysis</h2>
             
-            
+              
+              
   <div class="img-container">
   
     <div class="img-item">
@@ -148,6 +154,27 @@
   
   </div>
 
+            
+              
+<table>
+  <caption>Performance Metrics</caption>
+  <tr><th>Name</th><th>Value</th></tr>
+
+  <tr><td>
+accuracy@0.5
+</td><td>0.9781249761581421</td></tr>
+
+  <tr><td>
+accuracy@0.5, cat
+</td><td>0.9932885766029358</td></tr>
+
+  <tr><td>
+accuracy@0.5, Dog
+</td><td>0.9649122953414917</td></tr>
+
+</table>
+
+            
         </div>
       </div>
     

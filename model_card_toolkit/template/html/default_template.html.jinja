@@ -31,6 +31,18 @@
   {% endfor %}
   </div>
 {% endmacro %}
+{% macro metric_name(metric) %}
+{{ metric.type }}{% if metric.threshold %}@{{ metric.threshold }}{% endif %}{% if metric.slice %}, {{ metric.slice }}{% endif %}
+{% endmacro %}
+{% macro render_metrics_table(metrics) %}
+<table>
+  <caption>Performance Metrics</caption>
+  <tr><th>Name</th><th>Value</th></tr>
+{% for metric in metrics %}
+  <tr><td>{{ metric_name(metric) }}</td><td>{{ metric.value }}</td></tr>
+{% endfor %}
+</table>
+{% endmacro %}
 <html lang="en">
 <head>
 <style>
@@ -55,6 +67,9 @@
   .img-item {
     flex: 1;
   }
+  table, th, td { border: 1px solid black; }
+  th, td { border: 1px solid #CCC; height: 30px; }
+  caption { font-weight: bold; }
 </style>
 <title>
   Model Card for {{ model_details.name }}
@@ -144,12 +159,16 @@
         </div>
       </div>
     {% endif %}
-    {% if quantitative_analysis and quantitative_analysis.graphics %}
+    {% if quantitative_analysis %}
       <div class="row">
         <div class="col card">
           <h2>Quantitative Analysis</h2>
-            {{ quantitative_analysis.graphics.description }}
-            {{ render_graphics(quantitative_analysis.graphics.collection) }}
+            {% if quantitative_analysis.graphics %}
+              {{ quantitative_analysis.graphics.description }}
+              {{ render_graphics(quantitative_analysis.graphics.collection) }}
+            {% endif %}{% if quantitative_analysis.performance_metrics %}
+              {{ render_metrics_table(quantitative_analysis.performance_metrics )}}
+            {% endif %}
         </div>
       </div>
     {% endif %}
