@@ -16,20 +16,33 @@ landing_page:
     items:
     - description: >
         <p>
-        Model Card Toolkit (MCT) is a collection of tools and resources that support developers in
-        compiling the information that goes into <a href="https://modelcards.withgoogle.com/about"><Model Cards</a>
-        and aids in the creation of interfaces that will be useful for different audiences.
+        The Model Card Toolkit (MCT) library streamlines and automates generation of
+        <a href="https://modelcards.withgoogle.com/about">Model Cards</a>, machine learning
+        documents that provide context and transparency into a model's development and performance.
+        Integrating the Model Card Toolkit into your ML pipeline will allow you to share your
+        model's metadata and metrics with researchers, developers, reporters, and more.
         <br>
-        To guide the Model Card creator to organize model information, we provide a <a href="https://github.com/tensorflow/model-card-toolkit/blob/master/model_card_toolkit/schema/v0.0.1/model_card.schema.json">JSON schema</a>
-        , which specifies the fields to include in the Model Card. Using the model provenance
-        information stored with ML Metadata (MLMD), MCT automatically populates the JSON with
-        relevant information, such as class distributions in the data and model performance
-        statistics.
         <br>
-        We also provide a ModelCard data API to represent an instance of the JSON schema
-        and visualize it as a Model Card. The Model Card creator can choose which metrics and graphs
-        to display in the final Model Card, including metrics that highlight areas where the model’s
-        performance might deviate from its overall performance, leading to fairness concerns.</p>
+        MCT stores model card fields using a
+        <a href="https://github.com/tensorflow/model-card-toolkit/blob/master/model_card_toolkit/schema/v0.0.1/model_card.schema.json">JSON schema</a>.
+        MCT can automatically populate those fields for TFX users via
+        <a href="https://www.tensorflow.org/tfx/guide/mlmd">ML Metadata (MLMD)</a>. Model card
+        fields can also be manually populated via a
+        <a href="https://github.com/tensorflow/model-card-toolkit/blob/master/model_card_toolkit/model_card.py">Python API</a>.
+        Some use cases of model cards include:
+        <ul style="padding-left: 20px">
+          <li>
+            Facilitating the exchange of information between model builders and product developers.
+          </li>
+          <li>
+            Informing users of ML models to make better-informed decisions about how to use them (or how not to use them).
+          <li>
+            Providing model information required for effective public oversight and accountability.
+          </li>
+        </ul>
+        <figure>
+            <img src="min_diff/guide/images/mindiff_graphs.svg">
+        </figure>
     - code_block: |
           <pre class = "prettyprint">
           import model_card_toolkit
@@ -74,3 +87,10 @@ landing_page:
       buttons:
       - label: "Try the notebook tutorial"
         path: "https://www.tensorflow.org/responsible_ai/model_card_toolkit/tutorials/Standalone_Model_Card_Toolkit_Demo.ipynb"
+
+    - heading: "Model Card Toolkit on the Google AI Blog"
+      image_path: /responsible_ai/fairness_indicators/images/googleai.png
+      path: https://ai.googleblog.com/2020/07/introducing-model-card-toolkit-for.html
+      buttons:
+      - label: "Read on Google AI blog"
+        path: https://ai.googleblog.com/2020/07/introducing-model-card-toolkit-for.html
