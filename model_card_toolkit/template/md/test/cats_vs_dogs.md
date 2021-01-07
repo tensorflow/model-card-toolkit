@@ -1,6 +1,7 @@
 
 
 
+
 # Model Card for Fine-tuned MobileNetV2 Model for Cat vs. Dogs
 
 ## Model Details
@@ -75,6 +76,6 @@ Accuracy
 |Name|Value|
 -----|------
 |accuracy@0.5|0.9781249761581421|
-|accuracy@0.5, cat|0.9932885766029358|
-|accuracy@0.5, Dog|0.9649122953414917|
+|accuracy@0.5, cat|0.9932885766029358 (0.9832885766, 1.0032885766)|
+|accuracy@0.5, Dog|0.9649122953414917 (0.95491229534, 0.97491229534)|
 

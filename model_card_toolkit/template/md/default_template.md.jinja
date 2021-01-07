@@ -14,11 +14,12 @@
 {% endfor %}
 {% endif %}{% endmacro %}
 {% macro metric_name(metric) %}{{ metric.type }}{% if metric.threshold %}@{{ metric.threshold }}{% endif %}{% if metric.slice %}, {{ metric.slice }}{% endif %}{% endmacro %}
+{% macro metric_value(metric) %}{{ metric.value }}{% if metric.confidence_interval %} ({{ metric.confidence_interval.lower_bound }}, {{ metric.confidence_interval.upper_bound }}){% endif %}{% endmacro %}
 {% macro render_metrics_table(metrics) %}#### Metrics
 
 |Name|Value|
 -----|------{% for metric in metrics %}
-|{{ metric_name(metric) }}|{{ metric.value }}|{% endfor %}{% endmacro %}
+|{{ metric_name(metric) }}|{{ metric_value(metric) }}|{% endfor %}{% endmacro %}
 # Model Card for {{ model_details.name }}
 
 ## Model Details{% if model_details.overview %}
