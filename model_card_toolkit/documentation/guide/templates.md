@@ -2,6 +2,10 @@
 
 
 
+
+
+
+
 [Jinja templates](https://jinja.palletsprojects.com/) are the backend structure of a Model Card document. The Model Card Toolkit comes with a few pre-made templates, but you can freely modify these templates or even build your own. In this document, we will discuss how to do this.
 
 The following is the standard way you may initialize the Model Card Toolkit.
@@ -14,7 +18,10 @@ The following is the standard way you may initialize the Model Card Toolkit.
 
 When you run `mct.scaffold_assets()`, the contents of [model_card_toolkit/template](https://github.com/tensorflow/model-card-toolkit/tree/master/model_card_toolkit/template) are copied into `mct_directory/template`. This includes premade templates such as [default_template.html.jinja](https://github.com/tensorflow/model-card-toolkit/blob/master/model_card_toolkit/template/html/default_template.html.jinja) and [default_template.md.jinja](https://github.com/tensorflow/model-card-toolkit/blob/master/model_card_toolkit/template/md/default_template.md.jinja).
 
-The `model_card` object generated above can be enriched with fields from [`model_card.py`](https://github.com/tensorflow/model-card-toolkit/blob/master/model_card_toolkit/model_card.py). Once you are ready to generate a Model Card document, you can pass the `model_card` back into MCT with `mct.update_model_card_json(model_card)`.
+The `model_card` object generated above can be enriched with fields from
+[model_card.py](https://github.com/tensorflow/model-card-toolkit/blob/master/model_card_toolkit/model_card.py).
+Once you are ready to generate a Model Card document, you can pass the
+`model_card` back into MCT with `mct.update_model_card_json(model_card)`.
 
 ### Use a Premade Model Card Template
 
