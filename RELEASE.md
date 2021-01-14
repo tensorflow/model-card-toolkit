@@ -16,6 +16,7 @@
 * Fixed the part dependencies error for [new pip dependency resolver](https://pip.pypa.io/en/stable/user_guide/#changes-to-the-pip-dependency-resolver-in-20-3-2020).
 * Update how UI templates are copied to be compatible with different platforms (colab, wetlab).
 * Add model_card_toolkit.validation.validate_json_schema(), a function to validate a Python dictionary against the Model Card JSON schema.
+* Rename model_card_toolkit.model_card_toolkit submodule to model_card_toolkit.mct (to avoid naming conflicts).
 
 ## Breaking changes
 

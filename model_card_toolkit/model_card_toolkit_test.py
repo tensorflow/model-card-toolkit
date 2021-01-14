@@ -19,8 +19,8 @@ import uuid
 
 from absl.testing import absltest
 
+from model_card_toolkit import mct as mct_module
 from model_card_toolkit import model_card as model_card_module
-from model_card_toolkit import model_card_toolkit
 from model_card_toolkit.utils.testdata import testdata_utils
 
 
@@ -39,7 +39,7 @@ class ModelCardToolkitTest(absltest.TestCase):
     store = testdata_utils.get_tfx_pipeline_metadata_store(self.tmp_db_path)
     with self.assertRaisesRegex(
         ValueError, 'If `mlmd_store` is set, `model_uri` should be set.'):
-      model_card_toolkit.ModelCardToolkit(
+      mct_module.ModelCardToolkit(
           output_dir=self.tmpdir, mlmd_store=store)
 
   def test_init_with_store_model_uri_not_found(self):
@@ -47,12 +47,12 @@ class ModelCardToolkitTest(absltest.TestCase):
     unknown_model = 'unknown_model'
     with self.assertRaisesRegex(
         ValueError, f'"{unknown_model}" cannot be found in the `mlmd_store`'):
-      model_card_toolkit.ModelCardToolkit(
+      mct_module.ModelCardToolkit(
           mlmd_store=store, model_uri=unknown_model)
 
   def test_scaffold_assets(self):
     output_dir = self.tmpdir
-    mct = model_card_toolkit.ModelCardToolkit(output_dir=output_dir)
+    mct = mct_module.ModelCardToolkit(output_dir=output_dir)
     self.assertEqual(mct.output_dir, output_dir)
     mc = mct.scaffold_assets()  # pylint: disable=unused-variable
     self.assertIn('default_template.html.jinja',
@@ -63,7 +63,7 @@ class ModelCardToolkitTest(absltest.TestCase):
   def test_scaffold_assets_with_store(self):
     output_dir = self.tmpdir
     store = testdata_utils.get_tfx_pipeline_metadata_store(self.tmp_db_path)
-    mct = model_card_toolkit.ModelCardToolkit(
+    mct = mct_module.ModelCardToolkit(
         output_dir=output_dir,
         mlmd_store=store,
         model_uri=testdata_utils.TFX_0_21_MODEL_URI)
@@ -83,7 +83,7 @@ class ModelCardToolkitTest(absltest.TestCase):
                   os.listdir(os.path.join(output_dir, 'template/md')))
 
   def test_update_model_card_with_valid_json(self):
-    mct = model_card_toolkit.ModelCardToolkit(output_dir=self.tmpdir)
+    mct = mct_module.ModelCardToolkit(output_dir=self.tmpdir)
     valid_model_card = mct.scaffold_assets()
     valid_model_card.schema_version = '0.0.1'
     valid_model_card.model_details.name = 'My Model'
@@ -96,7 +96,7 @@ class ModelCardToolkitTest(absltest.TestCase):
       )
 
   def test_update_model_card_with_no_version(self):
-    mct = model_card_toolkit.ModelCardToolkit()
+    mct = mct_module.ModelCardToolkit()
     model_card_no_version = mct.scaffold_assets()
     model_card_no_version.model_details.name = ('My ' 'Model')
     mct.update_model_card_json(model_card_no_version)
@@ -108,7 +108,7 @@ class ModelCardToolkitTest(absltest.TestCase):
       )
 
   def test_update_model_card_with_invalid_schema_version(self):
-    mct = model_card_toolkit.ModelCardToolkit()
+    mct = mct_module.ModelCardToolkit()
     model_card_invalid_version = model_card_module.ModelCard(
         schema_version='100.0.0')
     with self.assertRaisesRegex(ValueError, 'Cannot find schema version'):
@@ -116,7 +116,7 @@ class ModelCardToolkitTest(absltest.TestCase):
 
   def test_export_format(self):
     store = testdata_utils.get_tfx_pipeline_metadata_store(self.tmp_db_path)
-    mct = model_card_toolkit.ModelCardToolkit(
+    mct = mct_module.ModelCardToolkit(
         output_dir=self.tmpdir,
         mlmd_store=store,
         model_uri=testdata_utils.TFX_0_21_MODEL_URI)
@@ -135,7 +135,7 @@ class ModelCardToolkitTest(absltest.TestCase):
       self.assertIn('My Model', content)
 
   def test_export_format_with_customized_template_and_output_name(self):
-    mct = model_card_toolkit.ModelCardToolkit(output_dir=self.tmpdir)
+    mct = mct_module.ModelCardToolkit(output_dir=self.tmpdir)
     model_card = mct.scaffold_assets()
     model_card.schema_version = '0.0.1'
     model_card.model_details.name = 'My Model'
