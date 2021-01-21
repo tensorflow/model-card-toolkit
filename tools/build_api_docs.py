@@ -12,22 +12,22 @@ from tensorflow_docs.api_generator import public_api
 
 FLAGS = flags.FLAGS
 
-_OUTPUT_DIR = flags.DEFINE_string(
+flags.DEFINE_string(
     "output_dir",
     default="/tmp/model_card_toolkit",
     help="Where to output the docs")
 
-_CODE_URL_PREFIX = flags.DEFINE_string(
+flags.DEFINE_string(
     "code_url_prefix",
     default="https://github.com/tensorflow/model-card-toolkit/tree/master/model-card-toolkit",
     help="The URL prefix for links to code.")
 
-_SEARCH_HINTS = flags.DEFINE_bool(
+flags.DEFINE_bool(
     "search_hints",
     default=True,
     help="Include metadata search hints in the generated files")
 
-_SITE_PATH = flags.DEFINE_string(
+flags.DEFINE_string(
     "site_path",
     default="responsible-ai/model_card_toolkit/api_docs/python",
     help="Path prefix in the _toc.yaml")
@@ -55,8 +55,8 @@ def execute(output_dir: str, code_url_prefix: str, search_hints: bool,
 
 
 def main(unused_argv):
-  execute(_OUTPUT_DIR.value, _CODE_URL_PREFIX.value, _SEARCH_HINTS.value,
-          _SITE_PATH.value)
+  execute(FLAGS.output_dir, FLAGS.code_url_prefix, FLAGS.search_hints,
+          FLAGS.site_path)
 
 
 if __name__ == "__main__":
