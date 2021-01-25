@@ -212,38 +212,50 @@ def _generate_graph_from_slicing_metrics(
     sub_key: The sub_key of interest in the slicing_metrics. '' by default.
 
   Returns:
-    A Graph object or None if metrics values format are not doubleValue or
-      boundedValue or the metrics name ends with "_diff".
+    A Graph object, or None if any of the following are true:
+      * metrics values format are not doubleValue or boundedValue.
+      * the metric name ends with "_diff".
+      * the metric name is "__ERROR__".
   """
-  if metric.endswith('_diff'):
+  if metric.endswith('_diff') or metric == '__ERROR__':
     return None
 
   metric_values = []
   bounds = []
   slice_values = []
+  has_bounded_value = False
   for slicing_metric in slicing_metrics:
     key, value = stringify_slice_key(slicing_metric[0])
     if key != 'Overall' and slices_key and key != slices_key:
       continue
     slice_values.append(value)
 
+    if (output_name not in slicing_metric[1] or
+        sub_key not in slicing_metric[1][output_name] or
+        metric not in slicing_metric[1][output_name][sub_key]):
+      logging.warning('%s, %s, %s not in %s. Skipping %s', output_name, sub_key,
+                      metric, slicing_metric[1], slices_key)
+      return None
+
     # https://www.tensorflow.org/tfx/model_analysis/metrics#metric_value
     metric_value = slicing_metric[1][output_name][sub_key][metric]
     if 'doubleValue' in metric_value:
       metric_values.append(metric_value['doubleValue'])
+      bounds.append((metric_value['doubleValue'], metric_value['doubleValue']))
     elif 'boundedValue' in metric_value:
+      has_bounded_value = True
       metric_values.append(metric_value['boundedValue']['value'])
       bounds.append((metric_value['boundedValue']['lowerBound'],
                      metric_value['boundedValue']['upperBound']))
     else:
-      logging.warning('%s must be a doubleValue or boundedValue; skipping.',
-                      (metric))
+      logging.warning('%s must be a doubleValue or boundedValue; skipping %s.',
+                      metric, slices_key)
       return None
 
   graph = _Graph()
   graph.x = metric_values
   graph.y = slice_values
-  if bounds:
+  if has_bounded_value:
     graph.xerr = [
         [
             metric_value - bound[0]

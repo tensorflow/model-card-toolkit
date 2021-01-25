@@ -16,6 +16,7 @@
 * Fixed the part dependencies error for [new pip dependency resolver](https://pip.pypa.io/en/stable/user_guide/#changes-to-the-pip-dependency-resolver-in-20-3-2020).
 * Update how UI templates are copied to be compatible with different platforms (colab, wetlab).
 * Add model_card_toolkit.validation.validate_json_schema(), a function to validate a Python dictionary against the Model Card JSON schema.
+* Fix the bug that some slices may have extra metrics that other slices does not have. e.g. __ERROR__ metric.
 
 ## Breaking changes
 
