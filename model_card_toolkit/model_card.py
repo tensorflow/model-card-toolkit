@@ -28,175 +28,301 @@ import dataclasses
 
 @dataclasses.dataclass
 class Version:
-  """The information about verions of a model."""
-  # The name of the version.
+  """The information about verions of a model.
+
+  If there are multiple versions of the model, or there may be in the future,
+  it’s useful for your audience to know which version of the model is discussed
+  in the Model Card. If there are previous versions of this model, briefly
+  describe how this version is different. If no more than one version of the
+  model will be released, this field may be omitted.
+
+  ## Attributes
+
+   * `name`: The name of the version.
+   * `date`: The date this version was released.
+   * `diff`: The changes from the previous version.
+  """
   name: Optional[Text] = None
-  # The date the version was released.
   date: Optional[Text] = None
-  # The changes from the previous version.
   diff: Optional[Text] = None
 
 
 @dataclasses.dataclass
 class Owner:
-  """The information about owners of a model."""
-  # The name of the owner.
+  """The information about owners of a model.
+
+  ## Attributes
+
+   * `name`: The name of the model owner.
+   * `contact`: The contact information for the model owner or owners. These
+   could be individual email addresses, a team mailing list expressly, or a
+   monitored feedback form.
+  """
   name: Optional[Text] = None
-  # The contact information of the owner.
   contact: Optional[Text] = None
 
 
 @dataclasses.dataclass
 class ModelDetails:
-  """Metadata about the model."""
-  # The name of the model.
+  """This section provides a general, high-level description of the model.
+
+  ## Attributes
+
+   * `name`: The name of the model.
+   * `overview`: A description of the model card.
+   * `owners`: The individuals or teams who own the model.
+   * `version`: The version of the model. If there are previous versions of this
+   model, briefly describe how this version is different.
+   * `license`: The license information for the model. If the model is licensed
+   for use by others, include the license type. If the model is not licensed for
+   future use, you may state that here as well.
+   * `references`: Provide any additional links the reader may need. You can
+   link to foundational research, technical documentation, or other materials
+   that may be useful to your audience.
+   * `citation`: How should the model be cited? If the model is based on
+   published academic research, cite the research.
+  """
   name: Optional[Text] = None
-  # A description of the model card.
   overview: Optional[Text] = None
-  # The individuals or teams who own the model.
   owners: List[Owner] = dataclasses.field(default_factory=list)
-  # The version of the model.
-  version: Version = dataclasses.field(default_factory=Version)
-  # The model's license for use.
+  version: Optional[Version] = dataclasses.field(default_factory=Version)
   license: Optional[Text] = None
-  # Links providing more information about the model.
   references: List[Text] = dataclasses.field(default_factory=list)
-  # How to reference this model card.
   citation: Optional[Text] = None
 
 
 @dataclasses.dataclass
 class Graphic:
-  """A named inline plot."""
-  # The name of the graphic.
+  """A named inline plot.
+
+  ## Attributes
+
+   * `name`: The name of the graphic.
+   * `image`: The image string encoded as a base64 string.
+  """
   name: Text
-  # The image string encoded as a base64 string.
   image: Text
 
 
 @dataclasses.dataclass
 class Graphics:
-  """A collection of graphics."""
-  # A description of this collection of graphics.
+  """A collection of graphics.
+
+  Each ```graphic``` in the ```collection``` field has both a ```name``` and
+  an ```image```. For instance, you might want to display a graph showing the
+  number of examples belonging to each class in your training dataset:
+
+  ```python
+
+  model_card.model_parameters.data.train.graphics.collection = [
+    {'name': 'Training Set Size', 'image': training_set_size_barchart},
+  ]
+  ```
+
+  Then, provide a description of the graph:
+
+  ```python
+
+  model_card.model_parameters.data.train.graphics.description = (
+    'This graph displays the number of examples belonging to each class ',
+    'in the training dataset. ')
+  ```
+
+  ## Attributes
+
+   * `description`: The name of the dataset.
+   * `collection`: A collection of graphics.
+  """
   description: Optional[Text] = None
-  # A collection of graphics.
   collection: List[Graphic] = dataclasses.field(default_factory=list)
 
 
 @dataclasses.dataclass
 class Dataset:
-  """The information about a dataset used to generate a model."""
-  # The name of the dataset.
+  """Provide some information about a dataset used to generate a model.
+
+  ## Attributes
+
+   * `name`: The name of the dataset.
+   * `link`: A link to the dataset.
+   * `sensitive`: Does this dataset contain human or other sensitive data?
+   * `graphics`: Visualizations of the dataset.
+  """
   name: Optional[Text] = None
-  # The contact information of the owner
   link: Optional[Text] = None
-  # Does this dataset contain human or other sensitive data?
   sensitive: Optional[bool] = None
-  # Visualizations of the dataset.
   graphics: Graphics = dataclasses.field(default_factory=Graphics)
 
 
 @dataclasses.dataclass
 class Data:
-  """The related datasets used to train and evaluate the model."""
-  # The training dataset
+  """The related datasets used to train and evaluate the model.
+
+  ## Attributes
+
+   * `train`: The training dataset
+   * `eval`: The evaluation dataset
+  """
   train: Dataset = dataclasses.field(default_factory=Dataset)
-  # The evaluation dataset
   eval: Dataset = dataclasses.field(default_factory=Dataset)
 
 
 @dataclasses.dataclass
 class ModelParameters:
-  """Parameters for construction of the model."""
-  # The architecture of the model.
+  """Parameters for construction of the model.
+
+  ## Attributes
+
+   * `model_architecture`: specifies the architecture of your model.
+   * `data`: specifies the datasets used to train and evaluate your model.
+   * `input_format`: describes the data format for inputs to your model.
+   * `output_format`: describes the data format for outputs from your model.
+  """
   model_architecture: Optional[Text] = None
-  # The datasets used to train and evaluate the model.
   data: Data = dataclasses.field(default_factory=Data)
-  # The data format for inputs to the model.
   input_format: Optional[Text] = None
-  # The data format for outputs from the model.
   output_format: Optional[Text] = None
 
 
 @dataclasses.dataclass
 class ConfidenceInterval:
-  """The confidence interval of the metric."""
-  # The lower bound of the confidence interval.
+  """The confidence interval of the metric.
+
+  ## Attributes
+
+   * `lower_bound`: The lower bound of the confidence interval.
+   * `upper_bound`: The upper bound of the confidence interval.
+  """
   lower_bound: float
-  # The upper bound of the confidence interval.
   upper_bound: float
 
 
 @dataclasses.dataclass
 class PerformanceMetric:
-  """The details of the performance metric."""
-  # The type of performance metric.
+  """The details of the performance metric.
+
+  ## Attributes
+
+   * `type`: What performance metric are you reporting on?
+   * `value`: What is the value of this performance metric?
+   * `confidence_interval`: What is the confidence interval for this
+   performance metric's value?
+   * `threshold`: At what threshold was this metric computed?
+   * `slice`: What slice of your data was this metric computed on?
+  """
   type: Text
-  # The value of the performance metric.
   value: Union[int, float, Text]
-  # The confidence interval of the metric.
   confidence_interval: Optional[ConfidenceInterval] = None
-  # The decision threshold the metric was computed on.
   threshold: Optional[float] = None
-  # The name of the slice this metric was computed on.
   slice: Optional[Text] = None
 
 
 @dataclasses.dataclass
 class QuantitativeAnalysis:
-  """The quantitative analysis of a model."""
-  # The model performance metrics being reported.
+  """The quantitative analysis of a model.
+
+  Identify relevant performance metrics and display values. Let’s say you’re
+  interested in displaying the accuracy and false positive rate (FPR) of a
+  cat vs. dog classification model. Assuming you have already computed both
+  metrics, both overall and per-class, you can specify metrics like so:
+
+  ```python
+  model_card.quantitative_analysis.performance_metrics = [
+    {'type': 'accuracy', 'value': computed_accuracy},
+    {'type': 'accuracy', 'value': cat_accuracy, 'slice': 'cat'},
+    {'type': 'accuracy', 'value': dog_accuracy, 'slice': 'dog'},
+    {'type': 'fpr', 'value': computed_fpr},
+    {'type': 'fpr', 'value': cat_fpr, 'slice': 'cat'},
+    {'type': 'fpr', 'value': dog_fpr, 'slice': 'dog'},
+  ]
+  ```
+
+  ## Attributes
+
+   * `performance_metrics`: The performance metrics being reported.
+   * `graphics`: A collection of visualizations of model performance.
+  """
   performance_metrics: List[PerformanceMetric] = dataclasses.field(
       default_factory=list)
-  # Visualizations of model performance.
   graphics: Graphics = dataclasses.field(default_factory=Graphics)
 
 
 @dataclasses.dataclass
 class Risk:
-  """The information about risks when using the model."""
-  # The name of the risk.
+  """Information about risks involved when using the model.
+
+  ## Attributes
+
+   * `name`: The name of the risk.
+   * `mitigation_strategy`: A mitigation strategy that you've implemented, or
+   one that you suggest to users.
+  """
   name: Text
-  # Strategy used to address this risk.
   mitigation_strategy: Text
 
 
 @dataclasses.dataclass
 class Considerations:
-  """Considerations related to model construction, training, and application."""
-  # Who are the intended users of the model?
+  """Considerations related to model construction, training, and application.
+
+  The considerations section includes qualitative information about your model,
+  including some analysis of its risks and limitations. As such, this section
+  usually requires careful consideration, and conversations with many relevant
+  stakeholders, including other model developers, dataset producers, and
+  downstream users likely to interact with your model, or be affected by its
+  outputs.
+
+  ## Attributes
+
+   * `users`: Who are the intended users of the model? This may include
+   researchers, developers, and/or clients. You might also include information
+   about the downstream users you expect to interact with your model.
+   * `user_cases`: What are the intended use cases of the model? What use cases
+   are out-of-scope?
+   * `limitations`: What are the known limitations of the model? This may
+   include technical limitations, or conditions that may degrade model
+   performance.
+   * `tradeoffs`: What are the known accuracy/performance tradeoffs for the
+   model?
+   * `ethical_considerations`: What are the ethical risks involved in
+   application of this model? For each risk, you may also provide a mitigation
+   strategy that you've implemented, or one that you suggest to users.
+  """
   users: List[Text] = dataclasses.field(default_factory=list)
-  # What are the intended use cases of the model.
   use_cases: List[Text] = dataclasses.field(default_factory=list)
-  # What are the known technical limitations of the model.
   limitations: List[Text] = dataclasses.field(default_factory=list)
-  # What are the known tradeoffs in accuracy/performance of the model
   tradeoffs: List[Text] = dataclasses.field(default_factory=list)
-  # What are the ethical risks involved in the application of this model.
   ethical_considerations: List[Risk] = dataclasses.field(default_factory=list)
 
 
 @dataclasses.dataclass
 class ModelCard:
-  """Fields used to generate the Model Card."""
-  # The json schema version of the ModelCard
+  """Fields used to generate the Model Card.
+
+  ## Attributes
+
+   * `schema_version`: The Model Card JSON schema version.
+   * `model_details`: Descriptive metadata for the model.
+   * `model_parameters`: Technical metadata for the model.
+   * `quantitative_analysis`: Quantitative analysis of model performance.
+   * `considerations`: Any considerations related to model construction,
+   training, and application.
+  """
   schema_version: Optional[Text] = None
-  # Descriptive metadata for the model.
   model_details: ModelDetails = dataclasses.field(default=ModelDetails())
-  # Parameters used when generating the model.
   model_parameters: ModelParameters = dataclasses.field(
       default_factory=ModelParameters)
-  # The quantitative analysis of the ModelCard
   quantitative_analysis: QuantitativeAnalysis = dataclasses.field(
       default_factory=QuantitativeAnalysis)
-  # The considerations related to model construction, training, and application.
   considerations: Considerations = dataclasses.field(
       default_factory=Considerations)
 
   def to_dict(self) -> Dict[Text, Any]:
+    """Convert your model card to a python dictionary."""
     # ignore None properties recusively to allow missing values.
     ignore_none = lambda properties: {k: v for k, v in properties if v}
     return dataclasses.asdict(self, dict_factory=ignore_none)
 
   def to_json(self) -> Text:
+    """Convert your model card to json."""
     return json.dumps(self.to_dict(), indent=2)
