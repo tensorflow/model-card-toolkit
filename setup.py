@@ -23,13 +23,11 @@ REQUIRED_PACKAGES = [
     'jinja2>=2.10,<3',
     'matplotlib>=3.2.0,<4',
     'jsonschema>=3.2.0,<4',
-    'tensorflow-data-validation>=0.21.0,<=0.25',
-    'tensorflow-model-analysis>=0.21.0,<=0.25',
-    'tensorflow-metadata>=0.21.0,<=0.25',
-    'ml-metadata>=0.21.0,<=0.25.1',
+    'tensorflow-data-validation>=0.26.0,<0.27.0',
+    'tensorflow-model-analysis>=0.26.0,<0.27.0',
+    'tensorflow-metadata>=0.26.0,<0.27.0',
+    'ml-metadata>=0.26.0,<0.27.0',
     'dataclasses;python_version<"3.7"',
-    # To solve the new pip depenencies resolver issue.
-    'MarkupSafe>=1.1.0',
 ]
 
 # Get version from version module.
