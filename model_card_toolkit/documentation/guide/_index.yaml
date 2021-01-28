@@ -41,7 +41,7 @@ landing_page:
           </li>
         </ul>
         <figure>
-            <img src="min_diff/guide/images/mindiff_graphs.svg">
+            <img src="model_card_toolkit/guide/images/model_card.png">
         </figure>
     - code_block: |
           <pre class = "prettyprint">
