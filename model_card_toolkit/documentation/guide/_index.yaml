@@ -40,9 +40,6 @@ landing_page:
             Providing model information required for effective public oversight and accountability.
           </li>
         </ul>
-        <figure>
-            <img src="model_card_toolkit/guide/images/model_card.png">
-        </figure>
     - code_block: |
           <pre class = "prettyprint">
           import model_card_toolkit
@@ -63,33 +60,35 @@ landing_page:
   - classname: devsite-landing-row-100
     items:
     - description: >
+        <figure>
+            <img src="images/model_card_cropped.png">
+        </figure>
+  - classname: devsite-landing-row-100
+    items:
+    - description: >
         <h3>Resources</h3>
 
   - classname: devsite-landing-row-cards
     items:
     - heading: "Use MLMD with Model Card Toolkit"
-      image_path: /resources/images/tf-logo-card-16x9.png
-      path: "https://www.tensorflow.org/responsible_ai/model_card_toolkit/tutorials/MLMD_Model_Card_Toolkit_Demo.ipynb"
+      path: "/responsible_ai/model_card_toolkit/tutorials/MLMD_Model_Card_Toolkit_Demo.ipynb"
       buttons:
       - label: "Try the notebook tutorial"
-        path: "https://www.tensorflow.org/responsible_ai/model_card_toolkit/tutorials/MLMD_Model_Card_Toolkit_Demo.ipynb"
+        path: "/responsible_ai/model_card_toolkit/tutorials/MLMD_Model_Card_Toolkit_Demo.ipynb"
 
     - heading: "Use Model Card Toolkit with Scikit-Learn"
-      image_path: /resources/images/tf-logo-card-16x9.png
-      path: "https://www.tensorflow.org/responsible_ai/model_card_toolkit/tutorials/Scikit_Learn_Model_Card_Toolkit_Demo.ipynb"
+      path: "/responsible_ai/model_card_toolkit/tutorials/Scikit_Learn_Model_Card_Toolkit_Demo.ipynb"
       buttons:
       - label: "Try the notebook tutorial"
-        path: "https://www.tensorflow.org/responsible_ai/model_card_toolkit/tutorials/Scikit_Learn_Model_Card_Toolkit_Demo.ipynb"
+        path: "/responsible_ai/model_card_toolkit/tutorials/Scikit_Learn_Model_Card_Toolkit_Demo.ipynb"
 
     - heading: "Try Model Card Toolkit on its own"
-      image_path: /resources/images/tf-logo-card-16x9.png
-      path: "https://www.tensorflow.org/responsible_ai/model_card_toolkit/tutorials/Standalone_Model_Card_Toolkit_Demo.ipynb"
+      path: "/responsible_ai/model_card_toolkit/tutorials/Standalone_Model_Card_Toolkit_Demo.ipynb"
       buttons:
       - label: "Try the notebook tutorial"
-        path: "https://www.tensorflow.org/responsible_ai/model_card_toolkit/tutorials/Standalone_Model_Card_Toolkit_Demo.ipynb"
+        path: "/responsible_ai/model_card_toolkit/tutorials/Standalone_Model_Card_Toolkit_Demo.ipynb"
 
     - heading: "Model Card Toolkit on the Google AI Blog"
-      image_path: /responsible_ai/fairness_indicators/images/googleai.png
       path: https://ai.googleblog.com/2020/07/introducing-model-card-toolkit-for.html
       buttons:
       - label: "Read on Google AI blog"
