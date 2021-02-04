@@ -7,7 +7,7 @@ The Model Card Toolkit is hosted on
 later.
 
 ```shell
-pip install model-card-toolkit
+$ pip install model-card-toolkit
 ```
 
 You may need to append the `--use-deprecated=legacy-resolver` flag when running
