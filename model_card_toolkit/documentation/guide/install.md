@@ -6,7 +6,7 @@ The Model Card Toolkit is hosted on
 [PyPI](https://pypi.org/project/model-card-toolkit/), and requires Python 3.6 or
 later.
 
-```shell
+```bash
 $ pip install model-card-toolkit
 ```
 
@@ -18,13 +18,13 @@ pip20.3.
 Alternatively, Model Card Toolkit can be installed from source. First, clone the
 github repo:
 
-```shell
+```bash
 $ git clone https://github.com/tensorflow/model-card-toolkit.git
 ```
 
 Build the pip package from source:
 
-```shell
+```bash
 $ pip install wheel
 $ cd model_card_toolkit
 $ python3 setup.py sdist bdist_wheel
@@ -32,7 +32,7 @@ $ python3 setup.py sdist bdist_wheel
 
 Finally, install your locally built package:
 
-```shell
+```bash
 $ pip install --upgrade ./dist/*pkg.whl
 ```
 
