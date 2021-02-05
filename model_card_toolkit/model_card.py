@@ -36,11 +36,10 @@ class Version:
   describe how this version is different. If no more than one version of the
   model will be released, this field may be omitted.
 
-  ## Attributes
-
-   * `name`: The name of the version.
-   * `date`: The date this version was released.
-   * `diff`: The changes from the previous version.
+  Attributes:
+    name: The name of the version.
+    date: The date this version was released.
+    diff: The changes from the previous version.
   """
   name: Optional[Text] = None
   date: Optional[Text] = None
@@ -51,12 +50,11 @@ class Version:
 class Owner:
   """The information about owners of a model.
 
-  ## Attributes
-
-   * `name`: The name of the model owner.
-   * `contact`: The contact information for the model owner or owners. These
-   could be individual email addresses, a team mailing list expressly, or a
-   monitored feedback form.
+  Attributes:
+    name: The name of the model owner.
+    contact: The contact information for the model owner or owners. These
+      could be individual email addresses, a team mailing list expressly, or a
+      monitored feedback form.
   """
   name: Optional[Text] = None
   contact: Optional[Text] = None
@@ -66,21 +64,20 @@ class Owner:
 class ModelDetails:
   """This section provides a general, high-level description of the model.
 
-  ## Attributes
-
-   * `name`: The name of the model.
-   * `overview`: A description of the model card.
-   * `owners`: The individuals or teams who own the model.
-   * `version`: The version of the model. If there are previous versions of this
-   model, briefly describe how this version is different.
-   * `license`: The license information for the model. If the model is licensed
-   for use by others, include the license type. If the model is not licensed for
-   future use, you may state that here as well.
-   * `references`: Provide any additional links the reader may need. You can
-   link to foundational research, technical documentation, or other materials
-   that may be useful to your audience.
-   * `citation`: How should the model be cited? If the model is based on
-   published academic research, cite the research.
+  Attributes:
+    name: The name of the model.
+    overview: A description of the model card.
+    owners: The individuals or teams who own the model.
+    version: The version of the model. If there are previous versions of this
+      model, briefly describe how this version is different.
+      license: The license information for the model. If the model is licensed
+      for use by others, include the license type. If the model is not licensed
+      for future use, you may state that here as well.
+    references: Provide any additional links the reader may need. You can
+      link to foundational research, technical documentation, or other materials
+      that may be useful to your audience.
+    citation: How should the model be cited? If the model is based on
+      published academic research, cite the research.
   """
   name: Optional[Text] = None
   overview: Optional[Text] = None
@@ -95,10 +92,9 @@ class ModelDetails:
 class Graphic:
   """A named inline plot.
 
-  ## Attributes
-
-   * `name`: The name of the graphic.
-   * `image`: The image string encoded as a base64 string.
+  Attributes:
+    name: The name of the graphic.
+    image: The image string encoded as a base64 string.
   """
   name: Text
   image: Text
@@ -128,10 +124,9 @@ class Graphics:
     'in the training dataset. ')
   ```
 
-  ## Attributes
-
-   * `description`: The name of the dataset.
-   * `collection`: A collection of graphics.
+  Attributes:
+    description: The name of the dataset.
+    collection: A collection of graphics.
   """
   description: Optional[Text] = None
   collection: List[Graphic] = dataclasses.field(default_factory=list)
@@ -141,12 +136,11 @@ class Graphics:
 class Dataset:
   """Provide some information about a dataset used to generate a model.
 
-  ## Attributes
-
-   * `name`: The name of the dataset.
-   * `link`: A link to the dataset.
-   * `sensitive`: Does this dataset contain human or other sensitive data?
-   * `graphics`: Visualizations of the dataset.
+  Attributes:
+    name: The name of the dataset.
+    link: A link to the dataset.
+    sensitive: Does this dataset contain human or other sensitive data?
+    graphics: Visualizations of the dataset.
   """
   name: Optional[Text] = None
   link: Optional[Text] = None
@@ -158,10 +152,9 @@ class Dataset:
 class Data:
   """The related datasets used to train and evaluate the model.
 
-  ## Attributes
-
-   * `train`: The training dataset
-   * `eval`: The evaluation dataset
+  Attributes:
+    train: The training dataset
+    eval: The evaluation dataset
   """
   train: Dataset = dataclasses.field(default_factory=Dataset)
   eval: Dataset = dataclasses.field(default_factory=Dataset)
@@ -171,12 +164,11 @@ class Data:
 class ModelParameters:
   """Parameters for construction of the model.
 
-  ## Attributes
-
-   * `model_architecture`: specifies the architecture of your model.
-   * `data`: specifies the datasets used to train and evaluate your model.
-   * `input_format`: describes the data format for inputs to your model.
-   * `output_format`: describes the data format for outputs from your model.
+  Attributes:
+    model_architecture: specifies the architecture of your model.
+    data: specifies the datasets used to train and evaluate your model.
+    input_format: describes the data format for inputs to your model.
+    output_format: describes the data format for outputs from your model.
   """
   model_architecture: Optional[Text] = None
   data: Data = dataclasses.field(default_factory=Data)
@@ -188,10 +180,9 @@ class ModelParameters:
 class ConfidenceInterval:
   """The confidence interval of the metric.
 
-  ## Attributes
-
-   * `lower_bound`: The lower bound of the confidence interval.
-   * `upper_bound`: The upper bound of the confidence interval.
+  Attributes:
+    lower_bound: The lower bound of the confidence interval.
+    upper_bound: The upper bound of the confidence interval.
   """
   lower_bound: float
   upper_bound: float
@@ -201,14 +192,13 @@ class ConfidenceInterval:
 class PerformanceMetric:
   """The details of the performance metric.
 
-  ## Attributes
-
-   * `type`: What performance metric are you reporting on?
-   * `value`: What is the value of this performance metric?
-   * `confidence_interval`: What is the confidence interval for this
-   performance metric's value?
-   * `threshold`: At what threshold was this metric computed?
-   * `slice`: What slice of your data was this metric computed on?
+  Attributes:
+    type: What performance metric are you reporting on?
+    value: What is the value of this performance metric?
+    confidence_interval: What is the confidence interval for this
+      performance metric's value?
+    threshold: At what threshold was this metric computed?
+    slice: What slice of your data was this metric computed on?
   """
   type: Text
   value: Union[int, float, Text]
@@ -237,10 +227,9 @@ class QuantitativeAnalysis:
   ]
   ```
 
-  ## Attributes
-
-   * `performance_metrics`: The performance metrics being reported.
-   * `graphics`: A collection of visualizations of model performance.
+  Attributes:
+    performance_metrics: The performance metrics being reported.
+    graphics: A collection of visualizations of model performance.
   """
   performance_metrics: List[PerformanceMetric] = dataclasses.field(
       default_factory=list)
@@ -251,11 +240,10 @@ class QuantitativeAnalysis:
 class Risk:
   """Information about risks involved when using the model.
 
-  ## Attributes
-
-   * `name`: The name of the risk.
-   * `mitigation_strategy`: A mitigation strategy that you've implemented, or
-   one that you suggest to users.
+  Attributes:
+    name: The name of the risk.
+    mitigation_strategy: A mitigation strategy that you've implemented, or
+      one that you suggest to users.
   """
   name: Text
   mitigation_strategy: Text
@@ -272,21 +260,22 @@ class Considerations:
   downstream users likely to interact with your model, or be affected by its
   outputs.
 
-  ## Attributes
-
-   * `users`: Who are the intended users of the model? This may include
-   researchers, developers, and/or clients. You might also include information
-   about the downstream users you expect to interact with your model.
-   * `user_cases`: What are the intended use cases of the model? What use cases
-   are out-of-scope?
-   * `limitations`: What are the known limitations of the model? This may
-   include technical limitations, or conditions that may degrade model
-   performance.
-   * `tradeoffs`: What are the known accuracy/performance tradeoffs for the
-   model?
-   * `ethical_considerations`: What are the ethical risks involved in
-   application of this model? For each risk, you may also provide a mitigation
-   strategy that you've implemented, or one that you suggest to users.
+  Attributes:
+    users: Who are the intended users of the model? This may include
+      researchers, developers, and/or clients. You might also include
+      information about the downstream users you expect to interact with your
+      model.
+    use_cases: What are the intended use cases of the model? What use cases
+      are out-of-scope?
+    limitations: What are the known limitations of the model? This may
+      include technical limitations, or conditions that may degrade model
+      performance.
+    tradeoffs: What are the known accuracy/performance tradeoffs for the
+      model?
+    ethical_considerations: What are the ethical risks involved in
+      application of this model? For each risk, you may also provide a
+      mitigation strategy that you've implemented, or one that you suggest to
+      users.
   """
   users: List[Text] = dataclasses.field(default_factory=list)
   use_cases: List[Text] = dataclasses.field(default_factory=list)
@@ -299,14 +288,13 @@ class Considerations:
 class ModelCard:
   """Fields used to generate the Model Card.
 
-  ## Attributes
-
-   * `schema_version`: The Model Card JSON schema version.
-   * `model_details`: Descriptive metadata for the model.
-   * `model_parameters`: Technical metadata for the model.
-   * `quantitative_analysis`: Quantitative analysis of model performance.
-   * `considerations`: Any considerations related to model construction,
-   training, and application.
+  Attributes:
+    schema_version: The Model Card JSON schema version.
+    model_details: Descriptive metadata for the model.
+    model_parameters: Technical metadata for the model.
+    quantitative_analysis: Quantitative analysis of model performance.
+    considerations: Any considerations related to model construction,
+      training, and application.
   """
   schema_version: Optional[Text] = None
   model_details: ModelDetails = dataclasses.field(default=ModelDetails())
