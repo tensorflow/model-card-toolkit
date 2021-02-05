@@ -6,8 +6,8 @@ The Model Card Toolkit is hosted on
 [PyPI](https://pypi.org/project/model-card-toolkit/), and requires Python 3.6 or
 later.
 
-```bash
-$ pip install model-card-toolkit
+```posix-terminal
+pip install model-card-toolkit
 ```
 
 You may need to append the `--use-deprecated=legacy-resolver` flag when running
@@ -18,22 +18,24 @@ pip20.3.
 Alternatively, Model Card Toolkit can be installed from source. First, clone the
 github repo:
 
-```bash
-$ git clone https://github.com/tensorflow/model-card-toolkit.git
+```posix-terminal
+git clone https://github.com/tensorflow/model-card-toolkit.git
 ```
 
 Build the pip package from source:
 
-```bash
-$ pip install wheel
-$ cd model_card_toolkit
-$ python3 setup.py sdist bdist_wheel
+```posix-terminal
+pip install wheel
+
+cd model_card_toolkit
+
+python3 setup.py sdist bdist_wheel
 ```
 
 Finally, install your locally built package:
 
-```bash
-$ pip install --upgrade ./dist/*pkg.whl
+```posix-terminal
+pip install --upgrade ./dist/*pkg.whl
 ```
 
 ## Filing a Bug
