@@ -71,22 +71,22 @@ landing_page:
   - classname: devsite-landing-row-cards
     items:
     - heading: "Use MLMD with Model Card Toolkit"
-      path: "/responsible_ai/model_card_toolkit/tutorials/MLMD_Model_Card_Toolkit_Demo.ipynb"
+      path: "/responsible_ai/model_card_toolkit/examples/MLMD_Model_Card_Toolkit_Demo"
       buttons:
       - label: "Try the notebook tutorial"
-        path: "/responsible_ai/model_card_toolkit/tutorials/MLMD_Model_Card_Toolkit_Demo.ipynb"
+        path: "/responsible_ai/model_card_toolkit/examples/MLMD_Model_Card_Toolkit_Demo"
 
     - heading: "Use Model Card Toolkit with Scikit-Learn"
-      path: "/responsible_ai/model_card_toolkit/tutorials/Scikit_Learn_Model_Card_Toolkit_Demo.ipynb"
+      path: "/responsible_ai/model_card_toolkit/examples/Scikit_Learn_Model_Card_Toolkit_Demo"
       buttons:
       - label: "Try the notebook tutorial"
-        path: "/responsible_ai/model_card_toolkit/tutorials/Scikit_Learn_Model_Card_Toolkit_Demo.ipynb"
+        path: "/responsible_ai/model_card_toolkit/examples/Scikit_Learn_Model_Card_Toolkit_Demo"
 
     - heading: "Try Model Card Toolkit on its own"
-      path: "/responsible_ai/model_card_toolkit/tutorials/Standalone_Model_Card_Toolkit_Demo.ipynb"
+      path: "/responsible_ai/model_card_toolkit/examples/Standalone_Model_Card_Toolkit_Demo"
       buttons:
       - label: "Try the notebook tutorial"
-        path: "/responsible_ai/model_card_toolkit/tutorials/Standalone_Model_Card_Toolkit_Demo.ipynb"
+        path: "/responsible_ai/model_card_toolkit/examples/Standalone_Model_Card_Toolkit_Demo"
 
     - heading: "Model Card Toolkit on the Google AI Blog"
       path: https://ai.googleblog.com/2020/07/introducing-model-card-toolkit-for.html
