@@ -10,6 +10,18 @@
 
 ## Deprecations
 
+# Release 0.1.3
+
+## Major Features and Improvements
+
+## Bug fixes and other changes
+
+* Update model_card.py docstrings. Now hosted on [Responsible AI](https://www.tensorflow.org/responsible_ai/model_card_toolkit/api_docs/python/model_card_toolkit).
+
+## Breaking changes
+
+## Deprecations
+
 # Release 0.1.2
 
 ## Major Features and Improvements
