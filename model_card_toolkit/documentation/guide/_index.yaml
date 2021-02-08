@@ -28,7 +28,7 @@ landing_page:
         MCT can automatically populate those fields for TFX users via
         <a href="https://www.tensorflow.org/tfx/guide/mlmd">ML Metadata (MLMD)</a>. Model card
         fields can also be manually populated via a
-        <a href="https://github.com/tensorflow/model-card-toolkit/blob/master/model_card_toolkit/model_card.py">Python API</a>.
+        <a href="https://www.tensorflow.org/responsible_ai/model_card_toolkit/api_docs/python/model_card_toolkit">Python API</a>.
         Some use cases of model cards include:
         <ul style="padding-left: 20px">
           <li>
