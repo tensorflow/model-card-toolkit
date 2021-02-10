@@ -4,6 +4,12 @@
 
 
 
+```live-stacks
+product_id: 'model_card_toolkit'
+widget_kind: 'educational'
+use_name_in_title: true
+```
+
 
 
 ## Getting Started
