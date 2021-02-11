@@ -1,0 +1,244 @@
+syntax = "proto3";
+
+package third_party.py.model_card_toolkit;
+
+import "google/protobuf/timestamp.proto";
+
+// The information about owners of a model.
+// The next tag number is 3.
+message Owner {
+  // The name of the model owner.
+  optional string name = 1;
+
+  // The contact information for the model owner or owners.
+  optional string contact = 2;
+}
+
+// The information about verions of a model.
+// If there are multiple versions of the model, or there may be in the future,
+// it’s useful for your audience to know which version of the model is discussed
+// in the Model Card. If there are previous versions of this model, briefly
+// describe how this version is different. If no more than one version of the
+// model will be released, this field may be omitted.
+// The next tag number is 4.
+message Version {
+  // The name of the version.
+  optional string name = 1;
+
+  // The date this version was released.
+  optional google.protobuf.Timestamp date = 2;
+
+  // The changes from the previous version.
+  optional string diff = 3;
+}
+
+// The next tag number is 3.
+message License {
+  oneof type {
+    // A standard SPDX license identifier (https://spdx.org/licenses/), or
+    // "proprietary" for an unlicensed Module.
+    string identifier = 1;
+
+    // The text of a custom license.
+    string custom_text = 2;
+  }
+}
+
+message Reference {
+  // A reference to a resource.
+  string reference = 1;
+}
+
+// A citation for the model.
+// The next tag number is 3.
+message Citation {
+  // The citation style
+  optional string style = 1;
+
+  // The citation
+  string citation = 2;
+}
+
+// This section provides a general, high-level description of the model.
+// The next tag number is 9.
+message ModelDetails {
+  // The name of the model.
+  optional string name = 1;
+
+  // A brief, one-line description of the model.
+  optional string overview = 2;
+
+  // A more thorough description of the model and its usage.
+  optional string documentation = 3;
+
+  // The individuals or teams who own the model.
+  repeated Owner owners = 4;
+
+  // The version of the model.
+  optional Version version = 5;
+
+  // The license information for the model.
+  repeated License licenses = 6;
+
+  // Provide any additional references the reader may need.
+  repeated Reference references = 7;
+
+  // How should the model be cited?
+  repeated Citation citations = 8;
+}
+
+// A named inline plot.
+// The next tag number is 3.
+message Graphic {
+  // The name of the graphic.
+  optional string name = 1;
+
+  // The image, encoded as a base64 string.
+  bytes image = 2;
+}
+
+// A collection of graphics.
+// Each graphic in the collection field has both a name and an image.
+// The next tag number is 3.
+message GraphicsCollection {
+  // A description of the Graphics collection.
+  optional string description = 1;
+
+  // A collection of graphics.
+  repeated Graphic collection = 2;
+}
+
+// Sensitive data, such as PII (personally-identifiable information)
+// The next tag number is 2.
+message SensitiveData {
+  // A description of any sensitive data that may be present in a dataset.
+  // Be sure to note PII information such as names, addresses, phone numbers,
+  // etc. Preferably, such info should be scrubbed from a dataset if possible.
+  // Note that even non-identifying information, such as zip code, age, race,
+  // and gender, can be used to identify individuals when aggregated. Please
+  // describe any such fields here.
+  repeated string sensitive_data = 1;
+}
+
+// Provide some information about a dataset used to generate a model.
+// The next tag number is 5.
+message Dataset {
+  // The name of the dataset.
+  string name = 1;
+  // A link to the dataset.
+
+  optional string link = 2;
+
+  // Does this dataset contain any human, PII, or sensitive data?
+  optional SensitiveData sensitive = 3;
+
+  // Visualizations of the dataset.
+  GraphicsCollection graphics = 4;
+}
+
+// Parameters for construction of the model.
+// The next tag number is 5.
+message ModelParameters {
+  // Specifies the architecture of your model.
+  optional string model_architecture = 1;
+
+  // Specifies the datasets used to train and evaluate your model.
+  repeated Dataset data = 2;
+
+  // Describes the data format for inputs to your model.
+  optional string input_format = 3;
+
+  // Describes the data format for outputs from your model.
+  optional string output_format = 4;
+}
+
+// The details of the performance metric.
+message PerformanceMetric {
+  // TODO(b/179415408): add fields (name, value, confidence_interval, threshold,
+  // slice) after gathering requirements
+}
+
+// The quantitative analysis of a model.
+// The next tag number is 3.
+message QuantitativeAnalysis {
+  // The performance metrics being reported.
+  repeated PerformanceMetric performance_metrics = 1;
+
+  // A collection of visualizations of model performance.
+  GraphicsCollection graphics = 2;
+}
+
+// A type of user for a model.
+message User {
+  // A description of a user.
+  string description = 1;
+}
+
+// A type of use case for a model.
+message UseCase {
+  // A description of a use case.
+  string description = 1;
+}
+
+// A limitation a model.
+message Limitation {
+  // A description of the limitation.
+  string description = 1;
+}
+
+// A tradeoff for a model.
+message Tradeoff {
+  // A description of the tradeoff.
+  string description = 1;
+}
+
+// Information about risks involved when using the model.
+// The next tag number is 3.
+message Risk {
+  // The name of the risk.
+  string name = 1;
+
+  // A mitigation strategy that you've implemented, or one you suggest to users.
+  string mitigation_strategy = 2;
+}
+
+// Considerations related to model construction, training, and application.
+// The considerations section includes qualitative information about your model,
+// including some analysis of its risks and limitations. As such, this section
+// usually requires careful consideration, and conversations with many relevant
+// stakeholders, including other model developers, dataset producers, and
+// downstream users likely to interact with your model, or be affected by its
+// outputs.
+// The next tag number is 6.
+message Considerations {
+  // Who are the intended users of the model?
+  repeated User users = 1;
+
+  // What are the intended use cases of the model?
+  repeated UseCase use_cases = 2;
+
+  // What are the known limitations of the model?
+  repeated Limitation limitations = 3;
+
+  // What are the known accuracy/performance tradeoffs for the model?
+  repeated Tradeoff tradeoffs = 4;
+
+  // What are the ethical risks involved in application of this model?
+  repeated Risk ethical_considerations = 5;
+}
+
+// Fields used to generate the Model Card.
+// The next tag number is 5.
+message ModelCard {
+  // Descriptive metadata for the model.
+  ModelDetails model_details = 1;
+
+  // Technical metadata for the model.
+  ModelParameters model_parameters = 2;
+
+  // Quantitative analysis of model performance.
+  QuantitativeAnalysis quantitative_analysis = 3;
+
+  // Any considerations related to model construction, training, and application
+  Considerations considerations = 4;
+}

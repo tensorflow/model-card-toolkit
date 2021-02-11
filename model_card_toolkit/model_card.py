@@ -68,8 +68,7 @@ class ModelDetails:
     name: The name of the model.
     overview: A description of the model card.
     owners: The individuals or teams who own the model.
-    version: The version of the model. If there are previous versions of this
-      model, briefly describe how this version is different.
+    version: The version of the model.
       license: The license information for the model. If the model is licensed
       for use by others, include the license type. If the model is not licensed
       for future use, you may state that here as well.
@@ -153,8 +152,8 @@ class Data:
   """The related datasets used to train and evaluate the model.
 
   Attributes:
-    train: The training dataset
-    eval: The evaluation dataset
+    train: The training dataset.
+    eval: The evaluation dataset.
   """
   train: Dataset = dataclasses.field(default_factory=Dataset)
   eval: Dataset = dataclasses.field(default_factory=Dataset)
