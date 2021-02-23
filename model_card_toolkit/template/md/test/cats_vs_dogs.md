@@ -13,6 +13,8 @@ This model distinguishes cat and dog images. It uses the MobileNetV2 architectur
 
 name: v1.0  
 
+date: 08/28/2020  
+
 ### Owners
 
 * Model Cards Team, model-cards@google.com
@@ -35,6 +37,11 @@ https://github.com/tensorflow/model-card-toolkit/blob/master/model_card_toolkit/
 
 ## Considerations
 
+### Users
+
+* Fans of dogs and cats.
+
+
 ### Use Cases
 
 * This model classifies images of cats and dogs.
@@ -43,6 +50,11 @@ https://github.com/tensorflow/model-card-toolkit/blob/master/model_card_toolkit/
 ### Limitations
 
 * This model is not able to classify images of other classes.
+
+
+### Tradeoffs
+
+* Recall vs Precision.
 
 
 ### Ethical Considerations

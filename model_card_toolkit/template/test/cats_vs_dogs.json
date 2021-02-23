@@ -11,7 +11,7 @@
     ],
     "version": {
       "name": "v1.0",
-      "data": "08/28/2020"
+      "date": "08/28/2020"
     },
     "license": "Apache-2.0",
     "references": [
@@ -75,11 +75,17 @@
     }
   },
   "considerations": {
+    "users": [
+      "Fans of dogs and cats."
+    ],
     "use_cases": [
       "This model classifies images of cats and dogs."
     ],
     "limitations": [
       "This model is not able to classify images of other classes."
+    ],
+    "tradeoffs": [
+      "Recall vs Precision."
     ],
     "ethical_considerations": [
       {
