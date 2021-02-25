@@ -36,7 +36,7 @@ message Version {
 message License {
   oneof type {
     // A standard SPDX license identifier (https://spdx.org/licenses/), or
-    // "proprietary" for an unlicensed Module.
+    // "proprietary" for an unlicensed module.
     string identifier = 1;
 
     // The text of a custom license.
@@ -121,19 +121,23 @@ message SensitiveData {
 }
 
 // Provide some information about a dataset used to generate a model.
-// The next tag number is 5.
+// The next tag number is 6.
 message Dataset {
   // The name of the dataset.
   string name = 1;
-  // A link to the dataset.
 
+  // A link to the dataset.
   optional string link = 2;
 
   // Does this dataset contain any human, PII, or sensitive data?
   optional SensitiveData sensitive = 3;
 
   // Visualizations of the dataset.
-  GraphicsCollection graphics = 4;
+  optional GraphicsCollection graphics = 4;
+
+  // A description of the dataset. Can describe size of dataset, whether it's
+  // used for training, testing, or validation, etc.
+  optional string description = 5;
 }
 
 // Parameters for construction of the model.
@@ -165,7 +169,7 @@ message QuantitativeAnalysis {
   repeated PerformanceMetric performance_metrics = 1;
 
   // A collection of visualizations of model performance.
-  GraphicsCollection graphics = 2;
+  optional GraphicsCollection graphics = 2;
 }
 
 // A type of user for a model.
