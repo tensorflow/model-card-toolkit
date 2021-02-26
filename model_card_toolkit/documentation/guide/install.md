@@ -15,8 +15,12 @@ pip20.3.
 
 ## Installing from source
 
-Alternatively, Model Card Toolkit can be installed from source. First, clone the
-github repo:
+Starting with
+[version 0.1.4](https://github.com/tensorflow/model-card-toolkit/blob/master/RELEASE.md)
+compiling Model Card Toolkit requires
+[Bazel](https://docs.bazel.build/versions/master/install.html)>=2.0.0.
+
+First, clone the github repo:
 
 ```posix-terminal
 git clone https://github.com/tensorflow/model-card-toolkit.git
