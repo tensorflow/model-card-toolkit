@@ -108,7 +108,7 @@ message GraphicsCollection {
   repeated Graphic collection = 2;
 }
 
-// Sensitive data, such as PII (personally-identifiable information)
+// Sensitive data, such as PII (personally-identifiable information).
 // The next tag number is 2.
 message SensitiveData {
   // A description of any sensitive data that may be present in a dataset.
