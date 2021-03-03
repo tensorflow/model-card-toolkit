@@ -1,8 +1,6 @@
 syntax = "proto2";
 
-package third_party.py.model_card_toolkit;
-
-import "google/protobuf/timestamp.proto";
+package third_party.py.model_card_toolkit.proto;
 
 // The information about owners of a model.
 // The next tag number is 3.
@@ -26,7 +24,7 @@ message Version {
   optional string name = 1;
 
   // The date this version was released.
-  optional google.protobuf.Timestamp date = 2;
+  optional string date = 2;
 
   // The changes from the previous version.
   optional string diff = 3;
@@ -52,10 +50,10 @@ message Reference {
 // A citation for the model.
 // The next tag number is 3.
 message Citation {
-  // The citation style
+  // The citation style.
   optional string style = 1;
 
-  // The citation
+  // The citation content.
   optional string citation = 2;
 }
 
