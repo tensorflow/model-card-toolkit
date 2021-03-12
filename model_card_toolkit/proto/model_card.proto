@@ -92,7 +92,7 @@ message Graphic {
   optional string name = 1;
 
   // The image, encoded as a base64 string.
-  optional bytes image = 2;
+  optional string image = 2;
 }
 
 // A collection of graphics.
