@@ -123,6 +123,7 @@ message SensitiveData {
 message Dataset {
   // The name of the dataset.
   optional string name = 1;
+
   // A link to the dataset.
   optional string link = 2;
 
@@ -155,8 +156,19 @@ message ModelParameters {
 
 // The details of the performance metric.
 message PerformanceMetric {
-  // TODO(b/179415408): add fields (name, value, confidence_interval, threshold,
-  // slice) after gathering requirements
+  // TODO(b/179415408): revist the design the of message
+  // The following fields are EXPERIMENTAL and introduced for migration purpose.
+  // For proto users, please do not rely on the fields.
+
+  // The type of performance metric.
+  optional string type = 1;
+
+  // The value of the performance metric.
+  optional string value = 2;
+
+  // The name of the slice this metric was computed on.
+  // By default, assume this metric is not sliced.
+  optional string slice = 3;
 }
 
 // The quantitative analysis of a model.
