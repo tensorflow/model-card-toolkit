@@ -6,6 +6,7 @@
 
 ## Bug fixes and other changes
 
+* Update default template layout so charts can wrap to multiple rows
 * Installing from source now requires [Bazel](https://docs.bazel.build/versions/master/install.html)>=2.0.0.
 
 ## Breaking changes
