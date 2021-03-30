@@ -121,9 +121,9 @@
               <ul>{% for owner in model_details.owners %}
                 <li>{{ owner.name }}, {{ owner.contact }}</li>
               {% endfor %}</ul>{% endif %}
-          {% if model_details.license %}
+          {% if model_details.licenses %}
             <h3>Licenses</h3>
-              <ul>{% for license in model_details.license %}{{ render_license(license) }}{% endfor %}
+              <ul>{% for license in model_details.licenses %}{{ render_license(license) }}{% endfor %}
               </ul>{% endif %}
           {% if model_details.references %}
             <h3>References</h3>

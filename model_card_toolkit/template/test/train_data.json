@@ -13,7 +13,7 @@
       "date": "2020-01-01",
       "diff": "Updated dataset."
     },
-    "license": [{"identifier": "Apache 2.0"}],
+    "licenses": [{"identifier": "Apache 2.0"}],
     "references": [
       {"reference": "https://my_model.xyz.com"},
       {"reference": "https://example.com"}

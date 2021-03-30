@@ -1,5 +1,5 @@
 {
-  "schema_version": "0.0.2",
+  "schema_version": "0.0.1",
   "model_details": {
     "name": "Fine-tuned MobileNetV2 Model for Cat vs. Dogs",
     "overview": "This model distinguishes cat and dog images. It uses the MobileNetV2 architecture (https://arxiv.org/abs/1801.04381) and is trained on the Cats vs Dogs dataset (https://www.tensorflow.org/datasets/catalog/cats_vs_dogs). This model performed with high accuracy on both Cat and Dog images.",
@@ -13,23 +13,19 @@
       "name": "v1.0",
       "date": "08/28/2020"
     },
-    "licenses": [{"custom_text": "Apache-2.0"}],
+    "license": "Apache-2.0",
     "references": [
-      {"reference": "https://www.kaggle.com/c/dogs-vs-cats"},
-      {"reference": "https://arxiv.org/abs/1801.04381"}
+      "https://www.kaggle.com/c/dogs-vs-cats",
+      "https://arxiv.org/abs/1801.04381"
     ],
-    "citations": [
-      {"citation": "https://github.com/tensorflow/model-card-toolkit/blob/master/model_card_toolkit/documentation/examples/Standalone_Model_Card_Toolkit_Demo.ipynb"}
-    ]
+    "citation": "https://github.com/tensorflow/model-card-toolkit/blob/master/model_card_toolkit/documentation/examples/Standalone_Model_Card_Toolkit_Demo.ipynb"
   },
   "model_parameters": {
-    "data": [
-      {
-        "name": "Training Set",
+    "data": {
+      "train": {
         "graphics": {}
       },
-      {
-        "name": "Validation Set",
+      "eval": {
         "graphics": {
           "collection": [
             {
@@ -40,7 +36,7 @@
           ]
         }
       }
-    ]
+    }
   },
   "quantitative_analysis": {
     "performance_metrics": [
@@ -81,16 +77,16 @@
   },
   "considerations": {
     "users": [
-      {"description": "Fans of dogs and cats."}
+      "Fans of dogs and cats."
     ],
     "use_cases": [
-      {"description": "This model classifies images of cats and dogs."}
+      "This model classifies images of cats and dogs."
     ],
     "limitations": [
-      {"description": "This model is not able to classify images of other classes."}
+      "This model is not able to classify images of other classes."
     ],
     "tradeoffs": [
-      {"description": "Recall vs Precision."}
+      "Recall vs Precision."
     ],
     "ethical_considerations": [
       {

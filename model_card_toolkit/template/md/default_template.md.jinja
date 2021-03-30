@@ -38,10 +38,10 @@
 {% for owner in model_details.owners %}
 * {{ owner.name }}, {{ owner.contact }}
 {% endfor %}
-{% endif %}{% if model_details.license %}
+{% endif %}{% if model_details.licenses %}
 ### Licenses
-{% for license in model_details.license %}{{ render_license(license) }}{% endfor %}{% endif %}{% if model_details.references %}
-
+{% for license in model_details.licenses %}{{ render_license(license) }}{% endfor %}
+{% endif %}{% if model_details.references %}
 ### References
 {% for reference in model_details.references %}
 * [{{ reference.reference }}]({{ reference.reference }}){% endfor %}

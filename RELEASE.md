@@ -7,6 +7,7 @@
 * Introduce `model_card.proto`. See https://developers.google.com/protocol-buffers for more info.
 * All classes in `model_card_toolkit.model_card` submodule now have `to_proto()`, `merge_from_proto()`, `copy_from_proto()`, and `clear()` functions.
 * `ModelCardToolkit.export_format()` now accepts `model_card` arg.
+* `json_util.update()`, which updates a v0.0.1 JSON object to a v0.0.2 JSON object.
 
 ## Bug fixes and other changes
 

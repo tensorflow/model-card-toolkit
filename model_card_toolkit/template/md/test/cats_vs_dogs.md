@@ -24,8 +24,7 @@ date: 08/28/2020
 
 ### Licenses
 
-* Apache 2.0
-* my custom license
+* Apache-2.0
 
 ### References
 
@@ -41,6 +40,11 @@ date: 08/28/2020
 
 ## Considerations
 
+### Users
+
+* Fans of dogs and cats.
+
+
 ### Use Cases
 
 * This model classifies images of cats and dogs.
@@ -49,6 +53,11 @@ date: 08/28/2020
 ### Limitations
 
 * This model is not able to classify images of other classes.
+
+
+### Tradeoffs
+
+* Recall vs Precision.
 
 
 ### Ethical Considerations
