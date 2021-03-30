@@ -6,6 +6,8 @@
 
 
 
+
+
 <html lang="en">
 <head>
 <style>
@@ -29,7 +31,6 @@
   }
   .img-item {
     flex: 1;
-    min-width: 30%;
   }
   table, th, td { border: 1px solid black; }
   th, td { border: 1px solid #CCC; height: 30px; }
@@ -55,6 +56,7 @@
 
               
   
+    <div>date: 08/28/2020</div>
 
               
   
@@ -65,23 +67,30 @@
                 <li>Model Cards Team, model-cards@google.com</li>
               </ul>
           
-            <h3>License</h3>
-              Apache-2.0
+            <h3>Licenses</h3>
+              <ul>
+
+                <li>Apache 2.0</li>
+
+my custom license</li>
+
+              </ul>
           
             <h3>References</h3>
+              <ul>
               
-  
-  <ul>
-  
-    <li><a href="https://www.kaggle.com/c/dogs-vs-cats">https://www.kaggle.com/c/dogs-vs-cats</a></li>
-  
-    <li><a href="https://arxiv.org/abs/1801.04381">https://arxiv.org/abs/1801.04381</a></li>
-  
-  </ul>
-
+                <li><a href="https://www.kaggle.com/c/dogs-vs-cats">https://www.kaggle.com/c/dogs-vs-cats</a></li>
+              
+                <li><a href="https://arxiv.org/abs/1801.04381">https://arxiv.org/abs/1801.04381</a></li>
+              
+              </ul>
           
-            <h3>Citation</h3>
-              https://github.com/tensorflow/model-card-toolkit/blob/master/model_card_toolkit/documentation/examples/Standalone_Model_Card_Toolkit_Demo.ipynb
+            <h3>Citations</h3>
+              <ul>
+              
+                <li>https://github.com/tensorflow/model-card-toolkit/blob/master/model_card_toolkit/documentation/examples/Standalone_Model_Card_Toolkit_Demo.ipynb</li>
+              
+              </ul>
           
           
           
@@ -124,10 +133,13 @@
       
     </div>
     
+      
+  <h2>Graphics</h2>
+    
     
       <div class="row">
         <div class="col card">
-          <h2>Eval Set</h2>
+          <h3>Validation Set</h3>
             
             
   <div class="img-container">
@@ -144,10 +156,9 @@
     
       <div class="row">
         <div class="col card">
-          <h2>Quantitative Analysis</h2>
+          <h3>Quantitative Analysis</h3>
             
-              
-              
+            
   <div class="img-container">
   
     <div class="img-item">
@@ -156,8 +167,13 @@
   
   </div>
 
-            
-              
+        </div>
+      </div>
+    
+
+    
+    
+      
 <table>
   <caption>Performance Metrics</caption>
   <tr><th>Name</th><th>Value</th></tr>
@@ -182,9 +198,6 @@ accuracy@0.5, Dog
 
 </table>
 
-            
-        </div>
-      </div>
     
 </body>
 </html>

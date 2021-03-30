@@ -1,21 +1,26 @@
 {% macro render_if_exist(name, value) %}{% if value %}
 
-{{name}}: {{value}}  {% endif %}{% endmacro %}{% macro render_list(list) %}{% if list %}{% for item in list %}
-* {{ item }}
+{{name}}: {{value}}  {% endif %}{% endmacro %}{% macro render_considerations(list) %}{% if list %}{% for item in list %}
+* {{ item.description }}
 {% endfor %}{% endif %}
 {% endmacro %}{% macro render_uri_list(list) %}{% if list %}{% for item in list %}
 * [{{ item }}]({{ item }})
-{% endfor %}{% endif %}{% endmacro %}{% macro render_graphics(graphics) %}{% if graphics %}  {% for graph in graphics.collection %}
+{% endfor %}{% endif %}{% endmacro %}
+{% macro render_all_graphics(model_parameters, quantitative_analysis) %}## Graphics
+{% for dataset in model_parameters.data %}{% if dataset.graphics.collection %}{{ render_graphics(dataset.graphics) }}{% endif %}{% endfor %}
+{% if quantitative_analysis.graphics.collection %}
+{{ render_graphics(quantitative_analysis.graphics) }}{% endif %}
+{% endmacro %}{% macro render_graphics(graphics) %}{% if graphics %}  {% for graph in graphics.collection %}{% if graph.name %}
+### {{ graph.name }}{% endif %}{% if graph.description %}
 
-{{ graph.name }}
-
+{{ graph.description }}{% endif %}
 <img src="data:image/jpeg;base64,{{ graph.image }}">
-
-{% endfor %}
-{% endif %}{% endmacro %}
+{% endfor %}{% endif %}{% endmacro %}
+{% macro render_license(license) %}
+* {% if license.identifier %}{{ license.identifier }}{% endif %}{% if license.custom_text %}{{ license.custom_text }}{% endif %}{% endmacro %}
 {% macro metric_name(metric) %}{{ metric.type }}{% if metric.threshold %}@{{ metric.threshold }}{% endif %}{% if metric.slice %}, {{ metric.slice }}{% endif %}{% endmacro %}
 {% macro metric_value(metric) %}{{ metric.value }}{% if metric.confidence_interval %} ({{ metric.confidence_interval.lower_bound }}, {{ metric.confidence_interval.upper_bound }}){% endif %}{% endmacro %}
-{% macro render_metrics_table(metrics) %}#### Metrics
+{% macro render_metrics_table(metrics) %}## Metrics
 
 |Name|Value|
 -----|------{% for metric in metrics %}
@@ -34,15 +39,18 @@
 * {{ owner.name }}, {{ owner.contact }}
 {% endfor %}
 {% endif %}{% if model_details.license %}
-### License
+### Licenses
+{% for license in model_details.license %}{{ render_license(license) }}{% endfor %}{% endif %}{% if model_details.references %}
 
-{{ model_details.license }}
-{% endif %}{% if model_details.references %}
 ### References
-{{ render_uri_list(model_details.references) }}{% endif %}
-{% if model_details.citation %}### Citation
+{% for reference in model_details.references %}
+* [{{ reference.reference }}]({{ reference.reference }}){% endfor %}
+{% endif %}{% if model_details.citations %}
 
-{{ model_details.citation }}{% endif %}{% if model_parameters.model_architecture or model_parameters.input_format or model_parameters.output_format %}
+### Citations
+{% for citation in model_details.citations %}
+* {{ citation.citation }}{% endfor %}
+{% endif %}{% if model_parameters.model_architecture or model_parameters.input_format or model_parameters.output_format %}
 
 ## Model Parameters
 {% if model_parameters.model_architecture %}
@@ -62,33 +70,19 @@
 {% if considerations.users or considerations.use_cases or considerations.limitations or considerations.tradeoffs or considerations.ethical_considerations %}## Considerations
 {% if considerations.users %}
 ### Users
-{{ render_list(considerations.users) }}{% endif %}{% if considerations.use_cases %}
+{{ render_considerations(considerations.users) }}{% endif %}{% if considerations.use_cases %}
 ### Use Cases
-{{ render_list(considerations.use_cases) }}{% endif %}{% if considerations.limitations %}
+{{ render_considerations(considerations.use_cases) }}{% endif %}{% if considerations.limitations %}
 ### Limitations
-{{ render_list(considerations.limitations) }}{% endif %}{% if considerations.tradeoffs %}
+{{ render_considerations(considerations.limitations) }}{% endif %}{% if considerations.tradeoffs %}
 ### Tradeoffs
-{{ render_list(considerations.tradeoffs) }}{% endif %}{% if considerations.ethical_considerations %}
+{{ render_considerations(considerations.tradeoffs) }}{% endif %}{% if considerations.ethical_considerations %}
 ### Ethical Considerations
 {% for risk in considerations.ethical_considerations %}
 * Risk: {{ risk.name }}
   * Mitigation Strategy: {{ risk.mitigation_strategy }}
-{% endfor %}
-{% endif %}{% endif %}
-{% if (model_parameters.data.train and model_parameters.data.train.graphics) or (model_parameters.data.eval and model_parameters.data.eval.graphics) or (quantitative_analysis and quantitative_analysis.graphics) %}## Graphics
-{% if model_parameters.data.train and (model_parameters.data.train.graphics.description or model_parameters.data.train.graphics.collection) %}
-### Train Set{% if model_parameters.data.train.graphics.description %}
-
-{{ model_parameters.data.train.graphics.description }}{% endif %}{% if model_parameters.data.train.graphics.collection %}
-{{ render_graphics(model_parameters.data.train.graphics) }}{% endif %}{% endif %}
-{% if model_parameters.data.eval and (model_parameters.data.eval.graphics.description or model_parameters.data.eval.graphics.collection) %}
-### Eval Set{% if model_parameters.data.eval.graphics.description %}
-
-{{ model_parameters.data.eval.graphics.description }}{% endif %}{% if model_parameters.data.eval.graphics.collection %}
-{{ render_graphics(model_parameters.data.eval.graphics) }}{% endif %}{% endif %}{% if quantitative_analysis and (quantitative_analysis.graphics.description or quantitative_analysis.graphics.collection) %}
-### Quantitative Analysis{% if quantitative_analysis.graphics.description %}
-
-{{ quantitative_analysis.graphics.description }}{% endif %}{% if quantitative_analysis.graphics.collection %}
-{{ render_graphics(quantitative_analysis.graphics) }}{% endif %}{% if quantitative_analysis.performance_metrics %}{{ render_metrics_table(quantitative_analysis.performance_metrics) }}{% endif %}
+{% endfor %}{% endif %}{% if model_parameters.data or quantitative_analysis.graphics.collection %}
+{{ render_all_graphics(model_parameters, quantitative_analysis ) }}
+{% endif %}{% if quantitative_analysis and quantitative_analysis.performance_metrics %}{{ render_metrics_table(quantitative_analysis.performance_metrics) }}
 {% endif %}
 {% endif %}

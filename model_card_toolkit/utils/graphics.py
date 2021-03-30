@@ -56,7 +56,7 @@ def annotate_dataset_feature_statistics_plots(
     model_card: model_card_module.ModelCard,
     train_stats: statistics_pb2.DatasetFeatureStatisticsList = None,
     eval_stats: statistics_pb2.DatasetFeatureStatisticsList = None) -> None:
-  """Annotate visualizations for every dataset and feature in eval_stats.
+  """Annotate visualizations for every dataset and feature in train/eval_stats.
 
   The visualizations are histograms encoded as base64 text strings.
 
@@ -72,11 +72,9 @@ def annotate_dataset_feature_statistics_plots(
   """
 
   data_stats = (train_stats, eval_stats)
-  mc_datasets = (model_card.model_parameters.data.train,
-                 model_card.model_parameters.data.eval)
   colors = (_COLOR_PALETTE['material_teal_700'],
             _COLOR_PALETTE['material_indigo_400'])
-  for stats, mc_data, color in zip(data_stats, mc_datasets, colors):
+  for stats, color in zip(data_stats, colors):
     if not stats:
       continue
     graphs = []
@@ -85,11 +83,11 @@ def annotate_dataset_feature_statistics_plots(
         graph = _generate_graph_from_feature_statistics(feature, color)
         if graph is not None:
           _draw_histogram(graph)
-          graphs.append(graph)
-    mc_data.graphics.collection.extend([
-        model_card_module.Graphic(name=graph.name, image=graph.base64str)
-        for graph in graphs
-    ])
+          graphs.append(
+              model_card_module.Graphic(name=graph.name, image=graph.base64str))
+    model_card.model_parameters.data.append(
+        model_card_module.Dataset(
+            graphics=model_card_module.GraphicsCollection(collection=graphs)))
 
 
 def annotate_eval_result_plots(model_card: model_card_module.ModelCard,

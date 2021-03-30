@@ -1,0 +1,318 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Model Card",
+  "$id": "https://modelcards.withgoogle.com/v0.0.1/model_card.schema.json",
+  "description": "https://modelcards.withgoogle.com/",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "description": "The version of the schema.",
+      "type": "string"
+    },
+    "model_details": {
+      "description": "Metadata about the model.",
+      "type": "object",
+      "properties": {
+        "name": {
+          "description": "The name of the model.",
+          "type": "string"
+        },
+        "overview": {
+          "description": "A brief, one-line description of the model card.",
+          "type": "string"
+        },
+        "documentation": {
+          "description": "A thorough description of the model and its usage.",
+          "type": "string"
+        },
+        "owners": {
+          "description": "The individuals or teams who own the model.",
+          "type": "array",
+          "items": {"$ref": "#/definitions/owner"}
+        },
+        "version": { "$ref": "#/definitions/version" },
+        "licenses": {
+          "description": "The model's license for use.",
+          "type": "array",
+          "items": { "$ref": "#/definitions/license" }
+        },
+        "references": {
+          "description": "Links providing more information about the model.",
+          "type": "array",
+          "items": { "$ref": "#/definitions/reference" }
+        },
+        "citations": {
+          "description": "How to reference this model card.",
+          "type": "array",
+          "items": { "$ref": "#/definitions/citation" }
+        }
+      }
+    },
+    "model_parameters": {
+      "description": "Parameters for construction of the model.",
+      "type": "object",
+      "properties": {
+        "model_architecture": {
+          "description": "The architecture of the model.",
+          "type": "string"
+        },
+        "data": {
+          "description": "The datasets used to train and evaluate the model.",
+          "type": "array",
+          "items": { "$ref": "#/definitions/dataset" }
+        },
+        "input_format": {
+          "description": "The data format for inputs to the model.",
+          "type": "string"
+        },
+        "output_format": {
+          "description": "The data format for outputs from the model.",
+          "type": "string"
+        }
+      }
+    },
+    "quantitative_analysis": {
+      "description": "A quantitative analysis of the model",
+      "type": "object",
+      "properties": {
+        "performance_metrics": {
+          "description": "The model performance metrics being reported.",
+          "type": "array",
+          "items": { "$ref": "#/definitions/performance_metric" }
+        },
+        "graphics": { "$ref": "#/definitions/graphics_collection" }
+      }
+    },
+    "considerations": {
+      "description": "What considerations should be taken into account regarding the model's construction, training, and application?",
+      "type": "object",
+      "properties": {
+        "users": {
+          "description": "Who are the intended users of the model?",
+          "type": "array",
+          "items": { "$ref": "#/definitions/user" }
+        },
+        "use_cases": {
+          "description": "What are the intended use cases of the model?",
+          "type": "array",
+          "items": { "$ref": "#/definitions/use_case" }
+        },
+        "limitations": {
+          "description": "What are the known technical limitations of the model? E.g. What kind(s) of data should the model be expected not to perform well on? What are the factors that might degrade model performance?",
+          "type": "array",
+          "items": { "$ref": "#/definitions/limitation" }
+        },
+        "tradeoffs": {
+          "description": "What are the known tradeoffs in accuracy/performance of the model?",
+          "type": "array",
+          "items": { "$ref": "#/definitions/tradeoff" }
+        },
+        "ethical_considerations": {
+          "description": "What are the ethical (or environmental) risks involved in the application of this model?",
+          "type": "array",
+          "items": { "$ref": "#/definitions/risk" }
+        }
+      }
+    }
+  },
+  "additionalProperties": false,
+  "definitions": {
+    "owner": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "description": "The name of the owner.",
+          "type": "string"
+        },
+        "contact": {
+          "description": "The contact information of the owner.",
+          "type": "string"
+        }
+      }
+    },
+    "version": {
+      "description": "The version of the model.",
+      "type": "object",
+      "properties": {
+        "name": {
+          "description": "The name of the version.",
+          "type": "string"
+        },
+        "date": {
+          "description": "The date the version was released.",
+          "type": "string",
+          "format": "date"
+        },
+        "diff": {
+          "description": "The changes from the previous version.",
+          "type": "string"
+        }
+      }
+    },
+    "license": {
+      "type": "object",
+      "properties": {
+        "identifier": {
+          "description": "A standard SPDX license identifier (https://spdx.org/licenses/), or \"proprietary\" for an unlicensed module.",
+          "type": "string"
+        },
+        "custom_text": {
+          "description": "A text of a custom license.",
+          "type": "string"
+        }
+      },
+      "oneOf": [
+        {"required": ["identifier"]},
+        {"required": ["custom_text"]}
+      ]
+    },
+    "reference": {
+      "type": "object",
+      "properties": {
+        "reference": {
+          "description": "A reference to a resource.",
+          "type": "string",
+          "format": "uri"
+        }
+      }
+    },
+    "citation": {
+      "type": "object",
+      "properties": {
+        "style": {
+          "description": "The citation style.",
+          "type": "string"
+        },
+        "citation": {
+          "description": "The citation itself.",
+          "type": "string"
+        }
+      }
+    },
+    "dataset": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "description": "The name of the dataset.",
+          "type": "string"
+        },
+        "link": {
+          "description": "A link to the dataset.",
+          "type": "string",
+          "format": "uri"
+        },
+        "sensitive": { "$ref": "#/definitions/sensitive_data" },
+        "graphics": { "$ref": "#/definitions/graphics_collection" },
+        "description": {
+          "description": "A description of the dataset. Can describe size of dataset, whether it's used for training, testing, or validation, etc.",
+          "type": "string"
+        }
+      }
+    },
+    "performance_metric": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "description": "The type of performance metric.",
+          "type": "string"
+        },
+        "value": {
+          "description": "The value of the performance metric.",
+          "type": "number"
+        },
+        "slice": {
+          "description": "The name of the slice this metric was computed on. By default, assume this metric is not sliced.",
+          "type": "string"
+        }
+      }
+    },
+    "sensitive_data": {
+      "type": "object",
+      "properties": {
+        "sensitive_data": {
+          "description": "A description of any sensitive data in a dataset.",
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    },
+    "graphics_collection": {
+      "type": "object",
+      "properties": {
+        "description": {
+          "description": "A description of this collection of graphics.",
+          "type": "string"
+        },
+        "collection": {
+          "description": "A collection of graphics.",
+          "type": "array",
+          "items": { "$ref": "#definitions/graphic" }
+        }
+      }
+    },
+    "graphic": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "description": "The name of the graphic.",
+          "type": "string"
+        },
+        "image": {
+          "description": "The graphic, encoded as a base64 string.",
+          "type": "string",
+          "contentEncoding": "base64",
+          "contentMediaType": "image/png"
+        }
+      }
+    },
+    "user": {
+      "type": "object",
+      "properties": {
+        "description": {
+          "description": "A description of the user.",
+          "type": "string"
+        }
+      }
+    },
+    "use_case": {
+      "type": "object",
+      "properties": {
+        "description": {
+          "description": "A description of the use case.",
+          "type": "string"
+        }
+      }
+    },
+    "limitation": {
+      "type": "object",
+      "properties": {
+        "description": {
+          "description": "A description of the limitation.",
+          "type": "string"
+        }
+      }
+    },
+    "tradeoff": {
+      "type": "object",
+      "properties": {
+        "description": {
+          "description": "A description of the tradeoff.",
+          "type": "string"
+        }
+      }
+    },
+    "risk": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "description": "The name of the risk.",
+          "type": "string"
+        },
+        "mitigation_strategy": {
+          "description": "Strategy used to address this risk.",
+          "type": "string"
+        }
+      }
+    }
+  }
+}

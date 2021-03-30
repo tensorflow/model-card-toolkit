@@ -11,140 +11,189 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-"""Tests for model_card."""
+"""Tests for model_card_toolkit.model_card."""
 
 import json
 import os
-
+import pkgutil
 from absl.testing import absltest
+from absl.testing import parameterized
 import jsonschema
 
-from model_card_toolkit.model_card import Dataset
-from model_card_toolkit.model_card import ModelCard
-from model_card_toolkit.model_card import Owner
+from model_card_toolkit import model_card
+from model_card_toolkit.proto import model_card_pb2
 
-_SCHEMA_DIR = os.path.join(os.path.dirname(__file__), 'schema')
-_SCHEMA_FILE = 'model_card.schema.json'
+from google.protobuf import text_format
 
-
-class ModelCardTest(absltest.TestCase):
-
-  def _validate_schema(self, model_card: ModelCard) -> None:
-    """Validates the model_card against the json schema.
-
-    Args:
-      model_card: The model card data object.
-
-    Raises:
-       jsonschema.ValidationError: when the given model_card is
-         invalid w.r.t. the schema.
-    """
-    path = model_card.schema_version if model_card.schema_version else '0.0.1'
-    schema_file = os.path.join(_SCHEMA_DIR, 'v' + path, _SCHEMA_FILE)
-    with open(schema_file) as json_file:
-      schema = json.loads(json_file.read())
-    jsonschema.validate(model_card.to_dict(), schema)
-
-  def test_empty_model_card_is_valid_json(self):
-    model_card = ModelCard()
-    self._validate_schema(model_card)
-
-  def _fill_model_details(self, model_card: ModelCard) -> None:
-    """Fills the model_details of the model card."""
-    model_details = model_card.model_details
-    model_details.name = 'my model'
-    model_details.owners = [
-        Owner(name='foo', contact='foo@xyz.com'),
-        {
-            'name': 'bar',
-            'contact': 'bar@xyz.com'
-        },
-    ]
-    model_details.version.name = '0.1'
-    model_details.version.date = '2020-01-01'
-    model_details.license = 'Apache 2.0'
-    model_details.references = ['https://my_model.xyz.com']
-    model_details.citation = 'https://doi.org/foo/bar'
-
-  def test_model_card_with_model_details_is_valid_json(self):
-    model_card = ModelCard()
-    model_card.schema_version = '0.0.1'
-    self._fill_model_details(model_card)
-    self._validate_schema(model_card)
-
-  def _fill_model_parameters(self, model_card: ModelCard) -> None:
-    """Fills the model_parameters of the model card."""
-    model_parameters = model_card.model_parameters
-    model_parameters.model_architecture = 'knn'
-    model_parameters.data.train.name = 'train_split'
-    model_parameters.data.train.link = 'path/to/train'
-    model_parameters.data.train.sensitive = False
-    model_parameters.data.train.graphics.collection.append({
-        'name': 'image1',
-        'image': 'rawbytes'
-    })
-    model_parameters.data.eval = Dataset(name='eval_split', link='path/to/eval')
-
-  def test_model_card_with_model_parameters_is_valid_json(self):
-    model_card = ModelCard()
-    model_card.schema_version = '0.0.1'
-    self._fill_model_parameters(model_card)
-    self._validate_schema(model_card)
-
-  def _fill_quantitative_analysis(self, model_card: ModelCard) -> None:
-    """Fills the quantitative_analysis section of the metadata card."""
-    model_card.quantitative_analysis.graphics.collection.append({
-        'name': 'image1',
-        'image': 'rawbytes'
-    })
-    model_card.quantitative_analysis.performance_metrics.append({
-        'type': 'log_loss',
-        'value': 0.2,
-    })
-
-  def test_model_card_with_quantitative_analysis_is_valid_json(self):
-    model_card = ModelCard()
-    model_card.schema_version = '0.0.1'
-    self._fill_quantitative_analysis(model_card)
-    self._validate_schema(model_card)
-
-  def _fill_considerations(self, model_card: ModelCard) -> None:
-    """Fills the considerations section of the metadata card."""
-    model_card.considerations.users = ['foo', 'bar']
-    model_card.considerations.use_cases.append('use case 1')
-    model_card.considerations.limitations.append('a limitation')
-    model_card.considerations.tradeoffs.append('tradeoff 1')
-    model_card.considerations.ethical_considerations.append({
-        'name': 'risk1',
-        'mitigation_strategy': 'a solution'
-    })
-
-  def test_model_card_with_considerations_is_valid_json(self):
-    model_card = ModelCard()
-    model_card.schema_version = '0.0.1'
-    self._fill_considerations(model_card)
-    self._validate_schema(model_card)
-
-  def test_full_filled_model_card_is_valid_json(self):
-    model_card = ModelCard()
-    model_card.schema_version = '0.0.1'
-    self._fill_model_details(model_card)
-    self._fill_model_parameters(model_card)
-    self._fill_quantitative_analysis(model_card)
-    self._fill_considerations(model_card)
-    self._validate_schema(model_card)
-
-  def test_default_value_not_shared_among_model_cards(self):
-    model_card = ModelCard()
-    model_card.schema_version = '0.0.1'
-    self._fill_model_details(model_card)
-    self._fill_model_parameters(model_card)
-    self._fill_quantitative_analysis(model_card)
-    self._fill_considerations(model_card)
-    other_model_card = ModelCard()
-    self.assertNotEqual(other_model_card, model_card)
-    self.assertEqual(other_model_card, ModelCard())
+_FULL_PROTO_FILE_NAME = "full.pbtxt"
+_FULL_PROTO = pkgutil.get_data(
+    "model_card_toolkit",
+    os.path.join("template/test", _FULL_PROTO_FILE_NAME))
+_FULL_JSON_FILE_PATH = "full.json"
+_FULL_JSON = model_card_json_bytestring = pkgutil.get_data(
+    "model_card_toolkit",
+    os.path.join("template/test", _FULL_JSON_FILE_PATH))
 
 
-if __name__ == '__main__':
+class ModelCardTest(parameterized.TestCase):
+
+  def test_copy_from_proto_and_to_proto_with_all_fields(self):
+    want_proto = text_format.Parse(_FULL_PROTO, model_card_pb2.ModelCard())
+    model_card_py = model_card.ModelCard()
+    model_card_py.copy_from_proto(want_proto)
+    got_proto = model_card_py.to_proto()
+
+    self.assertEqual(want_proto, got_proto)
+
+  def test_merge_from_proto_and_to_proto_with_all_fields(self):
+    want_proto = text_format.Parse(_FULL_PROTO, model_card_pb2.ModelCard())
+    model_card_py = model_card.ModelCard()
+    model_card_py.merge_from_proto(want_proto)
+    got_proto = model_card_py.to_proto()
+
+    self.assertEqual(want_proto, got_proto)
+
+  def test_copy_from_proto_sucess(self):
+    # Test fields convert.
+    owner = model_card.Owner(name="my_name1")
+    owner_proto = model_card_pb2.Owner(name="my_name2", contact="my_contact2")
+    owner.copy_from_proto(owner_proto)
+    self.assertEqual(owner,
+                     model_card.Owner(name="my_name2", contact="my_contact2"))
+
+    # Test message convert.
+    model_details = model_card.ModelDetails(
+        owners=[model_card.Owner(name="my_name1")])
+    model_details_proto = model_card_pb2.ModelDetails(
+        owners=[model_card_pb2.Owner(name="my_name2", contact="my_contact2")])
+    model_details.copy_from_proto(model_details_proto)
+    self.assertEqual(
+        model_details,
+        model_card.ModelDetails(
+            owners=[model_card.Owner(name="my_name2", contact="my_contact2")]))
+
+  def test_merge_from_proto_sucess(self):
+    # Test fields convert.
+    owner = model_card.Owner(name="my_name1")
+    owner_proto = model_card_pb2.Owner(contact="my_contact1")
+    owner.merge_from_proto(owner_proto)
+    self.assertEqual(owner,
+                     model_card.Owner(name="my_name1", contact="my_contact1"))
+
+    # Test message convert.
+    model_details = model_card.ModelDetails(
+        owners=[model_card.Owner(name="my_name1")])
+    model_details_proto = model_card_pb2.ModelDetails(
+        owners=[model_card_pb2.Owner(name="my_name2", contact="my_contact2")])
+    model_details.merge_from_proto(model_details_proto)
+    self.assertEqual(
+        model_details,
+        model_card.ModelDetails(owners=[
+            model_card.Owner(name="my_name1"),
+            model_card.Owner(name="my_name2", contact="my_contact2")
+        ]))
+
+  def test_copy_from_proto_with_invalid_proto(self):
+    owner = model_card.Owner()
+    wrong_proto = model_card_pb2.Version()
+    with self.assertRaisesRegex(
+        TypeError,
+        "<class 'model_card_toolkit.proto.model_card_pb2.Owner'> is expected. "
+        "However <class 'model_card_toolkit.proto.model_card_pb2.Version'> is "
+        "provided."):
+      owner.copy_from_proto(wrong_proto)
+
+  def test_merge_from_proto_with_invalid_proto(self):
+    owner = model_card.Owner()
+    wrong_proto = model_card_pb2.Version()
+    with self.assertRaisesRegex(TypeError, "expected Owner got Version"):
+      owner.merge_from_proto(wrong_proto)
+
+  def test_to_proto_sucess(self):
+    # Test fields convert.
+    owner = model_card.Owner()
+    self.assertEqual(owner.to_proto(), model_card_pb2.Owner())
+    owner.name = "my_name"
+    self.assertEqual(owner.to_proto(), model_card_pb2.Owner(name="my_name"))
+    owner.contact = "my_contact"
+    self.assertEqual(owner.to_proto(),
+                     model_card_pb2.Owner(name="my_name", contact="my_contact"))
+
+    # Test message convert.
+    model_details = model_card.ModelDetails(
+        owners=[model_card.Owner(name="my_name", contact="my_contact")])
+    self.assertEqual(
+        model_details.to_proto(),
+        model_card_pb2.ModelDetails(
+            owners=[model_card_pb2.Owner(name="my_name", contact="my_contact")],
+            version=model_card_pb2.Version()))
+
+  def test_to_proto_with_invalid_field(self):
+    owner = model_card.Owner()
+    owner.wrong_field = "wrong"
+    with self.assertRaisesRegex(ValueError,
+                                "has no such field named 'wrong_field'."):
+      owner.to_proto()
+
+  def test_from_json_and_to_json_with_all_fields(self):
+    want_json = json.loads(_FULL_JSON)
+    model_card_py = model_card.ModelCard()._from_json(want_json)
+    got_json = json.loads(model_card_py.to_json())
+    self.assertEqual(want_json, got_json)
+
+  def test_from_json_overwrites_previous_fields(self):
+    overwritten_limitation = model_card.Limitation(
+        description="This model can only be used on text up to 140 characters.")
+    model_card_py = model_card.ModelCard(
+        considerations=model_card.Considerations(
+            limitations=[overwritten_limitation]))
+    model_card_json = json.loads(_FULL_JSON)
+    model_card_py = model_card_py._from_json(model_card_json)
+    self.assertNotIn(overwritten_limitation,
+                     model_card_py.considerations.limitations)
+
+  def test_from_invalid_json(self):
+    invalid_json_dict = {"model_name": "the_greatest_model"}
+    with self.assertRaises(jsonschema.ValidationError):
+      model_card.ModelCard()._from_json(invalid_json_dict)
+
+  def test_from_invalid_json_vesion(self):
+    model_card_dict = {
+        "model_details": {},
+        "model_parameters": {},
+        "quantitative_analysis": {},
+        "considerations": {},
+        "schema_version": "0.0.3"
+    }
+    with self.assertRaisesRegex(ValueError, (
+        "^Cannot find schema version that matches the version of the given "
+        "model card.")):
+      model_card.ModelCard()._from_json(model_card_dict)
+
+  def test_from_proto_to_json(self):
+    model_card_proto = text_format.Parse(_FULL_PROTO,
+                                         model_card_pb2.ModelCard())
+    model_card_py = model_card.ModelCard()
+
+    # Use merge_from_proto.
+    self.assertJsonEqual(
+        _FULL_JSON,
+        model_card_py.merge_from_proto(model_card_proto).to_json())
+    # Use copy_from_proto
+    self.assertJsonEqual(
+        _FULL_JSON,
+        model_card_py.copy_from_proto(model_card_proto).to_json())
+
+  def test_from_json_to_proto(self):
+    model_card_proto = text_format.Parse(_FULL_PROTO,
+                                         model_card_pb2.ModelCard())
+
+    model_card_json = json.loads(_FULL_JSON)
+    model_card_py = model_card.ModelCard()._from_json(model_card_json)
+    model_card_json2proto = model_card_py.to_proto()
+
+    self.assertEqual(model_card_proto, model_card_json2proto)
+
+
+if __name__ == "__main__":
   absltest.main()

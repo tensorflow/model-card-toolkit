@@ -1,0 +1,66 @@
+{
+  "schema_version": "0.0.2",
+  "model_details": {
+    "name": "name",
+    "overview": "overview",
+    "documentation": "documentation",
+    "owners": [
+      {
+        "name": "name1",
+        "contact": "contact1@email.com"
+      },
+      {
+        "name": "name2",
+        "contact": "contact2@email.com"
+      }
+    ],
+    "version": {
+      "name": "v1.0",
+      "date": "2020/02/02",
+      "diff": "The diff with last version."
+    },
+    "licenses": [{"identifier": "Apache-2.0"}],
+    "references": [{"reference": "https://www.kaggle.com/c/dogs-vs-cats"},
+                   {"reference": "https://arxiv.org/abs/1801.04381"}],
+    "citations": [{"citation": "https://google.com"}]
+  },
+  "model_parameters": {
+    "data": [{
+      "name": "data name",
+      "sensitive": {"sensitive_data": ["age"]},
+      "graphics": {
+        "description": "graphics description",
+        "collection": [
+          {
+            "name": "img1",
+            "image": "{image_bytes}"
+          },
+          {
+            "name": "img2",
+            "image": "{image_bytes}"
+          }
+       ]
+      },
+      "description": "description"
+    }]
+  },
+  "quantitative_analysis": {
+    "graphics": {
+      "collection": [{
+        "name": "img",
+        "image": "{image_bytes}"
+      }]
+    }
+  },
+  "considerations": {
+    "use_cases": [{"description": "use_cases"}],
+    "limitations": [
+      {"description": "limitations1"},
+      {"description": "limitations2"}
+    ],
+    "ethical_considerations": [{
+      "name": "ethical considerations name",
+      "mitigation_strategy": "mitigation strategy"
+    }]
+  }
+}

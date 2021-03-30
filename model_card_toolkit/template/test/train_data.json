@@ -1,5 +1,5 @@
 {
-  "schema_version": "0.0.1",
+  "schema_version": "0.0.2",
   "model_details": {
     "name": "train-only model",
     "owners": [
@@ -13,23 +13,27 @@
       "date": "2020-01-01",
       "diff": "Updated dataset."
     },
-    "license": "Apache 2.0",
+    "license": [{"identifier": "Apache 2.0"}],
     "references": [
-      "https://my_model.xyz.com",
-      "https://example.com"
+      {"reference": "https://my_model.xyz.com"},
+      {"reference": "https://example.com"}
     ],
-    "citation": "https://doi.org/foo/bar"
+    "citation": {"citation": "https://doi.org/foo/bar"}
   },
   "model_parameters": {
     "model_architecture": "knn",
-    "data": {
-      "train": {
+    "data": [
+      {
         "name": "train_split",
-        "link": "path/to/train"
+        "link": "path/to/train",
+        "graphics": {}
       }
-    },
+    ],
     "input_format": "32-char-len-text",
     "output_format": "64-char-len-text"
+  },
+  "quantitative_analysis": {
+    "graphics": {}
   },
   "considerations": {}
 }

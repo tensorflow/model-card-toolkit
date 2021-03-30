@@ -4,11 +4,11 @@
     <div>{{name}}: {{value}}</div>
   {%- endif %}
 {% endmacro %}
-{% macro render_list(list) %}
+{% macro render_considerations(list) %}
   {% if list %}
   <ul>
   {% for item in list %}
-    <li>{{ item }}</li>
+    <li>{{ item.description }}</li>
   {% endfor %}
   </ul>
   {%- endif %}
@@ -22,6 +22,27 @@
   </ul>
   {%- endif %}
 {% endmacro %}
+{% macro render_all_graphics(model_parameters, quantitative_analysis) %}
+  <h2>Graphics</h2>
+    {% for dataset in model_parameters.data %}{% if dataset.graphics and dataset.graphics.collection %}
+      <div class="row">
+        <div class="col card">
+          <h3>{{ dataset.name }}</h3>
+            {{ dataset.description }}
+            {{ render_graphics(dataset.graphics.collection) }}
+        </div>
+      </div>{% endif %}
+    {% endfor %}
+    {% if quantitative_analysis.graphics.collection %}
+      <div class="row">
+        <div class="col card">
+          <h3>Quantitative Analysis</h3>
+            {{ quantitative_analysis.graphics.description }}
+            {{ render_graphics(quantitative_analysis.graphics.collection) }}
+        </div>
+      </div>
+    {% endif %}
+{% endmacro %}
 {% macro render_graphics(graphics) %}
   <div class="img-container">
   {% for graph in graphics %}
@@ -30,6 +51,10 @@
     </div>
   {% endfor %}
   </div>
+{% endmacro %}
+{% macro render_license(license) %}
+{% if license.identifier %}
+                <li>{{ license.identifier }}{% endif %}{% if license.custom_text %}{{ license.custom_text }}{% endif %}</li>
 {% endmacro %}
 {% macro metric_name(metric) %}
 {{ metric.type }}{% if metric.threshold %}@{{ metric.threshold }}{% endif %}{% if metric.slice %}, {{ metric.slice }}{% endif %}
@@ -69,7 +94,6 @@
   }
   .img-item {
     flex: 1;
-    min-width: 30%;
   }
   table, th, td { border: 1px solid black; }
   th, td { border: 1px solid #CCC; height: 30px; }
@@ -98,14 +122,23 @@
                 <li>{{ owner.name }}, {{ owner.contact }}</li>
               {% endfor %}</ul>{% endif %}
           {% if model_details.license %}
-            <h3>License</h3>
-              {{  model_details.license }}{% endif %}
+            <h3>Licenses</h3>
+              <ul>{% for license in model_details.license %}{{ render_license(license) }}{% endfor %}
+              </ul>{% endif %}
           {% if model_details.references %}
             <h3>References</h3>
-              {{ render_uri_list(model_details.references) }}{% endif %}
-          {% if model_details.citation %}
-            <h3>Citation</h3>
-              {{ model_details.citation }}{% endif %}
+              <ul>
+              {% for reference in model_details.references %}
+                <li><a href="{{ reference.reference }}">{{ reference.reference }}</a></li>
+              {% endfor %}
+              </ul>{% endif %}
+          {% if model_details.citations %}
+            <h3>Citations</h3>
+              <ul>
+              {% for citation in model_details.citations %}
+                <li>{{ citation.citation }}</li>
+              {% endfor %}
+              </ul>{% endif %}
           {% if model_parameters.model_architecture %}
             <h3>Model Architecture</h3>
               {{ model_parameters.model_architecture }}{% endif %}
@@ -121,19 +154,19 @@
         <h2>Considerations</h2>
           {% if considerations.users %}
             <h3>Intended Users</h3>
-              {{ render_list(considerations.users) }}
+              {{ render_considerations(considerations.users) }}
           {% endif %}
           {% if considerations.use_cases %}
             <h3>Use Cases</h3>
-              {{ render_list(considerations.use_cases) }}
+              {{ render_considerations(considerations.use_cases) }}
           {% endif %}
           {% if considerations.limitations %}
             <h3>Limitations</h3>
-              {{ render_list(considerations.limitations) }}
+              {{ render_considerations(considerations.limitations) }}
           {% endif %}
           {% if considerations.tradeoffs %}
             <h3>Tradeoffs</h3>
-              {{ render_list(considerations.tradeoffs) }}
+              {{ render_considerations(considerations.tradeoffs) }}
           {% endif %}
           {% if considerations.ethical_considerations %}
             <h3>Ethical Considerations</h3>
@@ -145,36 +178,11 @@
       </div>
       {% endif %}
     </div>
-    {% if model_parameters.data and model_parameters.data.train and model_parameters.data.train.graphics %}
-      <div class="row">
-        <div class="col card">
-          <h2>Train Set</h2>
-            {{ model_parameters.data.train.graphics.description }}
-            {{ render_graphics(model_parameters.data.train.graphics.collection) }}
-        </div>
-      </div>
+    {% if model_parameters.data or quantitative_analysis.graphics.collection %}
+      {{ render_all_graphics(model_parameters, quantitative_analysis) }}
     {% endif %}
-    {% if model_parameters.data and model_parameters.data.eval and model_parameters.data.eval.graphics %}
-      <div class="row">
-        <div class="col card">
-          <h2>Eval Set</h2>
-            {{ model_parameters.data.eval.graphics.description }}
-            {{ render_graphics(model_parameters.data.eval.graphics.collection) }}
-        </div>
-      </div>
-    {% endif %}
-    {% if quantitative_analysis %}
-      <div class="row">
-        <div class="col card">
-          <h2>Quantitative Analysis</h2>
-            {% if quantitative_analysis.graphics %}
-              {{ quantitative_analysis.graphics.description }}
-              {{ render_graphics(quantitative_analysis.graphics.collection) }}
-            {% endif %}{% if quantitative_analysis.performance_metrics %}
-              {{ render_metrics_table(quantitative_analysis.performance_metrics )}}
-            {% endif %}
-        </div>
-      </div>
+    {% if quantitative_analysis.performance_metrics %}
+      {{ render_metrics_table(quantitative_analysis.performance_metrics )}}
     {% endif %}
 </body>
 </html>

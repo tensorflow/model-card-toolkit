@@ -4,12 +4,21 @@
 
 ## Major Features and Improvements
 
+* Introduce `model_card.proto`. See https://developers.google.com/protocol-buffers for more info.
+* All classes in `model_card_toolkit.model_card` submodule now have `to_proto()`, `merge_from_proto()`, `copy_from_proto()`, and `clear()` functions.
+* `ModelCardToolkit.export_format()` now accepts `model_card` arg.
+
 ## Bug fixes and other changes
 
 * Update default template layout so charts can wrap to multiple rows
 * Installing from source now requires [Bazel](https://docs.bazel.build/versions/master/install.html)>=2.0.0.
+* Update model card templates to use new schema.
+* `model_card_toolkit.utils.validation.validate_json_schema()` can now validate both schema v0.0.1 and v0.0.2.
 
 ## Breaking changes
+
+* JSON schema v0.0.2 replaces JSON schema v0.0.1.
+* `ModelCardToolkit.update_model_card_json()` deprecated and replaced with `ModelCardToolkit.update_model_card()`. Writes to `data/model_card.proto` instead of `data/model_card.json`.
 
 ## Deprecations
 

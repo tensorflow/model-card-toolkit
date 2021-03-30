@@ -295,16 +295,21 @@ class GraphicsTest(parameterized.TestCase):
         'counts | data_channel', 'counts | date', 'counts | slug'
     }
 
+    self.assertLen(model_card.model_parameters.data, 2)
+
+    train_data = model_card.model_parameters.data[0]
     self.assertSameElements([
         g.name
-        for g in model_card.model_parameters.data.train.graphics.collection
+        for g in train_data.graphics.collection
     ], expected_plot_names_train)
+
+    eval_data = model_card.model_parameters.data[1]
     self.assertSameElements([
         g.name
-        for g in model_card.model_parameters.data.eval.graphics.collection
+        for g in eval_data.graphics.collection
     ], expected_plot_names_eval)
 
-    graphs = model_card.model_parameters.data.train.graphics.collection + model_card.model_parameters.data.eval.graphics.collection
+    graphs = train_data.graphics.collection + eval_data.graphics.collection
     for graph in graphs:
       logging.info('%s: %s', graph.name, graph.image)
       self.assertNotEmpty(graph.image, f'feature {graph.name} has empty plot')

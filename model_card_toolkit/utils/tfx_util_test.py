@@ -100,15 +100,16 @@ class TfxUtilsTest(absltest.TestCase):
                      trainers[-1].properties['module_file'].string_value)
     self.assertEqual(model_details.version.name,
                      trainers[-1].properties['checksum_md5'].string_value)
-    self.assertIn(trainers[-1].properties['pipeline_name'].string_value,
-                  model_details.references)
+    self.assertIn(
+        trainers[-1].properties['pipeline_name'].string_value,
+        [reference.reference for reference in model_details.references])
 
     datasets = store.get_artifacts_by_id(
         [testdata_utils.TFX_0_21_MODEL_DATASET_ID])
     self.assertNotEmpty(datasets)
     model_params = model_card.model_parameters
-    self.assertStartsWith(model_params.data.train.name, datasets[-1].uri)
-    self.assertStartsWith(model_params.data.eval.name, datasets[-1].uri)
+    for dataset in model_params.data:
+      self.assertStartsWith(dataset.name, datasets[-1].uri)
 
   def test_generate_model_card_for_model_with_model_not_found(self):
     store = testdata_utils.get_tfx_pipeline_metadata_store(self.tmp_db_path)

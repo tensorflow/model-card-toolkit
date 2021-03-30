@@ -19,7 +19,7 @@ from typing import Iterable, List, Optional, Text, Union
 
 from absl import logging
 import attr
-from model_card_toolkit.model_card import ModelCard
+from model_card_toolkit import model_card as model_card_module
 import tensorflow as tf
 import tensorflow_model_analysis as tfma
 
@@ -280,7 +280,7 @@ def _property_value(
 
 
 def generate_model_card_for_model(store: mlmd.MetadataStore,
-                                  model_id: int) -> ModelCard:
+                                  model_id: int) -> model_card_module.ModelCard:
   """Populates model card properties for a model artifact.
 
   It traverse the parents and children of the model artifact, and maps related
@@ -300,23 +300,27 @@ def generate_model_card_for_model(store: mlmd.MetadataStore,
   """
   pipeline_types = _get_tfx_pipeline_types(store)
   _validate_model_id(store, pipeline_types.model_type, model_id)
-  model_card = ModelCard()
+  model_card = model_card_module.ModelCard()
   model_details = model_card.model_details
   trainers = _get_one_hop_executions(store, [model_id], _Direction.ANCESTOR,
                                      pipeline_types.trainer_type)
   if trainers:
     model_details.name = _property_value(trainers[-1], 'module_file')
     model_details.version.name = _property_value(trainers[0], 'checksum_md5')
-    model_details.references = [_property_value(trainers[0], 'pipeline_name')]
+    model_details.references = [
+        model_card_module.Reference(
+            reference=_property_value(trainers[0], 'pipeline_name'))
+    ]
   stats = get_stats_artifacts_for_model(store, model_id)
   if stats:
     datasets = _get_one_hop_artifacts(store, [stats[-1].id],
                                       _Direction.ANCESTOR,
                                       pipeline_types.dataset_type)
-    model_data = model_card.model_parameters.data
     # tfx-oss uses `train` and `eval` splits
-    model_data.train.name = os.path.join(datasets[-1].uri, 'train')
-    model_data.eval.name = os.path.join(datasets[-1].uri, 'eval')
+    model_card.model_parameters.data.append(
+        model_card_module.Dataset(name=os.path.join(datasets[-1].uri, 'train')))
+    model_card.model_parameters.data.append(
+        model_card_module.Dataset(name=os.path.join(datasets[-1].uri, 'eval')))
   return model_card
 
 

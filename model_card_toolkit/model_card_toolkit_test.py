@@ -13,14 +13,13 @@
 # limitations under the License.
 """Tests for model_card_toolkit."""
 
-import json
 import os
 import uuid
 
 from absl.testing import absltest
 
-from model_card_toolkit import model_card as model_card_module
 from model_card_toolkit import model_card_toolkit
+from model_card_toolkit.proto import model_card_pb2
 from model_card_toolkit.utils.testdata import testdata_utils
 
 
@@ -59,6 +58,8 @@ class ModelCardToolkitTest(absltest.TestCase):
                   os.listdir(os.path.join(output_dir, 'template/html')))
     self.assertIn('default_template.md.jinja',
                   os.listdir(os.path.join(output_dir, 'template/md')))
+    self.assertIn('model_card.proto',
+                  os.listdir(os.path.join(output_dir, 'data')))
 
   def test_scaffold_assets_with_store(self):
     output_dir = self.tmpdir
@@ -82,37 +83,17 @@ class ModelCardToolkitTest(absltest.TestCase):
     self.assertIn('default_template.md.jinja',
                   os.listdir(os.path.join(output_dir, 'template/md')))
 
-  def test_update_model_card_with_valid_json(self):
+  def test_update_model_card_with_valid_model_card(self):
     mct = model_card_toolkit.ModelCardToolkit(output_dir=self.tmpdir)
     valid_model_card = mct.scaffold_assets()
-    valid_model_card.schema_version = '0.0.1'
     valid_model_card.model_details.name = 'My Model'
-    mct.update_model_card_json(valid_model_card)
-    json_path = os.path.join(self.tmpdir, 'data/model_card.json')
-    with open(json_path) as f:
-      self.assertEqual(
-          json.loads(f.read()),
-          valid_model_card.to_dict(),
-      )
+    mct.update_model_card(valid_model_card)
+    proto_path = os.path.join(self.tmpdir, 'data/model_card.proto')
 
-  def test_update_model_card_with_no_version(self):
-    mct = model_card_toolkit.ModelCardToolkit()
-    model_card_no_version = mct.scaffold_assets()
-    model_card_no_version.model_details.name = ('My ' 'Model')
-    mct.update_model_card_json(model_card_no_version)
-    json_path = os.path.join(mct.output_dir, 'data/model_card.json')
-    with open(json_path) as f:
-      self.assertEqual(
-          json.loads(f.read()),
-          model_card_no_version.to_dict(),
-      )
-
-  def test_update_model_card_with_invalid_schema_version(self):
-    mct = model_card_toolkit.ModelCardToolkit()
-    model_card_invalid_version = model_card_module.ModelCard(
-        schema_version='100.0.0')
-    with self.assertRaisesRegex(ValueError, 'Cannot find schema version'):
-      mct.update_model_card_json(model_card_invalid_version)
+    model_card_proto = model_card_pb2.ModelCard()
+    with open(proto_path, 'rb') as f:
+      model_card_proto.ParseFromString(f.read())
+    self.assertEqual(model_card_proto, valid_model_card.to_proto())
 
   def test_export_format(self):
     store = testdata_utils.get_tfx_pipeline_metadata_store(self.tmp_db_path)
@@ -121,11 +102,16 @@ class ModelCardToolkitTest(absltest.TestCase):
         mlmd_store=store,
         model_uri=testdata_utils.TFX_0_21_MODEL_URI)
     model_card = mct.scaffold_assets()
-    model_card.schema_version = '0.0.1'
     model_card.model_details.name = 'My Model'
-    mct.update_model_card_json(model_card)
+    mct.update_model_card(model_card)
     result = mct.export_format()
 
+    proto_path = os.path.join(self.tmpdir, 'data/model_card.proto')
+    self.assertTrue(os.path.exists(proto_path))
+    with open(proto_path, 'rb') as f:
+      model_card_proto = model_card_pb2.ModelCard()
+      model_card_proto.ParseFromString(f.read())
+      self.assertEqual(model_card_proto.model_details.name, 'My Model')
     model_card_path = os.path.join(self.tmpdir, 'model_cards/model_card.html')
     self.assertTrue(os.path.exists(model_card_path))
     with open(model_card_path) as f:
@@ -137,12 +123,11 @@ class ModelCardToolkitTest(absltest.TestCase):
   def test_export_format_with_customized_template_and_output_name(self):
     mct = model_card_toolkit.ModelCardToolkit(output_dir=self.tmpdir)
     model_card = mct.scaffold_assets()
-    model_card.schema_version = '0.0.1'
     model_card.model_details.name = 'My Model'
-    mct.update_model_card_json(model_card)
+    mct.update_model_card(model_card)
 
-    template_path = os.path.join(self.tmpdir,
-                                 'template/html/default_template.html.jinja')
+    template_path = os.path.join(
+        self.tmpdir, 'template/html/default_template.html.jinja')
     output_file = 'my_model_card.html'
     result = mct.export_format(
         template_path=template_path, output_file=output_file)
