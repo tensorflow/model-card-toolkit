@@ -108,8 +108,8 @@ class TfxUtilsTest(absltest.TestCase):
         [testdata_utils.TFX_0_21_MODEL_DATASET_ID])
     self.assertNotEmpty(datasets)
     model_params = model_card.model_parameters
-    for dataset in model_params.data:
-      self.assertStartsWith(dataset.name, datasets[-1].uri)
+    self.assertEqual([dataset.name for dataset in model_params.data],
+                     [dataset.uri for dataset in datasets])
 
   def test_generate_model_card_for_model_with_model_not_found(self):
     store = testdata_utils.get_tfx_pipeline_metadata_store(self.tmp_db_path)

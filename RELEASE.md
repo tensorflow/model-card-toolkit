@@ -20,6 +20,7 @@
 
 * JSON schema v0.0.2 replaces JSON schema v0.0.1.
 * `ModelCardToolkit.update_model_card_json()` deprecated and replaced with `ModelCardToolkit.update_model_card()`. Writes to `data/model_card.proto` instead of `data/model_card.json`.
+* `graphics.annotate_dataset_feature_statistics_plots` accepts a list of stats files instead of two individual train and eval stats params.
 
 ## Deprecations
 

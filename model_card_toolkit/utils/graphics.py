@@ -54,24 +54,18 @@ class _Graph():
 
 def annotate_dataset_feature_statistics_plots(
     model_card: model_card_module.ModelCard,
-    train_stats: statistics_pb2.DatasetFeatureStatisticsList = None,
-    eval_stats: statistics_pb2.DatasetFeatureStatisticsList = None) -> None:
+    data_stats: Sequence[statistics_pb2.DatasetFeatureStatisticsList]) -> None:
   """Annotate visualizations for every dataset and feature in train/eval_stats.
 
   The visualizations are histograms encoded as base64 text strings.
 
   Args:
     model_card: The model card object.
-    train_stats: a DatasetFeatureStatisticsList corresponding to the training
-      dataset.
-    eval_stats: a DatasetFeatureStatisticsList corresponding to the eval
-      dataset.
+    data_stats: a list of DatasetFeatureStatisticsList related to the dataset.
 
   Returns:
     None
   """
-
-  data_stats = (train_stats, eval_stats)
   colors = (_COLOR_PALETTE['material_teal_700'],
             _COLOR_PALETTE['material_indigo_400'])
   for stats, color in zip(data_stats, colors):
@@ -81,10 +75,11 @@ def annotate_dataset_feature_statistics_plots(
     for dataset in stats.datasets:
       for feature in dataset.features:
         graph = _generate_graph_from_feature_statistics(feature, color)
+        graph = _draw_histogram(graph)
         if graph is not None:
-          _draw_histogram(graph)
           graphs.append(
-              model_card_module.Graphic(name=graph.name, image=graph.base64str))
+              model_card_module.Graphic(
+                  name=graph.name, image=graph.base64str))
     model_card.model_parameters.data.append(
         model_card_module.Dataset(
             graphics=model_card_module.GraphicsCollection(collection=graphs)))
@@ -119,8 +114,8 @@ def annotate_eval_result_plots(model_card: model_card_module.ModelCard,
     for slices_key in slices_keys:
       graph = _generate_graph_from_slicing_metrics(eval_result.slicing_metrics,
                                                    metric, slices_key)
+      graph = _draw_histogram(graph)
       if graph is not None:
-        _draw_histogram(graph)
         graphs.append(graph)
 
   model_card.quantitative_analysis.graphics.collection.extend([
@@ -256,11 +251,11 @@ def _generate_graph_from_slicing_metrics(
   if has_bounded_value:
     graph.xerr = [
         [
-            metric_value - bound[0]
+            float(metric_value) - float(bound[0])
             for metric_value, bound in zip(metric_values, bounds)
         ],
         [
-            bound[1] - metric_value
+            float(bound[1]) - float(metric_value)
             for metric_value, bound in zip(metric_values, bounds)
         ],
     ]
@@ -272,32 +267,44 @@ def _generate_graph_from_slicing_metrics(
   return graph
 
 
-def _draw_histogram(graph: _Graph):
+def _draw_histogram(graph: _Graph) -> Optional[_Graph]:
   """Draw a histogram given the graph.
 
   Args:
     graph: The _Graph object represents the necessary data to draw a histogram.
-  """
-  # generate and open a new figure
-  figure, ax = plt.subplots()
-  ax.barh(graph.y, graph.x, color=graph.color)
-  ax.set_title(graph.title)
-  if graph.xlabel:
-    ax.set_xlabel(graph.xlabel)
-  if graph.ylabel:
-    ax.set_ylabel(graph.ylabel)
-  for index, value in enumerate(graph.x):
-    show_value = f'{value:.2f}' if isinstance(value, float) else value
-    # To avoid the number has overlap with the box of the graph.
-    if value > 0.9 * max(graph.x):
-      ax.text(value - (value / 10), index, show_value, va='center', color='w')
-    else:
-      ax.text(value, index, show_value, va='center')
 
-  graph.figure = figure
-  graph.base64str = figure_to_base64str(figure)
-  # closes the figure (to limit memory consumption)
-  plt.close()
+  Returns:
+    A _Graph object, or None if plotting raises TypeError given the raw data.
+  """
+  if not graph:
+    return None
+  try:
+    # generate and open a new figure
+    figure, ax = plt.subplots()
+    # When graph.x or y is Text, the histogram is ill-defined.
+    ax.barh(graph.y, graph.x, color=graph.color)
+    ax.set_title(graph.title)
+    if graph.xlabel:
+      ax.set_xlabel(graph.xlabel)
+    if graph.ylabel:
+      ax.set_ylabel(graph.ylabel)
+    for index, value in enumerate(graph.x):
+      show_value = f'{value:.2f}' if isinstance(value, float) else value
+      # To avoid the number has overlap with the box of the graph.
+      if value > 0.9 * max(graph.x):
+        ax.text(value - (value / 10), index, show_value, va='center', color='w')
+      else:
+        ax.text(value, index, show_value, va='center')
+
+    graph.figure = figure
+    graph.base64str = figure_to_base64str(figure)
+  except TypeError as e:
+    logging.info('skipping %s for histogram; plot error: %s:', graph.name, e)
+    return None
+  finally:
+    # closes the figure (to limit memory consumption)
+    plt.close()
+  return graph
 
 
 def figure_to_base64str(fig: matplotlib.figure.Figure) -> str:

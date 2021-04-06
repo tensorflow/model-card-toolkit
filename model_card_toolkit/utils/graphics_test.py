@@ -285,8 +285,8 @@ class GraphicsTest(parameterized.TestCase):
     """, statistics_pb2.DatasetFeatureStatisticsList())
 
     model_card = model_card_module.ModelCard()
-    graphics.annotate_dataset_feature_statistics_plots(model_card, train_stats,
-                                                       eval_stats)
+    graphics.annotate_dataset_feature_statistics_plots(
+        model_card, [train_stats, eval_stats])
 
     expected_plot_names_train = {
         'counts | LDA_00', 'counts | LDA_01', 'counts | LDA_02'

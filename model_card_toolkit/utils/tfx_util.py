@@ -36,7 +36,7 @@ _TFX_TRAINER_TYPE = 'tfx.components.trainer.component.Trainer'
 
 
 @attr.s(auto_attribs=True)
-class _PipelineTypes(object):
+class PipelineTypes(object):
   """A registry of required MLMD types about a TFX pipeline."""
   # a list of required artifact types
   dataset_type: metadata_store_pb2.ArtifactType
@@ -48,14 +48,14 @@ class _PipelineTypes(object):
 
 
 def _get_tfx_pipeline_types(
-    store: mlmd.MetadataStore) -> _PipelineTypes:
+    store: mlmd.MetadataStore) -> PipelineTypes:
   """Retrieves the registered types in the given `store`.
 
   Args:
     store: A ml-metadata MetadataStore to retrieve ArtifactTypes from.
 
   Returns:
-    A instance of _PipelineTypes containing store pipeline types.
+    A instance of PipelineTypes containing store pipeline types.
 
   Raises:
     ValueError: If the `store` does not have MCT related types and is not
@@ -76,7 +76,7 @@ def _get_tfx_pipeline_types(
   if missing_types:
     raise ValueError(
         f'Given `store` is invalid: missing ExecutionTypes: {missing_types}.')
-  return _PipelineTypes(
+  return PipelineTypes(
       dataset_type=artifact_types[_TFX_DATASET_TYPE],
       stats_type=artifact_types[_TFX_STATS_TYPE],
       model_type=artifact_types[_TFX_MODEL_TYPE],
@@ -86,13 +86,16 @@ def _get_tfx_pipeline_types(
 
 def _validate_model_id(store: mlmd.MetadataStore,
                        model_type: metadata_store_pb2.ArtifactType,
-                       model_id: int) -> None:
+                       model_id: int) -> metadata_store_pb2.Artifact:
   """Validates the given `model_id` against the `store`.
 
   Args:
     store: A ml-metadata MetadataStore to be validated.
     model_type: The Model ArtifactType in the `store`.
     model_id: The id for the model artifact in the `store`.
+
+  Returns:
+    The model artifact with the id.
 
   Raises:
     ValueError: If the `model_id` cannot be resolved as a Model artifact in the
@@ -105,6 +108,7 @@ def _validate_model_id(store: mlmd.MetadataStore,
   if model.type_id != model_type.id:
     raise ValueError(
         f'Found artifact with `model_id` is not an instance of Model: {model}.')
+  return model
 
 
 @enum.unique
@@ -134,19 +138,23 @@ def _get_one_hop_artifacts(
   """
   traverse_events = {}
   if direction == _Direction.ANCESTOR:
-    traverse_events['execution'] = metadata_store_pb2.Event.OUTPUT
-    traverse_events['artifact'] = metadata_store_pb2.Event.INPUT
+    traverse_events['execution'] = (metadata_store_pb2.Event.OUTPUT,
+                                    metadata_store_pb2.Event.DECLARED_OUTPUT)
+    traverse_events['artifact'] = (metadata_store_pb2.Event.INPUT,
+                                   metadata_store_pb2.Event.DECLARED_INPUT)
   elif direction == _Direction.SUCCESSOR:
-    traverse_events['execution'] = metadata_store_pb2.Event.INPUT
-    traverse_events['artifact'] = metadata_store_pb2.Event.OUTPUT
+    traverse_events['execution'] = (metadata_store_pb2.Event.INPUT,
+                                    metadata_store_pb2.Event.DECLARED_INPUT)
+    traverse_events['artifact'] = (metadata_store_pb2.Event.OUTPUT,
+                                   metadata_store_pb2.Event.DECLARED_OUTPUT)
   executions_ids = set(
       event.execution_id
       for event in store.get_events_by_artifact_ids(artifact_ids)
-      if event.type == traverse_events['execution'])
+      if event.type in traverse_events['execution'])
   artifacts_ids = set(
       event.artifact_id
       for event in store.get_events_by_execution_ids(executions_ids)
-      if event.type == traverse_events['artifact'])
+      if event.type in traverse_events['artifact'])
   return [
       artifact for artifact in store.get_artifacts_by_id(artifacts_ids)
       if not filter_type or artifact.type_id == filter_type.id
@@ -172,13 +180,15 @@ def _get_one_hop_executions(
     A list of qualified executions within 1-hop neighborhood in the `store`.
   """
   if direction == _Direction.ANCESTOR:
-    traverse_event = metadata_store_pb2.Event.OUTPUT
+    traverse_event = (metadata_store_pb2.Event.OUTPUT,
+                      metadata_store_pb2.Event.DECLARED_OUTPUT)
   elif direction == _Direction.SUCCESSOR:
-    traverse_event = metadata_store_pb2.Event.INPUT
+    traverse_event = (metadata_store_pb2.Event.INPUT,
+                      metadata_store_pb2.Event.DECLARED_INPUT)
   executions_ids = set(
       event.execution_id
       for event in store.get_events_by_artifact_ids(artifact_ids)
-      if event.type == traverse_event)
+      if event.type in traverse_event)
   return [
       execution for execution in store.get_executions_by_id(executions_ids)
       if not filter_type or execution.type_id == filter_type.id
@@ -187,7 +197,9 @@ def _get_one_hop_executions(
 
 def get_metrics_artifacts_for_model(
     store: mlmd.MetadataStore,
-    model_id: int) -> List[metadata_store_pb2.Artifact]:
+    model_id: int,
+    pipeline_types: Optional[PipelineTypes] = None
+) -> List[metadata_store_pb2.Artifact]:
   """Gets a list of evaluation artifacts from a model artifact.
 
   It looks for the evaluator component runs that take the given model as input.
@@ -196,6 +208,7 @@ def get_metrics_artifacts_for_model(
   Args:
     store: A ml-metadata MetadataStore to look for evaluation metrics.
     model_id: The id for the model artifact in the `store`.
+    pipeline_types: An optional set of types if the `store` uses custom types.
 
   Returns:
     A list of metrics artifacts produced by the Evaluator component runs
@@ -205,7 +218,8 @@ def get_metrics_artifacts_for_model(
     ValueError: If the `model_id` cannot be resolved as a model artifact in the
       given `store`.
   """
-  pipeline_types = _get_tfx_pipeline_types(store)
+  if not pipeline_types:
+    pipeline_types = _get_tfx_pipeline_types(store)
   _validate_model_id(store, pipeline_types.model_type, model_id)
   return _get_one_hop_artifacts(store, [model_id], _Direction.SUCCESSOR,
                                 pipeline_types.metrics_type)
@@ -213,7 +227,9 @@ def get_metrics_artifacts_for_model(
 
 def get_stats_artifacts_for_model(
     store: mlmd.MetadataStore,
-    model_id: int) -> List[metadata_store_pb2.Artifact]:
+    model_id: int,
+    pipeline_types: Optional[PipelineTypes] = None
+) -> List[metadata_store_pb2.Artifact]:
   """Gets a list of statistics artifacts from a model artifact.
 
   It first looks for the input datasets of the trainer that produces the model.
@@ -223,6 +239,7 @@ def get_stats_artifacts_for_model(
   Args:
     store: A ml-metadata MetadataStore instance.
     model_id: The id for the model artifact in the `store`.
+    pipeline_types: An optional set of types if the `store` uses custom types.
 
   Returns:
     A list of statistics artifacts produced by the StatsGen component runs
@@ -232,7 +249,8 @@ def get_stats_artifacts_for_model(
     ValueError: If the `model_id` cannot be resolved as a model artifact in the
       given `store`.
   """
-  pipeline_types = _get_tfx_pipeline_types(store)
+  if not pipeline_types:
+    pipeline_types = _get_tfx_pipeline_types(store)
   _validate_model_id(store, pipeline_types.model_type, model_id)
   trainer_examples = _get_one_hop_artifacts(store, [model_id],
                                             _Direction.ANCESTOR,
@@ -241,7 +259,7 @@ def get_stats_artifacts_for_model(
   dataset_ids = set()
   transformed_example_ids = set()
   for example in trainer_examples:
-    if example.uri.find('/Transform/'):
+    if example.uri.find('/Transform/') != -1:
       transformed_example_ids.add(example.id)
     else:
       dataset_ids.add(example.id)
@@ -279,8 +297,11 @@ def _property_value(
   return properties[name].string_value
 
 
-def generate_model_card_for_model(store: mlmd.MetadataStore,
-                                  model_id: int) -> model_card_module.ModelCard:
+def generate_model_card_for_model(
+    store: mlmd.MetadataStore,
+    model_id: int,
+    pipeline_types: Optional[PipelineTypes] = None
+) -> model_card_module.ModelCard:
   """Populates model card properties for a model artifact.
 
   It traverse the parents and children of the model artifact, and maps related
@@ -290,6 +311,7 @@ def generate_model_card_for_model(store: mlmd.MetadataStore,
   Args:
     store: A ml-metadata MetadataStore instance.
     model_id: The id for the model artifact in the `store`.
+    pipeline_types: An optional set of types if the `store` uses custom types.
 
   Returns:
     A ModelCard data object with the properties.
@@ -298,7 +320,8 @@ def generate_model_card_for_model(store: mlmd.MetadataStore,
     ValueError: If the `model_id` cannot be resolved as a model artifact in the
       given `store`.
   """
-  pipeline_types = _get_tfx_pipeline_types(store)
+  if not pipeline_types:
+    pipeline_types = _get_tfx_pipeline_types(store)
   _validate_model_id(store, pipeline_types.model_type, model_id)
   model_card = model_card_module.ModelCard()
   model_details = model_card.model_details
@@ -311,16 +334,15 @@ def generate_model_card_for_model(store: mlmd.MetadataStore,
         model_card_module.Reference(
             reference=_property_value(trainers[0], 'pipeline_name'))
     ]
-  stats = get_stats_artifacts_for_model(store, model_id)
+  stats = get_stats_artifacts_for_model(store, model_id, pipeline_types)
   if stats:
     datasets = _get_one_hop_artifacts(store, [stats[-1].id],
                                       _Direction.ANCESTOR,
                                       pipeline_types.dataset_type)
-    # tfx-oss uses `train` and `eval` splits
-    model_card.model_parameters.data.append(
-        model_card_module.Dataset(name=os.path.join(datasets[-1].uri, 'train')))
-    model_card.model_parameters.data.append(
-        model_card_module.Dataset(name=os.path.join(datasets[-1].uri, 'eval')))
+    # Append dataset path to the model parameter.
+    for dataset in datasets:
+      model_card.model_parameters.data.append(
+          model_card_module.Dataset(name=dataset.uri))
   return model_card
 
 
@@ -350,17 +372,20 @@ def read_stats_proto(
 
 
 def read_metrics_eval_result(
-    metrics_artifact_uri: Text) -> Optional[tfma.EvalResult]:
+    metrics_artifact_uri: Text,
+    output_file_format: Optional[Text] = None) -> Optional[tfma.EvalResult]:
   """Reads TFMA evaluation results from the evaluator output path.
 
   Args:
     metrics_artifact_uri: the output artifact path of a TFMA component.
+    output_file_format: an optional file format of the payload.
 
   Returns:
     A TFMA EvalResults named tuple including configs and sliced metrics.
     Returns None if no slicing metrics found from `metrics_artifact_uri`.
   """
-  result = tfma.load_eval_result(metrics_artifact_uri)
+  result = tfma.load_eval_result(
+      output_path=metrics_artifact_uri, output_file_format=output_file_format)
   if not result.slicing_metrics:
     logging.warning('Cannot load eval results from: %s', metrics_artifact_uri)
     return None

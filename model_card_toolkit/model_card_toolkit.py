@@ -131,28 +131,26 @@ class ModelCardToolkit():
       f.write(content)
 
   def _write_proto_file(self, path: Text, model_card: ModelCard) -> None:
-    """Write content to the path."""
+    """Write serialized model card proto to the path."""
     os.makedirs(os.path.dirname(path), exist_ok=True)
     with open(path, 'wb') as f:
       f.write(model_card.to_proto().SerializeToString())
 
-  def scaffold_assets(self) -> ModelCard:
-    """Generates the model cards tookit assets.
+  def _read_proto_file(self, path: Text) -> ModelCard:
+    """Read serialized model card proto from the path."""
+    model_card_proto = model_card_pb2.ModelCard()
+    with open(path, 'rb') as f:
+      model_card_proto.ParseFromString(f.read())
+    return ModelCard().copy_from_proto(model_card_proto)
 
-    Model cards assets include the model card data files and customizable model
-    card UI templates.
+  def _scaffold_model_card(self) -> ModelCard:
+    """Generates the model card during scaffold_assets phase.
 
-    An assets directory is created if one does not already exist.
-
-    If the MCT is initialized with a `mlmd_store`, it further auto-populates
-    the model cards properties as well as generating related plots such as model
-    performance and data distributions.
+    It includes the implementation details for auto-populated ModelCard fields
+    given the specialization of the ModelCardToolkit.
 
     Returns:
       A ModelCard representing the given model.
-
-    Raises:
-      FileNotFoundError: if it failed to copy the UI template files.
     """
     model_card = ModelCard()
     if self._store:
@@ -172,7 +170,28 @@ class ModelCardToolkit():
         train_stats = tfx_util.read_stats_proto(stats_artifact.uri, 'train')
         eval_stats = tfx_util.read_stats_proto(stats_artifact.uri, 'eval')
         graphics.annotate_dataset_feature_statistics_plots(
-            model_card, train_stats, eval_stats)
+            model_card, [train_stats, eval_stats])
+    return model_card
+
+  def scaffold_assets(self) -> ModelCard:
+    """Generates the model cards tookit assets.
+
+    Model cards assets include the model card data files and customizable model
+    card UI templates.
+
+    An assets directory is created if one does not already exist.
+
+    If the MCT is initialized with a `mlmd_store`, it further auto-populates
+    the model cards properties as well as generating related plots such as model
+    performance and data distributions.
+
+    Returns:
+      A ModelCard representing the given model.
+
+    Raises:
+      FileNotFoundError: if it failed to copy the UI template files.
+    """
+    model_card = self._scaffold_model_card()
 
     # Write Proto file.
     self._write_proto_file(self._mcta_proto_file, model_card)
@@ -242,10 +261,7 @@ class ModelCardToolkit():
       self.update_model_card(model_card)
     # If model_card is not passed in, read from Proto file.
     else:
-      model_card_proto = model_card_pb2.ModelCard()
-      with open(self._mcta_proto_file, 'rb') as f:
-        model_card_proto.ParseFromString(f.read())
-      model_card = ModelCard().copy_from_proto(model_card_proto)
+      model_card = self._read_proto_file(self._mcta_proto_file)
 
     # Generate Model Card.
     jinja_env = jinja2.Environment(
