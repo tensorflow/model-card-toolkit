@@ -17,7 +17,6 @@ import json
 import os
 import pkgutil
 from absl.testing import absltest
-from absl.testing import parameterized
 import jsonschema
 
 from model_card_toolkit import model_card
@@ -35,7 +34,7 @@ _FULL_JSON = model_card_json_bytestring = pkgutil.get_data(
     os.path.join("template/test", _FULL_JSON_FILE_PATH))
 
 
-class ModelCardTest(parameterized.TestCase):
+class ModelCardTest(absltest.TestCase):
 
   def test_copy_from_proto_and_to_proto_with_all_fields(self):
     want_proto = text_format.Parse(_FULL_PROTO, model_card_pb2.ModelCard())
