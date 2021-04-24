@@ -124,6 +124,9 @@ class ModelCardToolkit():
             'The last one is used.', len(models), model_uri)
       self._artifact_with_model_uri = models[-1]
 
+  def _jinja_loader(self, template_dir: Text):
+    return jinja2.FileSystemLoader(template_dir)
+
   def _write_file(self, path: Text, content: Text) -> None:
     """Write content to the path."""
     os.makedirs(os.path.dirname(path), exist_ok=True)
@@ -265,7 +268,7 @@ class ModelCardToolkit():
 
     # Generate Model Card.
     jinja_env = jinja2.Environment(
-        loader=jinja2.FileSystemLoader(template_dir),
+        loader=self._jinja_loader(template_dir),
         autoescape=True,
         auto_reload=True,
         cache_size=0)

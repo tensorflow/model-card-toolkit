@@ -15,6 +15,7 @@
 * Installing from source now requires [Bazel](https://docs.bazel.build/versions/master/install.html)>=2.0.0.
 * Update model card templates to use new schema.
 * `model_card_toolkit.utils.validation.validate_json_schema()` can now validate both schema v0.0.1 and v0.0.2.
+* Add `_jinja_loader` attribute to `model_card_toolkit` to allow custom Jinja loaders.
 
 ## Breaking changes
 
