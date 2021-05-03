@@ -147,6 +147,10 @@ class BaseModelCardField(abc.ABC):
       else:
         setattr(self, field_name, None)
 
+  @classmethod
+  def _get_type(cls, obj: Any):
+    return type(obj)
+
 
 @dataclasses.dataclass
 class Owner(BaseModelCardField):
@@ -390,6 +394,9 @@ class PerformanceMetric(BaseModelCardField):
   type: Optional[Text] = None
   value: Optional[Text] = None
   slice: Optional[Text] = None
+
+  _proto_type: dataclasses.InitVar[BaseModelCardField._get_type(
+      model_card_pb2.PerformanceMetric)] = model_card_pb2.PerformanceMetric
 
 
 @dataclasses.dataclass
