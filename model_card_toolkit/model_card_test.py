@@ -22,16 +22,15 @@ import jsonschema
 from model_card_toolkit import model_card
 from model_card_toolkit.proto import model_card_pb2
 
+from tensorflow.python.util.protobuf import compare
 from google.protobuf import text_format
 
 _FULL_PROTO_FILE_NAME = "full.pbtxt"
 _FULL_PROTO = pkgutil.get_data(
-    "model_card_toolkit",
-    os.path.join("template/test", _FULL_PROTO_FILE_NAME))
+    "model_card_toolkit", os.path.join("template/test", _FULL_PROTO_FILE_NAME))
 _FULL_JSON_FILE_PATH = "full.json"
 _FULL_JSON = model_card_json_bytestring = pkgutil.get_data(
-    "model_card_toolkit",
-    os.path.join("template/test", _FULL_JSON_FILE_PATH))
+    "model_card_toolkit", os.path.join("template/test", _FULL_JSON_FILE_PATH))
 
 
 class ModelCardTest(absltest.TestCase):
@@ -121,11 +120,11 @@ class ModelCardTest(absltest.TestCase):
     # Test message convert.
     model_details = model_card.ModelDetails(
         owners=[model_card.Owner(name="my_name", contact="my_contact")])
-    self.assertEqual(
-        model_details.to_proto(),
+    compare.assertProto2Equal(
+        self, model_details.to_proto(),
         model_card_pb2.ModelDetails(
-            owners=[model_card_pb2.Owner(name="my_name", contact="my_contact")],
-            version=model_card_pb2.Version()))
+            owners=[model_card_pb2.Owner(name="my_name", contact="my_contact")
+                   ]))
 
   def test_to_proto_with_invalid_field(self):
     owner = model_card.Owner()
@@ -133,6 +132,58 @@ class ModelCardTest(absltest.TestCase):
     with self.assertRaisesRegex(ValueError,
                                 "has no such field named 'wrong_field'."):
       owner.to_proto()
+
+  def test_to_proto_from_dict(self):
+    perf_metrics = [{
+        "type": "Flirtation",
+        "value": 0.99
+    }, {
+        "type": "Identity Attack",
+        "value": 0.97
+    }, {
+        "type": "Insult",
+        "value": 0.97
+    }, {
+        "type": "Profanity",
+        "value": 0.99
+    }, {
+        "type": "Severe Toxicity",
+        "value": 0.98
+    }, {
+        "type": "Sexually Explicit",
+        "value": 0.99
+    }, {
+        "type": "Threat",
+        "value": 0.99
+    }, {
+        "type": "Toxicity",
+        "value": 0.97
+    }]
+    perf_metric_protos = [
+        model_card_pb2.PerformanceMetric(type="Flirtation", value="0.99"),
+        model_card_pb2.PerformanceMetric(type="Identity Attack", value="0.97"),
+        model_card_pb2.PerformanceMetric(type="Insult", value="0.97"),
+        model_card_pb2.PerformanceMetric(type="Profanity", value="0.99"),
+        model_card_pb2.PerformanceMetric(type="Severe Toxicity", value="0.98"),
+        model_card_pb2.PerformanceMetric(
+            type="Sexually Explicit", value="0.99"),
+        model_card_pb2.PerformanceMetric(type="Threat", value="0.99"),
+        model_card_pb2.PerformanceMetric(type="Toxicity", value="0.97"),
+    ]
+
+    graphics = {"description": "my graphics"}
+    graphics_proto = model_card_pb2.GraphicsCollection(
+        description="my graphics")
+
+    qa = model_card.QuantitativeAnalysis(
+        performance_metrics=perf_metrics, graphics=graphics)
+    qa_proto = model_card_pb2.QuantitativeAnalysis(
+        performance_metrics=perf_metric_protos, graphics=graphics_proto)
+    compare.assertProto2Equal(self, qa.to_proto(), qa_proto)
+
+    mc = model_card.ModelCard(quantitative_analysis=qa)
+    mc_proto = model_card_pb2.ModelCard(quantitative_analysis=qa_proto)
+    compare.assertProto2Equal(self, mc.to_proto(), mc_proto)
 
   def test_from_json_and_to_json_with_all_fields(self):
     want_json = json.loads(_FULL_JSON)
@@ -192,7 +243,6 @@ class ModelCardTest(absltest.TestCase):
     model_card_json2proto = model_card_py.to_proto()
 
     self.assertEqual(model_card_proto, model_card_json2proto)
-
 
 if __name__ == "__main__":
   absltest.main()

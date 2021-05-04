@@ -95,6 +95,24 @@ class ModelCardToolkitTest(absltest.TestCase):
       model_card_proto.ParseFromString(f.read())
     self.assertEqual(model_card_proto, valid_model_card.to_proto())
 
+  def test_update_model_card_with_dict_fields(self):
+    mct = model_card_toolkit.ModelCardToolkit(output_dir=self.tmpdir)
+    valid_model_card = mct.scaffold_assets()
+    valid_model_card.model_parameters.data = [{
+        'name': 'My dataset',
+        'description': 'a cool dataset'
+    }, {
+        'name': 'Your data',
+        'graphics': {
+            'description': 'another cool dataset',
+            'collection': [{
+                'name': 'graphic name',
+                'image': 'graphic image'
+            }]
+        }
+    }]
+    mct.update_model_card(valid_model_card)
+
   def test_export_format(self):
     store = testdata_utils.get_tfx_pipeline_metadata_store(self.tmp_db_path)
     mct = model_card_toolkit.ModelCardToolkit(
