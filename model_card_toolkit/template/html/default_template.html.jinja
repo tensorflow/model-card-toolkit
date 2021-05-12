@@ -22,7 +22,22 @@
   </ul>
   {%- endif %}
 {% endmacro %}
+{% macro render_all_datasets(model_parameters) %}
+  {% if model_parameters.data[0].description %}
+  <h2>Datasets</h2>
+    {% for dataset in model_parameters.data %}
+      <div class="row">
+        <div class="col card">
+          <h3>{{ dataset.name }}</h3>
+            <p>{{ dataset.description }}</p>
+            <a href="{{ dataset.link }}">{{ dataset.link }}</a>
+        </div>
+      </div>
+    {% endfor %}
+  {% endif %}
+{% endmacro %}
 {% macro render_all_graphics(model_parameters, quantitative_analysis) %}
+  {% if (model_parameters.data and model_parameters.data[0].graphics.collection) or quantitative_analysis.graphics.collection %}
   <h2>Graphics</h2>
     {% for dataset in model_parameters.data %}{% if dataset.graphics and dataset.graphics.collection %}
       <div class="row">
@@ -42,6 +57,7 @@
         </div>
       </div>
     {% endif %}
+  {% endif %}
 {% endmacro %}
 {% macro render_graphics(graphics) %}
   <div class="img-container">
@@ -112,15 +128,17 @@
         <h2>Model Details</h2>
           {% if model_details.overview %}<h3>Overview</h3>
               {{  model_details.overview }}{% endif %}
-          {% if model_details.version %}<h3>Version</h3>
+          {% if model_details.version.name or model_details.version.date %}<h3>Version</h3>
               {{ render_if_exist('name', model_details.version.name) }}
               {{ render_if_exist('date', model_details.version.date) }}
               {{ render_if_exist('diff', model_details.version.diff) }}
           {% endif %}
+          {% if model_details.documentation %}<h3>Documentation</h3>
+              {{ model_details.documentation }}{% endif %}
           {% if model_details.owners %}<h3>Owners</h3>
-              <ul>{% for owner in model_details.owners %}
-                <li>{{ owner.name }}, {{ owner.contact }}</li>
-              {% endfor %}</ul>{% endif %}
+              {% for owner in model_details.owners %}
+                <p>{{ owner.name }}, {{ owner.contact }}</p>
+              {% endfor %}{% endif %}
           {% if model_details.licenses %}
             <h3>Licenses</h3>
               <ul>{% for license in model_details.licenses %}{{ render_license(license) }}{% endfor %}
@@ -139,6 +157,10 @@
                 <li>{{ citation.citation }}</li>
               {% endfor %}
               </ul>{% endif %}
+      </div>
+      <div class="col card">
+      {% if model_parameters.model_architecture or model_parameters.input_format or model_parameters.output_format %}
+        <h2>Model Parameters</h2>
           {% if model_parameters.model_architecture %}
             <h3>Model Architecture</h3>
               {{ model_parameters.model_architecture }}{% endif %}
@@ -148,6 +170,7 @@
           {% if model_parameters.output_format %}
             <h3>Output Format</h3>
               {{ model_parameters.output_format }}{% endif %}
+      {% endif %}
       </div>
       {% if considerations.users or considerations.use_cases or considerations.limitations or considerations.tradeoffs or considerations.ethical_considerations %}
       <div class="col card">
@@ -178,6 +201,9 @@
       </div>
       {% endif %}
     </div>
+    {% if model_parameters.data %}
+      {{ render_all_datasets(model_parameters) }}
+    {% endif %}
     {% if model_parameters.data or quantitative_analysis.graphics.collection %}
       {{ render_all_graphics(model_parameters, quantitative_analysis) }}
     {% endif %}
