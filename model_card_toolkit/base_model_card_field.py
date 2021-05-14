@@ -45,6 +45,10 @@ class BaseModelCardField(abc.ABC):
     """Convert this class object to the proto."""
     proto = self._proto_type()
 
+    def _bad_field_error(field_name, field_value) -> TypeError:
+      return TypeError("Field %s.%s should be a Python class. Found %s." %
+                       (type(self).__name__, field_name, field_value))
+
     for field_name, field_value in self.__dict__.items():
       if not hasattr(proto, field_name):
         raise ValueError("%s has no such field named '%s'." %
@@ -58,8 +62,12 @@ class BaseModelCardField(abc.ABC):
       if field_descriptor.type == descriptor.FieldDescriptor.TYPE_MESSAGE:
         if field_descriptor.label == descriptor.FieldDescriptor.LABEL_REPEATED:
           for nested_message in field_value:
+            if not isinstance(nested_message, BaseModelCardField):
+              raise _bad_field_error(field_name, nested_message)
             getattr(proto, field_name).add().CopyFrom(nested_message.to_proto())  # pylint: disable=protected-access
         else:
+          if not isinstance(field_value, BaseModelCardField):
+            raise _bad_field_error(field_name, field_value)
           getattr(proto, field_name).CopyFrom(field_value.to_proto())  # pylint: disable=protected-access
       # Process Non-Message type
       else:

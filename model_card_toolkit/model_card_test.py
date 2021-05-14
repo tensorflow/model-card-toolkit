@@ -26,12 +26,10 @@ from google.protobuf import text_format
 
 _FULL_PROTO_FILE_NAME = "full.pbtxt"
 _FULL_PROTO = pkgutil.get_data(
-    "model_card_toolkit",
-    os.path.join("template/test", _FULL_PROTO_FILE_NAME))
+    "model_card_toolkit", os.path.join("template/test", _FULL_PROTO_FILE_NAME))
 _FULL_JSON_FILE_PATH = "full.json"
 _FULL_JSON = model_card_json_bytestring = pkgutil.get_data(
-    "model_card_toolkit",
-    os.path.join("template/test", _FULL_JSON_FILE_PATH))
+    "model_card_toolkit", os.path.join("template/test", _FULL_JSON_FILE_PATH))
 
 
 class ModelCardTest(absltest.TestCase):
@@ -134,6 +132,47 @@ class ModelCardTest(absltest.TestCase):
                                 "has no such field named 'wrong_field'."):
       owner.to_proto()
 
+  def test_to_proto_from_dict(self):
+    perf_metrics = [{
+        "type": "Flirtation",
+        "value": 0.99
+    }, {
+        "type": "Identity Attack",
+        "value": 0.97
+    }, {
+        "type": "Insult",
+        "value": 0.97
+    }, {
+        "type": "Profanity",
+        "value": 0.99
+    }, {
+        "type": "Severe Toxicity",
+        "value": 0.98
+    }, {
+        "type": "Sexually Explicit",
+        "value": 0.99
+    }, {
+        "type": "Threat",
+        "value": 0.99
+    }, {
+        "type": "Toxicity",
+        "value": 0.97
+    }]
+    qa_pm = model_card.QuantitativeAnalysis(performance_metrics=perf_metrics)
+    with self.assertRaisesRegex(
+        TypeError,
+        "Field QuantitativeAnalysis.performance_metrics should be a Python "
+        "class. Found {'type': 'Flirtation', 'value': 0.99}."):
+      qa_pm.to_proto()
+
+    graphics = {"description": "my graphics"}
+    qa_g = model_card.QuantitativeAnalysis(graphics=graphics)
+    with self.assertRaisesRegex(
+        TypeError,
+        "Field QuantitativeAnalysis.graphics should be a Python "
+        "class. Found {'description': 'my graphics'."):
+      qa_g.to_proto()
+
   def test_from_json_and_to_json_with_all_fields(self):
     want_json = json.loads(_FULL_JSON)
     model_card_py = model_card.ModelCard()._from_json(want_json)
@@ -164,9 +203,10 @@ class ModelCardTest(absltest.TestCase):
         "considerations": {},
         "schema_version": "0.0.3"
     }
-    with self.assertRaisesRegex(ValueError, (
-        "^Cannot find schema version that matches the version of the given "
-        "model card.")):
+    with self.assertRaisesRegex(
+        ValueError,
+        ("^Cannot find schema version that matches the version of the given "
+         "model card.")):
       model_card.ModelCard()._from_json(model_card_dict)
 
   def test_from_proto_to_json(self):
@@ -192,7 +232,6 @@ class ModelCardTest(absltest.TestCase):
     model_card_json2proto = model_card_py.to_proto()
 
     self.assertEqual(model_card_proto, model_card_json2proto)
-
 
 if __name__ == "__main__":
   absltest.main()
