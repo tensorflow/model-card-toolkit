@@ -88,6 +88,7 @@ class ModelCardToolkit():
   ```
   """
 
+  # TODO(b/188707257): combine mlmd_store and model_uri args
   def __init__(self,
                output_dir: Optional[Text] = None,
                mlmd_store: Optional[mlmd.MetadataStore] = None,
@@ -100,7 +101,8 @@ class ModelCardToolkit():
       mlmd_store: A ml-metadata MetadataStore to retrieve metadata and lineage
         information about the model stored at `model_uri`. If given, a set of
         model card properties can be auto-populated from the `mlmd_store`.
-      model_uri: The path to the trained model to generate model cards.
+      model_uri: The path to the trained model to generate model cards. Ignored
+        if mlmd_store is not used.
 
     Raises:
       ValueError: If `mlmd_store` is given and the `model_uri` cannot be
@@ -123,6 +125,8 @@ class ModelCardToolkit():
             '%d artifacts are found with the `model_uri`="%s". '
             'The last one is used.', len(models), model_uri)
       self._artifact_with_model_uri = models[-1]
+    elif model_uri:
+      logging.info('model_uri ignored when mlmd_store is not present.')
 
   def _jinja_loader(self, template_dir: Text):
     return jinja2.FileSystemLoader(template_dir)
