@@ -33,10 +33,12 @@
         "collection": [
           {
             "name": "img1",
+            "description": "the first image",
             "image": "{image_bytes}"
           },
           {
             "name": "img2",
+            "description": "the second image",
             "image": "{image_bytes}"
           }
        ]
@@ -48,6 +50,7 @@
     "graphics": {
       "collection": [{
         "name": "img",
+        "description": "the third image",
         "image": "{image_bytes}"
       }]
     }

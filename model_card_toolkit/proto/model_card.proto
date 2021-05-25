@@ -86,10 +86,13 @@ message ModelDetails {
 }
 
 // A named inline plot.
-// The next tag number is 3.
+// The next tag number is 4.
 message Graphic {
   // The name of the graphic.
   optional string name = 1;
+
+  // A description of the Graphic.
+  optional string description = 3;
 
   // The image, encoded as a base64 string.
   optional string image = 2;

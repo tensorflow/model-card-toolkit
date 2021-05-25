@@ -156,9 +156,11 @@ class Graphic(BaseModelCardField):
 
   Attributes:
     name: The name of the graphic.
+    description: A description of the graphic.
     image: The image string encoded as a base64 string.
   """
   name: Optional[Text] = None
+  description: Optional[Text] = None
   image: Optional[Text] = None
 
   _proto_type: dataclasses.InitVar[type(

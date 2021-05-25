@@ -35,10 +35,12 @@ model_parameters {
       description: "graphics description"
       collection: {
         name: "img1"
+        description: "the first image"
         image: "{image_bytes}"
       }
       collection: {
         name: "img2"
+        description: "the second image"
         image: "{image_bytes}"
       }
     }
@@ -49,6 +51,7 @@ quantitative_analysis: {
   graphics: {
     collection: {
       name: "img"
+      description: "the third image"
       image: "{image_bytes}"
     }
   }

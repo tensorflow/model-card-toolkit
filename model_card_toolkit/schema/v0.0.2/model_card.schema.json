@@ -257,6 +257,10 @@
           "description": "The name of the graphic.",
           "type": "string"
         },
+        "description": {
+          "description": "A description of this graphic.",
+          "type": "string"
+        },
         "image": {
           "description": "The graphic, encoded as a base64 string.",
           "type": "string",
