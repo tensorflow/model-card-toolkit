@@ -126,7 +126,7 @@ def annotate_eval_result_plots(model_card: model_card_module.ModelCard,
 
 def _generate_graph_from_feature_statistics(
     feature_stats: statistics_pb2.FeatureNameStatistics,
-    color: Text = None) -> Union[_Graph, None]:
+    color: Optional[Text] = None) -> Union[_Graph, None]:
   """Generates a _Graph object based on the histograms of feature_stats.
 
   Each bar in the histogram corresponds to a bucket in histogram.buckets.

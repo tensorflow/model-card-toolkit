@@ -240,8 +240,8 @@ class ModelCardToolkit():
     self._write_proto_file(self._mcta_proto_file, model_card)
 
   def export_format(self,
-                    model_card: ModelCard = None,
-                    template_path: Text = None,
+                    model_card: Optional[ModelCard] = None,
+                    template_path: Optional[Text] = None,
                     output_file=_DEFAULT_MODEL_CARD_FILE_NAME) -> Text:
     """Generates a model card based on the MCT assets.
 

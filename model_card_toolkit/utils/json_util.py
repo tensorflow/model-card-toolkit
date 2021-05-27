@@ -14,12 +14,12 @@
 """Util functions for Model Card JSON schema."""
 
 import logging
-from typing import Any, Dict, Text
+from typing import Any, Dict, Optional, Text
 import jsonschema
 from model_card_toolkit.utils import validation
 
 
-def update(json_dict: Dict[Text, Any] = None) -> Dict[Text, Any]:
+def update(json_dict: Optional[Dict[Text, Any]] = None) -> Dict[Text, Any]:
   """Updates a Model Card JSON dictionary to the latest schema version.
 
   If you have a JSON string, you can use it with this function as follows:
@@ -44,7 +44,7 @@ def update(json_dict: Dict[Text, Any] = None) -> Dict[Text, Any]:
   try:
     validation.validate_json_schema(json_dict, "0.0.2")
     logging.info("JSON object already matches schema 0.0.2.")
-    return json_dict
+    return json_dict  # pytype: disable=bad-return-type
   except jsonschema.ValidationError:
     return _update_from_v1_to_v2(json_dict)
 

@@ -20,7 +20,7 @@ the Model Card schema.
 import json
 import os
 import pkgutil
-from typing import Any, Dict, Text
+from typing import Any, Dict, Optional, Text
 import jsonschema
 import semantic_version
 
@@ -29,8 +29,9 @@ _SCHEMA_VERSIONS = frozenset(('0.0.1', '0.0.2',))
 _LATEST_SCHEMA_VERSION = max(_SCHEMA_VERSIONS, key=semantic_version.Version)
 
 
-def validate_json_schema(json_dict: Dict[Text, Any],
-                         schema_version: Text = None) -> Dict[Text, Any]:
+def validate_json_schema(
+    json_dict: Dict[Text, Any],
+    schema_version: Optional[Text] = None) -> Dict[Text, Any]:
   """Validates the json schema of a model card field.
 
   If schema_version is not provided, it will use the latest schema version.
@@ -57,7 +58,7 @@ def validate_json_schema(json_dict: Dict[Text, Any],
   return schema
 
 
-def _find_json_schema(schema_version: Text = None) -> Dict[Text, Any]:
+def _find_json_schema(schema_version: Optional[Text] = None) -> Dict[Text, Any]:
   """Returns the JSON schema of a model card field in dictionary format.
 
   Args:
