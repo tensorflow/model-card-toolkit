@@ -267,8 +267,11 @@ class ModelCardToolkit():
     if model_card:
       self.update_model_card(model_card)
     # If model_card is not passed in, read from Proto file.
-    else:
+    elif os.path.exists(self._mcta_proto_file):
       model_card = self._read_proto_file(self._mcta_proto_file)
+    # If model card proto never created, create new model card.
+    else:
+      model_card = self.scaffold_assets()
 
     # Generate Model Card.
     jinja_env = jinja2.Environment(

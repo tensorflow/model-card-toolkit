@@ -140,6 +140,16 @@ class ModelCardToolkitTest(absltest.TestCase):
       self.assertTrue(content.startswith('<!DOCTYPE html>'))
       self.assertIn('My Model', content)
 
+  def test_export_format_with_empty_model_card(self):
+    output_file = 'my_model_card.html'
+    html = model_card_toolkit.ModelCardToolkit(
+        output_dir=self.tmpdir).export_format(output_file=output_file)
+    self.assertTrue(html.startswith('<!DOCTYPE html>'))
+
+    model_card_path = os.path.join(self.tmpdir, 'model_cards', output_file)
+    with open(model_card_path) as f:
+      self.assertEqual(html, f.read())
+
 
 if __name__ == '__main__':
   absltest.main()
