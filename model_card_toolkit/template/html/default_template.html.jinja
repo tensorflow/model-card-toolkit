@@ -146,15 +146,20 @@
                 <li>{{ citation.citation }}</li>
               {% endfor %}
               </ul>{% endif %}
-          {% if model_parameters.model_architecture %}
-            <h3>Model Architecture</h3>
-              <div style="white-space:pre-wrap;">{{ model_parameters.model_architecture }}</div>{% endif %}
-          {% if model_parameters.input_format %}
-            <h3>Input Format</h3>
-              <div style="white-space:pre-wrap;">{{ model_parameters.input_format }}</div>{% endif %}
-          {% if model_parameters.output_format %}
-            <h3>Output Format</h3>
-              <div style="white-space:pre-wrap;">{{ model_parameters.output_format }}</div>{% endif %}
+        </div>
+      {% if model_parameters.model_architecture or model_parameters.input_format or model_parameters.output_format %}
+        <div class="col card">
+          <h2>Model Parameters</h2>
+            {% if model_parameters.model_architecture %}
+              <h3>Model Architecture</h3>
+                <div style="white-space:pre-wrap;">{{ model_parameters.model_architecture }}</div>{% endif %}
+            {% if model_parameters.input_format %}
+              <h3>Input Format</h3>
+                <div style="white-space:pre-wrap;">{{ model_parameters.input_format }}</div>{% endif %}
+            {% if model_parameters.output_format %}
+              <h3>Output Format</h3>
+                <div style="white-space:pre-wrap;">{{ model_parameters.output_format }}</div>{% endif %}
+      {% endif %}
       </div>
       {% if considerations and (considerations.users or considerations.use_cases or considerations.limitations or considerations.tradeoffs or considerations.ethical_considerations) %}
       <div class="col card">
