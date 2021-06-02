@@ -71,9 +71,6 @@
 {% endfor %}
 </table>
 {% endmacro %}
-{% macro write_string(string) %}
-  <div style="white-space:pre-wrap;">{{ string }}</div>
-{% endmacro %}
 <html lang="en">
 <head>
 <style>
@@ -120,10 +117,17 @@
               {{ render_if_exist('date', model_details.version.date) }}
               {{ render_if_exist('diff', model_details.version.diff) }}
           {% endif %}
+          {% if model_details.documentation %}<h3>Documentation</h3>
+              {{ model_details.documentation }}{% endif %}
           {% if model_details.owners %}<h3>Owners</h3>
-              <ul>{% for owner in model_details.owners %}
+            {% if model_details.owners|length > 1 %}
+              {% for owner in model_details.owners %}
                 <li>{{ owner.name }}, {{ owner.contact }}</li>
-              {% endfor %}</ul>{% endif %}
+              {% endfor %}
+            {% else %}
+              {{ model_details.owners[0].name }}, {{ model_details.owners[0].contact }}
+            {% endif %}
+          {% endif %}
           {% if model_details.licenses %}
             <h3>Licenses</h3>
               <ul>{% for license in model_details.licenses %}{{ render_license(license) }}{% endfor %}
