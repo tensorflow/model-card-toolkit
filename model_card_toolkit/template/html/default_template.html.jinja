@@ -71,6 +71,9 @@
 {% endfor %}
 </table>
 {% endmacro %}
+{% macro write_string(string) %}
+  <div style="white-space:pre-wrap;">{{ string }}</div>
+{% endmacro %}
 <html lang="en">
 <head>
 <style>
@@ -141,15 +144,15 @@
               </ul>{% endif %}
           {% if model_parameters.model_architecture %}
             <h3>Model Architecture</h3>
-              {{ model_parameters.model_architecture }}{% endif %}
+              <div style="white-space:pre-wrap;">{{ model_parameters.model_architecture }}</div>{% endif %}
           {% if model_parameters.input_format %}
             <h3>Input Format</h3>
-              {{ model_parameters.input_format }}{% endif %}
+              <div style="white-space:pre-wrap;">{{ model_parameters.input_format }}</div>{% endif %}
           {% if model_parameters.output_format %}
             <h3>Output Format</h3>
-              {{ model_parameters.output_format }}{% endif %}
+              <div style="white-space:pre-wrap;">{{ model_parameters.output_format }}</div>{% endif %}
       </div>
-      {% if considerations.users or considerations.use_cases or considerations.limitations or considerations.tradeoffs or considerations.ethical_considerations %}
+      {% if considerations and (considerations.users or considerations.use_cases or considerations.limitations or considerations.tradeoffs or considerations.ethical_considerations) %}
       <div class="col card">
         <h2>Considerations</h2>
           {% if considerations.users %}
