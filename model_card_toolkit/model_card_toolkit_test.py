@@ -140,6 +140,10 @@ class ModelCardToolkitTest(absltest.TestCase):
       self.assertTrue(content.startswith('<!DOCTYPE html>'))
       self.assertIn('My Model', content)
 
+  def test_export_format_before_scaffold_assets(self):
+    with self.assertRaises(ValueError):
+      model_card_toolkit.ModelCardToolkit().export_format()
+
 
 if __name__ == '__main__':
   absltest.main()

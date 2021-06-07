@@ -37,8 +37,7 @@ _UI_TEMPLATES = (
     'template/html/default_template.html.jinja',
     'template/md/default_template.md.jinja',
 )
-_DEFAULT_UI_TEMPLATE_FILE = os.path.join('html',
-                                         'default_template.html.jinja')
+_DEFAULT_UI_TEMPLATE_FILE = os.path.join('html', 'default_template.html.jinja')
 
 # Constants about Model Cards Toolkit Assets (MCTA).
 _MCTA_PROTO_FILE = 'data/model_card.proto'
@@ -246,8 +245,9 @@ class ModelCardToolkit():
     """Generates a model card based on the MCT assets.
 
     Args:
-      model_card: The ModelCard object. If not provided, it will be read from
-        the Proto file.
+      model_card: The ModelCard object, generated from `scaffold_assets()`. If
+        not provided, it will be read from the ModelCard proto file in the
+        assets directory.
       template_path: The file path of the UI template. If not provided, the
         default UI template will be used.
       output_file: The file name of the generated model card. If not provided,
@@ -255,7 +255,11 @@ class ModelCardToolkit():
         then it will be overwritten.
 
     Returns:
-      The model card UI.
+      The model card file content.
+
+    Raises:
+      MCTError: If `export_format` is called before `scaffold_assets` has
+        generated model card assets.
     """
     if not template_path:
       template_path = os.path.join(self._mcta_template_dir,
@@ -267,8 +271,12 @@ class ModelCardToolkit():
     if model_card:
       self.update_model_card(model_card)
     # If model_card is not passed in, read from Proto file.
-    else:
+    elif os.path.exists(self._mcta_proto_file):
       model_card = self._read_proto_file(self._mcta_proto_file)
+    # If model card proto never created, raise exception.
+    else:
+      raise ValueError(
+          'scaffold_assets() must be called before export_format().')
 
     # Generate Model Card.
     jinja_env = jinja2.Environment(
