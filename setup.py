@@ -17,10 +17,11 @@
 Run with `python3 setup.py sdist bdist_wheel`.
 """
 
-from distutils import spawn
+# TODO(b/188859752): deprecate distutils
 from distutils.command import build
 
 import platform
+import shutil
 import subprocess
 
 from setuptools import Command
@@ -80,9 +81,9 @@ class _BazelBuildCommand(Command):
 
   def finalize_options(self):
     # verified with bazel 2.0.0, 3.0.0, and 4.0.0 via bazelisk
-    self._bazel_cmd = spawn.find_executable('bazel')
+    self._bazel_cmd = shutil.which('bazel')
     if not self._bazel_cmd:
-      self._bazel_cmd = spawn.find_executable('bazelisk')
+      self._bazel_cmd = shutil.which('bazelisk')
     if not self._bazel_cmd:
       raise RuntimeError(
           'Could not find "bazel" or "bazelisk" binary. Please visit '
