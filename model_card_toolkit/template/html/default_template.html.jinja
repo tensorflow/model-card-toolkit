@@ -22,26 +22,22 @@
   </ul>
   {%- endif %}
 {% endmacro %}
-{% macro render_all_graphics(model_parameters, quantitative_analysis) %}
-  <h2>Graphics</h2>
-    {% for dataset in model_parameters.data %}{% if dataset.graphics and dataset.graphics.collection %}
+{% macro render_all_datasets(datasets) %}
+  <div class="col card">
+    <h2>Datasets</h2>
+    {% for dataset in datasets %}
       <div class="row">
         <div class="col card">
           <h3>{{ dataset.name }}</h3>
-            {{ dataset.description }}
-            {{ render_graphics(dataset.graphics.collection) }}
-        </div>
-      </div>{% endif %}
-    {% endfor %}
-    {% if quantitative_analysis.graphics.collection %}
-      <div class="row">
-        <div class="col card">
-          <h3>Quantitative Analysis</h3>
-            {{ quantitative_analysis.graphics.description }}
-            {{ render_graphics(quantitative_analysis.graphics.collection) }}
+            <p>{{ dataset.description }}</p>
+            <a href="{{ dataset.link }}">{{ dataset.link }}</a>
+            {% if dataset.graphics and dataset.graphics.collection %}
+              {{ render_graphics(dataset.graphics.collection) }}
+            {% endif %}
         </div>
       </div>
-    {% endif %}
+    {% endfor %}
+  </div>
 {% endmacro %}
 {% macro render_graphics(graphics) %}
   <div class="img-container">
@@ -62,14 +58,33 @@
 {% macro metric_value(metric) %}
 {{ metric.value }}{% if metric.confidence_interval %} ({{ metric.confidence_interval.lower_bound }}, {{ metric.confidence_interval.upper_bound }}){% endif %}
 {% endmacro %}
+{% macro render_quantitative_analysis(quantitative_analysis) %}
+<div class="col card">
+  <h2>Quantitative Analysis</h2>
+  {% if quantitative_analysis.performance_metrics %}
+    {{ render_metrics_table(quantitative_analysis.performance_metrics )}}
+  {% endif %}
+  {% if quantitative_analysis.graphics.collection %}
+    {{ render_metrics_graphics(quantitative_analysis.graphics) }}
+  {% endif %}
+</div>
+{% endmacro %}
 {% macro render_metrics_table(metrics) %}
-<table>
+<table class="center">
   <caption>Performance Metrics</caption>
   <tr><th>Name</th><th>Value</th></tr>
 {% for metric in metrics %}
   <tr><td>{{ metric_name(metric) }}</td><td>{{ metric_value(metric) }}</td></tr>
 {% endfor %}
 </table>
+{% endmacro %}
+{% macro render_metrics_graphics(graphics) %}
+  <div class="row">
+    <div class="col">
+      {{ graphics.description }}
+      {{ render_graphics(graphics.collection) }}
+    </div>
+  </div>
 {% endmacro %}
 <html lang="en">
 <head>
@@ -94,6 +109,10 @@
   }
   .img-item {
     flex: 1;
+  }
+  .center {
+    margin-left: auto;
+    margin-right: auto;
   }
   table, th, td { border: 1px solid black; }
   th, td { border: 1px solid #CCC; height: 30px; }
@@ -160,7 +179,6 @@
               <h3>Output Format</h3>
                 <div style="white-space:pre-wrap;">{{ model_parameters.output_format }}</div>{% endif %}
       {% endif %}
-      </div>
       {% if considerations and (considerations.users or considerations.use_cases or considerations.limitations or considerations.tradeoffs or considerations.ethical_considerations) %}
       <div class="col card">
         <h2>Considerations</h2>
@@ -190,11 +208,11 @@
       </div>
       {% endif %}
     </div>
-    {% if model_parameters.data or quantitative_analysis.graphics.collection %}
-      {{ render_all_graphics(model_parameters, quantitative_analysis) }}
+    {% if model_parameters.data %}
+      {{ render_all_datasets(model_parameters.data) }}
     {% endif %}
-    {% if quantitative_analysis.performance_metrics %}
-      {{ render_metrics_table(quantitative_analysis.performance_metrics )}}
+    {% if quantitative_analysis.performance_metrics or quantitative_analysis.graphics.collection %}
+      {{ render_quantitative_analysis(quantitative_analysis) }}
     {% endif %}
 </body>
 </html>
