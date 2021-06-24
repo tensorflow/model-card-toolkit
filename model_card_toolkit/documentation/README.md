@@ -4,11 +4,7 @@
 
 
 
-```live-stacks
-product_id: 'model_card_toolkit'
-widget_kind: 'educational'
-use_name_in_title: true
-```
+<g3mark-stacks product-id="model_card_toolkit" widget-kind="educational" use-name-in-title="true"></g3mark-stacks>
 
 
 
