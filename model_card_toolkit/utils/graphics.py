@@ -17,7 +17,7 @@
 import base64
 import io
 import logging
-from typing import Any, Sequence, Text, Tuple, Union, Optional
+from typing import Sequence, Text, Tuple, Union, Optional
 
 import attr
 import matplotlib
@@ -96,7 +96,6 @@ def annotate_eval_result_plots(model_card: model_card_module.ModelCard,
     eval_result: a `tfma.EvalResult`.
   """
 
-  # TODO(b/159058592): replace with `metrics = eval_result.get_metrics()`
   metrics = set()
   slices_keys = set()
   for slicing_metric in eval_result.slicing_metrics:
@@ -182,8 +181,7 @@ def _generate_graph_from_feature_statistics(
 
 
 def _generate_graph_from_slicing_metrics(
-    # TODO(b/159073391): replace Any with tfma.view.SlicedMetrics
-    slicing_metrics: Sequence[Any],
+    slicing_metrics: Sequence[tfma.view.SlicedMetrics],
     metric: Text,
     slices_key: Text = '',
     output_name: Text = '',

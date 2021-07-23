@@ -46,6 +46,7 @@ def update(json_dict: Optional[Dict[Text, Any]] = None) -> Dict[Text, Any]:
     logging.info("JSON object already matches schema 0.0.2.")
     return json_dict  # pytype: disable=bad-return-type
   except jsonschema.ValidationError:
+    logging.info("JSON object does match schema 0.0.2; updating.")
     return _update_from_v1_to_v2(json_dict)
 
 
