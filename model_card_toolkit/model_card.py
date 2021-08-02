@@ -20,10 +20,10 @@ the Model Card (MC) are defined by a json schema. The ModelCard class in the
 ModelCardsToolkit serves as an API to read and write MC properties by the users.
 """
 
+import dataclasses
 import json as json_lib
 from typing import Any, Dict, List, Optional, Text
 
-import dataclasses
 from model_card_toolkit.base_model_card_field import BaseModelCardField
 from model_card_toolkit.proto import model_card_pb2
 from model_card_toolkit.utils import validation

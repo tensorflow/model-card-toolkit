@@ -25,7 +25,6 @@ import shutil
 import subprocess
 
 from setuptools import Command
-from setuptools import find_packages
 from setuptools import setup
 
 REQUIRED_PACKAGES = [
@@ -110,7 +109,11 @@ setup(
     url='https://github.com/tensorflow/model-card-toolkit',
     author='Google LLC',
     author_email='tensorflow-extended-dev@googlegroups.com',
-    packages=find_packages(exclude=('bazel-model_card_toolkit*',)),
+    packages=[
+        'model_card_toolkit', 'model_card_toolkit.documentation',
+        'model_card_toolkit.documentation.examples', 'model_card_toolkit.proto',
+        'model_card_toolkit.utils'
+    ],
     package_data={
         'model_card_toolkit': ['schema/**/*.json', 'template/**/*.jinja']
     },
