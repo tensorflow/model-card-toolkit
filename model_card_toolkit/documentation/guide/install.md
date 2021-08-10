@@ -11,7 +11,7 @@ pip install model-card-toolkit
 ```
 
 You may need to append the `--use-deprecated=legacy-resolver` flag when running
-pip20.3.
+versions of pip starting with 20.3
 
 ## Installing from source
 
