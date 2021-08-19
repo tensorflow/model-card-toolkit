@@ -4,6 +4,8 @@
 
 ## Major Features and Improvements
 
+* ModelCardArtifact for TFX pipelines.
+
 ## Bug fixes and other changes
 
 ## Breaking changes and Deprecations
