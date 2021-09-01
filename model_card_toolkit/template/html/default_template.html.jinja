@@ -28,9 +28,9 @@
     {% for dataset in datasets %}
       <div class="row">
         <div class="col card">
-          <h3>{{ dataset.name }}</h3>
-            <p>{{ dataset.description }}</p>
-            <a href="{{ dataset.link }}">{{ dataset.link }}</a>
+          {% if dataset.name %}<h3>{{ dataset.name }}</h3>{% endif %}
+            {% if dataset.description %}<p>{{ dataset.description }}</p>{% endif %}
+            {% if dataset.link %}<a href="{{ dataset.link }}">{{ dataset.link }}</a>{% endif %}
             {% if dataset.graphics and dataset.graphics.collection %}
               {{ render_graphics(dataset.graphics.collection) }}
             {% endif %}
