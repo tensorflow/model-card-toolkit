@@ -34,9 +34,9 @@ REQUIRED_PACKAGES = [
     'jinja2>=2.10,<3',
     'matplotlib>=3.2.0,<4',
     'jsonschema>=3.2.0,<4',
-    'tensorflow-model-analysis>=0.26.0,<0.27.0',
-    'tensorflow-metadata>=0.26.0,<0.27.0',
-    'ml-metadata>=0.26.0,<0.27.0',
+    'tensorflow-model-analysis>=0.33.0,<0.34.0',
+    'tensorflow-metadata>=1.2.0,<1.3.0',
+    'ml-metadata>=1.2.0,<1.3.0',
     'dataclasses;python_version<"3.7"',
 ]
 

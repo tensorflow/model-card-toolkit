@@ -71,8 +71,8 @@ def annotate_dataset_feature_statistics_plots(
   for stats, color in zip(data_stats, colors):
     if not stats:
       continue
-    graphs = []
     for dataset in stats.datasets:
+      graphs = []
       for feature in dataset.features:
         graph = _generate_graph_from_feature_statistics(feature, color)
         graph = _draw_histogram(graph)
@@ -80,9 +80,10 @@ def annotate_dataset_feature_statistics_plots(
           graphs.append(
               model_card_module.Graphic(
                   name=graph.name, image=graph.base64str))
-    model_card.model_parameters.data.append(
-        model_card_module.Dataset(
-            graphics=model_card_module.GraphicsCollection(collection=graphs)))
+      model_card.model_parameters.data.append(
+          model_card_module.Dataset(
+              name=dataset.name,
+              graphics=model_card_module.GraphicsCollection(collection=graphs)))
 
 
 def annotate_eval_result_plots(model_card: model_card_module.ModelCard,

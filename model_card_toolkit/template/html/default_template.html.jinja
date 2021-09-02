@@ -41,6 +41,7 @@
 {% endmacro %}
 {% macro render_graphics(graphics) %}
   <div class="img-container">
+  {% if graphics.description %}<p>{{ graphics.description }}</p>{% endif %}
   {% for graph in graphics %}
     <div class="img-item">
       <img src='data:image/jpeg;base64,{{ graph.image }}' alt='{{ graph.name }}' />
@@ -131,7 +132,7 @@
         <h2>Model Details</h2>
           {% if model_details.overview %}<h3>Overview</h3>
               {{  model_details.overview }}{% endif %}
-          {% if model_details.version %}<h3>Version</h3>
+          {% if model_details.version and model_details.version.name %}<h3>Version</h3>
               {{ render_if_exist('name', model_details.version.name) }}
               {{ render_if_exist('date', model_details.version.date) }}
               {{ render_if_exist('diff', model_details.version.diff) }}

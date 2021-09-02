@@ -334,15 +334,6 @@ def generate_model_card_for_model(
         model_card_module.Reference(
             reference=_property_value(trainers[0], 'pipeline_name'))
     ]
-  stats = get_stats_artifacts_for_model(store, model_id, pipeline_types)
-  if stats:
-    datasets = _get_one_hop_artifacts(store, [stats[-1].id],
-                                      _Direction.ANCESTOR,
-                                      pipeline_types.dataset_type)
-    # Append dataset path to the model parameter.
-    for dataset in datasets:
-      model_card.model_parameters.data.append(
-          model_card_module.Dataset(name=dataset.uri))
   return model_card
 
 
@@ -360,15 +351,24 @@ def read_stats_proto(
     eval split stats as DatasetFeatureStatisticsList.
   """
   stats = statistics_pb2.DatasetFeatureStatisticsList()
+  feature_stats_path = os.path.join(stats_artifact_uri, split,
+                                    'FeatureStats.pb')
   stats_tfrecord_path = os.path.join(stats_artifact_uri,
                                      split, 'stats_tfrecord')
-  if not os.path.exists(stats_tfrecord_path):
-    logging.warning('No artifact found at %s', stats_tfrecord_path)
+
+  if os.path.exists(feature_stats_path):
+    with tf.io.gfile.GFile(feature_stats_path, mode='rb') as f:
+      stats.ParseFromString(f.read())
+    return stats
+  elif os.path.exists(stats_tfrecord_path):
+    serialized_stats = next(
+        tf.compat.v1.io.tf_record_iterator(stats_tfrecord_path))
+    stats.ParseFromString(serialized_stats)
+    return stats
+  else:
+    logging.warning('No artifact found at %s or %s', stats_tfrecord_path,
+                    feature_stats_path)
     return None
-  serialized_stats = next(
-      tf.compat.v1.io.tf_record_iterator(stats_tfrecord_path))
-  stats.ParseFromString(serialized_stats)
-  return stats
 
 
 def read_metrics_eval_result(

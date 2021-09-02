@@ -107,9 +107,6 @@ class TfxUtilsTest(absltest.TestCase):
     datasets = store.get_artifacts_by_id(
         [testdata_utils.TFX_0_21_MODEL_DATASET_ID])
     self.assertNotEmpty(datasets)
-    model_params = model_card.model_parameters
-    self.assertEqual([dataset.name for dataset in model_params.data],
-                     [dataset.uri for dataset in datasets])
 
   def test_generate_model_card_for_model_with_model_not_found(self):
     store = testdata_utils.get_tfx_pipeline_metadata_store(self.tmp_db_path)
@@ -134,9 +131,9 @@ class TfxUtilsTest(absltest.TestCase):
     stats = store.get_artifacts_by_id(
         [testdata_utils.TFX_0_21_STATS_ARTIFACT_ID])
     self.assertLen(stats, 1)
-    train_stats = tfx_util.read_stats_proto(stats[-1].uri, 'train')
+    train_stats = tfx_util.read_stats_proto(stats[-1].uri, 'Split-train')
     self.assertIsNotNone(train_stats)
-    eval_stats = tfx_util.read_stats_proto(stats[-1].uri, 'eval')
+    eval_stats = tfx_util.read_stats_proto(stats[-1].uri, 'Split-eval')
     self.assertIsNotNone(eval_stats)
 
   def test_read_stats_proto_with_invalid_split(self):

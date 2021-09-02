@@ -1,10 +1,13 @@
 <!-- mdlint off(HEADERS_TOO_MANY_H1) -->
 
-# Current Version (Still in Development)
+# Release 1.1.0
 
 ## Major Features and Improvements
 
 ## Bug fixes and other changes
+
+* Update TFX compatibility to TFX 1.2.
+* Fix bug where all datasets from MLMD were being compressed into one model_card.Dataset object.
 
 ## Breaking changes and Deprecations
 

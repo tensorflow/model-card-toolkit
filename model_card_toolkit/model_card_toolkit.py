@@ -173,8 +173,9 @@ class ModelCardToolkit():
           graphics.annotate_eval_result_plots(model_card, eval_result)
 
       for stats_artifact in stats_artifacts:
-        train_stats = tfx_util.read_stats_proto(stats_artifact.uri, 'train')
-        eval_stats = tfx_util.read_stats_proto(stats_artifact.uri, 'eval')
+        train_stats = tfx_util.read_stats_proto(stats_artifact.uri,
+                                                'Split-train')
+        eval_stats = tfx_util.read_stats_proto(stats_artifact.uri, 'Split-eval')
         graphics.annotate_dataset_feature_statistics_plots(
             model_card, [train_stats, eval_stats])
     return model_card
