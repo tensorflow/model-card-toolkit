@@ -14,12 +14,14 @@
 """Tests for model_card_toolkit."""
 
 import os
+from unittest import mock
 import uuid
 
 from absl.testing import absltest
 
 from model_card_toolkit import model_card_toolkit
 from model_card_toolkit.proto import model_card_pb2
+from model_card_toolkit.utils import graphics
 from model_card_toolkit.utils.testdata import testdata_utils
 
 
@@ -61,7 +63,13 @@ class ModelCardToolkitTest(absltest.TestCase):
     self.assertIn('model_card.proto',
                   os.listdir(os.path.join(output_dir, 'data')))
 
-  def test_scaffold_assets_with_store(self):
+  @mock.patch.object(
+      graphics, 'annotate_dataset_feature_statistics_plots', autospec=True)
+  @mock.patch.object(graphics, 'annotate_eval_result_plots', autospec=True)
+  def test_scaffold_assets_with_store(self, mock_annotate_data_stats,
+                                      mock_annotate_eval_results):
+    num_stat_artifacts = 2
+    num_eval_artifacts = 1
     output_dir = self.tmpdir
     store = testdata_utils.get_tfx_pipeline_metadata_store(self.tmp_db_path)
     mct = model_card_toolkit.ModelCardToolkit(
@@ -71,17 +79,12 @@ class ModelCardToolkitTest(absltest.TestCase):
     mc = mct.scaffold_assets()
     self.assertIsNotNone(mc.model_details.name)
     self.assertIsNotNone(mc.model_details.version.name)
-    self.assertNotEmpty(mc.quantitative_analysis.graphics.collection)
-    self.assertIn('average_loss', {
-        graphic.name for graphic in mc.quantitative_analysis.graphics.collection
-    })
-    self.assertIn('post_export_metrics/example_count', {
-        graphic.name for graphic in mc.quantitative_analysis.graphics.collection
-    })
     self.assertIn('default_template.html.jinja',
                   os.listdir(os.path.join(output_dir, 'template/html')))
     self.assertIn('default_template.md.jinja',
                   os.listdir(os.path.join(output_dir, 'template/md')))
+    self.assertEqual(mock_annotate_data_stats.call_count, num_stat_artifacts)
+    self.assertEqual(mock_annotate_eval_results.call_count, num_eval_artifacts)
 
   def test_update_model_card_with_valid_model_card(self):
     mct = model_card_toolkit.ModelCardToolkit(output_dir=self.tmpdir)
