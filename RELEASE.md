@@ -4,7 +4,10 @@
 
 ## Major Features and Improvements
 
-* `ModelCard.from_json()` added.
+* Added `ModelCard.from_json()`.
+
+* Added `ModelCardToolkit.save_mlmd()`, a new API to save ModelCards to your MLMD store.
+
 
 ## Bug fixes and other changes
 
