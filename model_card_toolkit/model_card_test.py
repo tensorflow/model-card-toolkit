@@ -105,7 +105,8 @@ class ModelCardTest(absltest.TestCase):
   def test_merge_from_proto_with_invalid_proto(self):
     owner = model_card.Owner()
     wrong_proto = model_card_pb2.Version()
-    with self.assertRaisesRegex(TypeError, "expected Owner got Version"):
+    with self.assertRaisesRegex(
+        TypeError, ".*expected .*Owner got .*Version.*"):
       owner.merge_from_proto(wrong_proto)
 
   def test_to_proto_sucess(self):
