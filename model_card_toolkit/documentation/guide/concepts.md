@@ -78,7 +78,8 @@ used by MCT:
 *   [Examples](https://github.com/tensorflow/tfx/blob/74978506db5b7463c6f3c5b0716c4e834314b596/tfx/types/standard_artifacts.py#L76)
     and
     [ExampleStatistics](https://github.com/tensorflow/tfx/blob/74978506db5b7463c6f3c5b0716c4e834314b596/tfx/types/standard_artifacts.py#L93):
-    used to plot slice count graphs for each dataset.
+    used to plot slice count graphs for each dataset
+    ([TFDV](https://www.tensorflow.org/tfx/data_validation/get_started)).
 *   [Model](https://github.com/tensorflow/tfx/blob/74978506db5b7463c6f3c5b0716c4e834314b596/tfx/types/standard_artifacts.py#L114)
     and
     [ModelEvaluation](https://github.com/tensorflow/tfx/blob/74978506db5b7463c6f3c5b0716c4e834314b596/tfx/types/standard_artifacts.py#L126):
