@@ -31,8 +31,6 @@ from model_card_toolkit.utils import validation
 _SCHEMA_VERSION_STRING = "schema_version"
 
 
-# TODO(b/181702622): Think about a smart and clean way to control the required
-# field.
 @dataclasses.dataclass
 class Owner(BaseModelCardField):
   """The information about owners of a model.
@@ -269,8 +267,6 @@ class PerformanceMetric(BaseModelCardField):
     value: What is the value of this performance metric?
     slice: What slice of your data was this metric computed on?
   """
-  # TODO(b/179415408): add fields (name, value, confidence_interval, threshold,
-  # slice) after gathering requirements (potential clients: Jigsaw)
   # The following fields are EXPERIMENTAL and introduced for migration purpose.
   type: Optional[Text] = None
   value: Optional[Text] = None
@@ -445,21 +441,15 @@ class ModelCard(BaseModelCardField):
         _SCHEMA_VERSION_STRING] = validation.get_latest_schema_version()
     return json_lib.dumps(model_card_dict, indent=2)
 
-  def _from_json(self, json_dict: Dict[Text, Any]) -> "ModelCard":
-    """Read ModelCard from JSON.
+  def from_json(self, json_dict: Dict[Text, Any]) -> None:
+    """Reads ModelCard from JSON.
 
     If ModelCard fields have already been set, this function will overwrite any
     existing values.
 
-    WARNING: This method's interface may change in the future, do not use for
-    critical workflows.
-
     Args:
       json_dict: A JSON dict from which to populate fields in the model card
         schema.
-
-    Returns:
-      self
 
     Raises:
       JSONDecodeError: If `json_dict` is not a valid JSON string.
@@ -497,4 +487,3 @@ class ModelCard(BaseModelCardField):
     validation.validate_json_schema(json_dict)
     self.clear()
     _populate_from_json(json_dict, self)
-    return self

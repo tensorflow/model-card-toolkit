@@ -11,10 +11,10 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-"""Model Cards Toolkit.
+"""Model Card Toolkit.
 
-The model cards toolkit (MCT) provides a set of utilities to help users
-generate Model Cards from trained models within ML pipelines.
+The Model Card Toolkit (MCT) provides a set of utilities to generate Model Cards
+from trained models, evaluations, and datasets in ML pipelines.
 """
 
 import os
@@ -40,12 +40,13 @@ _UI_TEMPLATES = (
 _DEFAULT_UI_TEMPLATE_FILE = os.path.join('html', 'default_template.html.jinja')
 
 # Constants about Model Cards Toolkit Assets (MCTA).
-_MCTA_PROTO_FILE = 'data/model_card.proto'
+_MCTA_PROTO_FILE = os.path.join('data', 'model_card.proto')
 _MCTA_TEMPLATE_DIR = 'template'
-_MCTA_RESOURCE_DIR = 'resources/plots'
+_MCTA_RESOURCE_DIR = os.path.join('resources', 'plots')
+
 # Constants about the final generated model cards.
+_MODEL_CARDS_DIR = 'model_cards'
 _DEFAULT_MODEL_CARD_FILE_NAME = 'model_card.html'
-_MODEL_CARDS_DIR = 'model_cards/'
 
 
 class ModelCardToolkit():
@@ -79,7 +80,7 @@ class ModelCardToolkit():
   model_card = mct.scaffold_assets()
   model_card.model_details.name = 'My Model'
 
-  # Write the model card data to a data file
+  # Write the model card data to a proto file
   mct.update_model_card(model_card)
 
   # Return the model card document as an HTML page
@@ -94,9 +95,13 @@ class ModelCardToolkit():
                model_uri: Optional[Text] = None):
     """Initializes the ModelCardToolkit.
 
+    This function does not generate any assets by itself. Use the other API
+    functions to generate Model Card assets. See class-level documentation for
+    example usage.
+
     Args:
-      output_dir: The MCT assets path where the data files and templates are
-        written to. If not given, a temp directory is used.
+      output_dir: The path where MCT assets (such as data files and model cards)
+        are written to. If not provided, a temp directory is used.
       mlmd_store: A ml-metadata MetadataStore to retrieve metadata and lineage
         information about the model stored at `model_uri`. If given, a set of
         model card properties can be auto-populated from the `mlmd_store`.
@@ -112,10 +117,9 @@ class ModelCardToolkit():
     self._mcta_template_dir = os.path.join(self.output_dir, _MCTA_TEMPLATE_DIR)
     self._model_cards_dir = os.path.join(self.output_dir, _MODEL_CARDS_DIR)
 
+    # if mlmd_store and model_uri are both set, use them
     self._store = mlmd_store
-    if self._store:
-      if not model_uri:
-        raise ValueError('If `mlmd_store` is set, `model_uri` should be set.')
+    if mlmd_store and model_uri:
       models = self._store.get_artifacts_by_uri(model_uri)
       if not models:
         raise ValueError(f'"{model_uri}" cannot be found in the `mlmd_store`.')
@@ -124,8 +128,10 @@ class ModelCardToolkit():
             '%d artifacts are found with the `model_uri`="%s". '
             'The last one is used.', len(models), model_uri)
       self._artifact_with_model_uri = models[-1]
-    elif model_uri:
-      logging.info('model_uri ignored when mlmd_store is not present.')
+    elif mlmd_store and not model_uri:
+      raise ValueError('If `mlmd_store` is set, `model_uri` should be set.')
+    elif model_uri and not mlmd_store:
+      logging.info('`model_uri` ignored when `mlmd_store` is not set.')
 
   def _jinja_loader(self, template_dir: Text):
     return jinja2.FileSystemLoader(template_dir)
@@ -150,41 +156,47 @@ class ModelCardToolkit():
     return ModelCard().copy_from_proto(model_card_proto)
 
   def _scaffold_model_card(self) -> ModelCard:
-    """Generates the model card during scaffold_assets phase.
+    """Generates the ModelCard for scaffold_assets().
 
-    It includes the implementation details for auto-populated ModelCard fields
-    given the specialization of the ModelCardToolkit.
+    If MLMD store is used, pre-populate ModelCard fields with data from MLMD.
+    See `model_card_toolkit.utils.tfx_util` documentation for more details.
 
     Returns:
       A ModelCard representing the given model.
     """
-    model_card = ModelCard()
-    if self._store:
-      model_card = tfx_util.generate_model_card_for_model(
-          self._store, self._artifact_with_model_uri.id)
-      metrics_artifacts = tfx_util.get_metrics_artifacts_for_model(
-          self._store, self._artifact_with_model_uri.id)
-      stats_artifacts = tfx_util.get_stats_artifacts_for_model(
-          self._store, self._artifact_with_model_uri.id)
+    if not self._store:
+      return ModelCard()
 
-      for metrics_artifact in metrics_artifacts:
-        eval_result = tfx_util.read_metrics_eval_result(metrics_artifact.uri)
-        if eval_result is not None:
-          graphics.annotate_eval_result_plots(model_card, eval_result)
+    # Pre-populate ModelCard fields
+    model_card = tfx_util.generate_model_card_for_model(
+        self._store, self._artifact_with_model_uri.id)
 
-      for stats_artifact in stats_artifacts:
-        train_stats = tfx_util.read_stats_proto(stats_artifact.uri,
-                                                'Split-train')
-        eval_stats = tfx_util.read_stats_proto(stats_artifact.uri, 'Split-eval')
-        graphics.annotate_dataset_feature_statistics_plots(
-            model_card, [train_stats, eval_stats])
+    # Generate graphics for TFMA's `EvalResult`s
+    metrics_artifacts = tfx_util.get_metrics_artifacts_for_model(
+        self._store, self._artifact_with_model_uri.id)
+    for metrics_artifact in metrics_artifacts:
+      eval_result = tfx_util.read_metrics_eval_result(metrics_artifact.uri)
+      if eval_result is not None:
+        graphics.annotate_eval_result_plots(model_card, eval_result)
+
+    # Generate graphics for TFDV's `DatasetFeatureStatisticsList`s
+    stats_artifacts = tfx_util.get_stats_artifacts_for_model(
+        self._store, self._artifact_with_model_uri.id)
+    for stats_artifact in stats_artifacts:
+      train_stats = tfx_util.read_stats_proto(stats_artifact.uri,
+                                              'Split-train')
+      eval_stats = tfx_util.read_stats_proto(stats_artifact.uri, 'Split-eval')
+      graphics.annotate_dataset_feature_statistics_plots(
+          model_card, [train_stats, eval_stats])
+
     return model_card
 
   def scaffold_assets(self) -> ModelCard:
-    """Generates the model cards tookit assets.
+    """Generates the Model Card Tookit assets.
 
-    Model cards assets include the model card data files and customizable model
-    card UI templates.
+    Assets include the ModelCard proto file, Model Card document, and jinja
+    template. These are written to the `output_dir` declared at
+    initialization.
 
     An assets directory is created if one does not already exist.
 
@@ -196,8 +208,10 @@ class ModelCardToolkit():
       A ModelCard representing the given model.
 
     Raises:
-      FileNotFoundError: if it failed to copy the UI template files.
+      FileNotFoundError: on failure to copy the template files.
     """
+
+    # Generate ModelCard.
     model_card = self._scaffold_model_card()
 
     # Write Proto file.
@@ -214,25 +228,11 @@ class ModelCardToolkit():
 
     return model_card
 
-  def update_model_card_json(self, model_card: ModelCard) -> None:
-    """Updates the Proto file in the MCT assets directory.
-
-    Args:
-      model_card: The updated model card that users want to write back.
-
-    Raises:
-       Error: when the given model_card is invalid w.r.t. the schema.
-    """
-    logging.warning(
-        'update_model_card_json() will be deprecated in the next release. '
-        'Call update_model_card() and write to proto instead.')
-    self.update_model_card(model_card)
-
   def update_model_card(self, model_card: ModelCard) -> None:
     """Updates the Proto file in the MCT assets directory.
 
     Args:
-      model_card: The updated model card that users want to write back.
+      model_card: The updated model card to write back.
 
     Raises:
        Error: when the given model_card is invalid w.r.t. the schema.
@@ -243,14 +243,17 @@ class ModelCardToolkit():
                     model_card: Optional[ModelCard] = None,
                     template_path: Optional[Text] = None,
                     output_file=_DEFAULT_MODEL_CARD_FILE_NAME) -> Text:
-    """Generates a model card based on the MCT assets.
+    """Generates a model card document based on the MCT assets.
+
+    The model card document is both returned by this function, as well as saved
+    to output_file.
 
     Args:
       model_card: The ModelCard object, generated from `scaffold_assets()`. If
         not provided, it will be read from the ModelCard proto file in the
         assets directory.
-      template_path: The file path of the UI template. If not provided, the
-        default UI template will be used.
+      template_path: The file path of the Jinja template. If not provided, the
+        default template will be used.
       output_file: The file name of the generated model card. If not provided,
         the default 'model_card.html' will be used. If the file already exists,
         then it will be overwritten.
@@ -292,10 +295,9 @@ class ModelCardToolkit():
         quantitative_analysis=model_card.quantitative_analysis,
         considerations=model_card.considerations)
 
-    # Write the model card file.
+    # Write the model card document file and return its contents.
     mode_card_file_path = os.path.join(self._model_cards_dir, output_file)
     self._write_file(mode_card_file_path, model_card_file_content)
-
     return model_card_file_content
 
   def save_mlmd(self) -> None:

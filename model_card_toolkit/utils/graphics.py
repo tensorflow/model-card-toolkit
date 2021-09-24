@@ -12,7 +12,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-"""Utilities for generating model card graphics."""
+"""Utilities for generating model card plots/graphics."""
 
 import base64
 import io
@@ -37,7 +37,9 @@ _COLOR_PALETTE = {
 
 @attr.s(auto_attribs=True)
 class _Graph():
-  """The class stores necessary data to draw a graph."""
+  """Model Card graph."""
+
+  # Necessary data to draw a graph.
   x: Optional[Sequence[Union[Text, int, float]]] = None
   xerr: Optional[Sequence[Sequence[Union[int, float]]]] = None
   y: Optional[Sequence[Union[Text, int, float]]] = None
@@ -47,7 +49,7 @@ class _Graph():
   name: Optional[Text] = None
   color: Text = _COLOR_PALETTE['material_cyan_700']
 
-  # Generated graph based on the data above.
+  # Graph generated from the data above.
   figure: Optional[matplotlib.figure.Figure] = None
   base64str: Optional[Text] = None
 
@@ -55,26 +57,28 @@ class _Graph():
 def annotate_dataset_feature_statistics_plots(
     model_card: model_card_module.ModelCard,
     data_stats: Sequence[statistics_pb2.DatasetFeatureStatisticsList]) -> None:
-  """Annotate visualizations for every dataset and feature in train/eval_stats.
+  """Annotates visualizations for every dataset and feature.
 
-  The visualizations are histograms encoded as base64 text strings.
+  This function adds a new Dataset object at model_card.model_parameters.data
+  for every dataset in data_stats. For every feature, histograms are created
+  and encoded as base64 text strings. They can be found in the Dataset.graphics
+  field.
 
   Args:
     model_card: The model card object.
-    data_stats: a list of DatasetFeatureStatisticsList related to the dataset.
-
-  Returns:
-    None
+    data_stats: A list of DatasetFeatureStatisticsList related to the dataset.
   """
-  colors = (_COLOR_PALETTE['material_teal_700'],
-            _COLOR_PALETTE['material_indigo_400'])
+  colors = (
+      _COLOR_PALETTE['material_teal_700'],
+      _COLOR_PALETTE['material_indigo_400'])
   for stats, color in zip(data_stats, colors):
     if not stats:
       continue
     for dataset in stats.datasets:
       graphs = []
       for feature in dataset.features:
-        graph = _generate_graph_from_feature_statistics(feature, color)
+        graph = _extract_graph_data_from_dataset_feature_statistics(
+            feature, color)
         graph = _draw_histogram(graph)
         if graph is not None:
           graphs.append(
@@ -87,16 +91,19 @@ def annotate_dataset_feature_statistics_plots(
 
 
 def annotate_eval_result_plots(model_card: model_card_module.ModelCard,
-                               eval_result: tfma.EvalResult):
-  """Annotate visualizations for every metric in eval_result.
+                               eval_result: tfma.EvalResult) -> None:
+  """Annotates visualizations for every metric in eval_result.
 
-  The visualizations are barcharts encoded as base64 text strings.
+  This function generates barcharts for sliced metrics, encoded as base64 text
+  strings, and appends them to
+  model_card.quantitative_analysis.graphics.collection.
 
   Args:
     model_card: The model card object.
-    eval_result: a `tfma.EvalResult`.
+    eval_result: A `tfma.EvalResult`.
   """
 
+  # get all metric and slice names
   metrics = set()
   slices_keys = set()
   for slicing_metric in eval_result.slicing_metrics:
@@ -107,24 +114,26 @@ def annotate_eval_result_plots(model_card: model_card_module.ModelCard,
       for sub_key in slicing_metric[1][output_name]:
         metrics.update(slicing_metric[1][output_name][sub_key].keys())
 
+  # generate barcharts based on metrics and slices
   graphs = []
   if not slices_keys:
     slices_keys.add('')
   for metric in metrics:
     for slices_key in slices_keys:
-      graph = _generate_graph_from_slicing_metrics(eval_result.slicing_metrics,
-                                                   metric, slices_key)
+      graph = _extract_graph_data_from_slicing_metrics(
+          eval_result.slicing_metrics, metric, slices_key)
       graph = _draw_histogram(graph)
       if graph is not None:
         graphs.append(graph)
 
+  # annotate model_card with generated graphs
   model_card.quantitative_analysis.graphics.collection.extend([
       model_card_module.Graphic(name=graph.name, image=graph.base64str)
       for graph in graphs
   ])
 
 
-def _generate_graph_from_feature_statistics(
+def _extract_graph_data_from_dataset_feature_statistics(
     feature_stats: statistics_pb2.FeatureNameStatistics,
     color: Optional[Text] = None) -> Union[_Graph, None]:
   """Generates a _Graph object based on the histograms of feature_stats.
@@ -181,14 +190,14 @@ def _generate_graph_from_feature_statistics(
   return None
 
 
-def _generate_graph_from_slicing_metrics(
+def _extract_graph_data_from_slicing_metrics(
     slicing_metrics: Sequence[tfma.view.SlicedMetrics],
     metric: Text,
     slices_key: Text = '',
     output_name: Text = '',
     sub_key: Text = '',
 ) -> Optional[_Graph]:
-  """Generate a barchart for a metric.
+  """Generates a barchart for a metric.
 
   Each bar in the barchart represents a slice in slicing_metrics. The size of
   a bar indicates the value of the metric for that slice.
@@ -307,13 +316,19 @@ def _draw_histogram(graph: _Graph) -> Optional[_Graph]:
 
 
 def figure_to_base64str(fig: matplotlib.figure.Figure) -> str:
-  """Converts a Matplotlib figure to a base64 string."""
+  """Converts a Matplotlib figure to a base64 string encoding.
+
+  Args:
+    fig: A matplotlib Figure.
+
+  Returns:
+    A base64 encoding of the figure.
+  """
   buf = io.BytesIO()
   fig.savefig(buf, bbox_inches='tight', format='png')
   return base64.b64encode(buf.getbuffer().tobytes()).decode('ascii')
 
 
-# TODO(b/158863445): remove these types
 # FeatureValueType represents a value that a feature could take.
 FeatureValueType = Union[Text, int, float]  # pylint: disable=invalid-name
 

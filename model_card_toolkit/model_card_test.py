@@ -137,7 +137,8 @@ class ModelCardTest(absltest.TestCase):
 
   def test_from_json_and_to_json_with_all_fields(self):
     want_json = json.loads(_FULL_JSON)
-    model_card_py = model_card.ModelCard()._from_json(want_json)
+    model_card_py = model_card.ModelCard()
+    model_card_py.from_json(want_json)
     got_json = json.loads(model_card_py.to_json())
     self.assertEqual(want_json, got_json)
 
@@ -148,14 +149,14 @@ class ModelCardTest(absltest.TestCase):
         considerations=model_card.Considerations(
             limitations=[overwritten_limitation]))
     model_card_json = json.loads(_FULL_JSON)
-    model_card_py = model_card_py._from_json(model_card_json)
+    model_card_py.from_json(model_card_json)
     self.assertNotIn(overwritten_limitation,
                      model_card_py.considerations.limitations)
 
   def test_from_invalid_json(self):
     invalid_json_dict = {"model_name": "the_greatest_model"}
     with self.assertRaises(jsonschema.ValidationError):
-      model_card.ModelCard()._from_json(invalid_json_dict)
+      model_card.ModelCard().from_json(invalid_json_dict)
 
   def test_from_invalid_json_vesion(self):
     model_card_dict = {
@@ -168,7 +169,7 @@ class ModelCardTest(absltest.TestCase):
     with self.assertRaisesRegex(ValueError, (
         "^Cannot find schema version that matches the version of the given "
         "model card.")):
-      model_card.ModelCard()._from_json(model_card_dict)
+      model_card.ModelCard().from_json(model_card_dict)
 
   def test_from_proto_to_json(self):
     model_card_proto = text_format.Parse(_FULL_PROTO,
@@ -189,7 +190,8 @@ class ModelCardTest(absltest.TestCase):
                                          model_card_pb2.ModelCard())
 
     model_card_json = json.loads(_FULL_JSON)
-    model_card_py = model_card.ModelCard()._from_json(model_card_json)
+    model_card_py = model_card.ModelCard()
+    model_card_py.from_json(model_card_json)
     model_card_json2proto = model_card_py.to_proto()
 
     self.assertEqual(model_card_proto, model_card_json2proto)

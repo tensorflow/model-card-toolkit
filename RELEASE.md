@@ -4,9 +4,13 @@
 
 ## Major Features and Improvements
 
+* `ModelCard.from_json()` added.
+
 ## Bug fixes and other changes
 
 ## Breaking changes and Deprecations
+
+* Complete deprecation of `ModelCardToolkit.update_model_card_json()`. Users should migrate to `ModelCardToolkit.update_model_card()`, which uses a proto representation. Alternatively, users can use `ModelCard.to_json()` and `ModelCard.from_json()` to interact with JSON representations.
 
 # Release 1.1.0
 

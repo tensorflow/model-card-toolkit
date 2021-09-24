@@ -38,7 +38,7 @@ class GraphicsTest(parameterized.TestCase):
     self.assertEqual(g.name, h.name)
     self.assertEqual(g.color, h.color)
 
-  def test_generate_graph_from_feature_statistics(self):
+  def test_extract_graph_data_from_dataset_feature_statistics(self):
     numeric_feature_stats = text_format.Parse(
         """
         path {
@@ -60,7 +60,8 @@ class GraphicsTest(parameterized.TestCase):
           }
         }""", statistics_pb2.FeatureNameStatistics())
     self.assertGraphEqual(
-        graphics._generate_graph_from_feature_statistics(numeric_feature_stats),
+        graphics._extract_graph_data_from_dataset_feature_statistics(
+            numeric_feature_stats),
         graphics._Graph(
             x=[6, 4],
             y=['0.00-50.00', '50.00-100.00'],
@@ -92,7 +93,8 @@ class GraphicsTest(parameterized.TestCase):
           }
         }""", statistics_pb2.FeatureNameStatistics())
     self.assertGraphEqual(
-        graphics._generate_graph_from_feature_statistics(string_feature_stats),
+        graphics._extract_graph_data_from_dataset_feature_statistics(
+            string_feature_stats),
         graphics._Graph(
             x=[1387, 3395, 2395],
             y=['News', 'Tech', 'Sports'],
@@ -109,7 +111,8 @@ class GraphicsTest(parameterized.TestCase):
         type: BYTES
         bytes_stats {}""", statistics_pb2.FeatureNameStatistics())
     self.assertIsNone(
-        graphics._generate_graph_from_feature_statistics(bytes_feature_stats))
+        graphics._extract_graph_data_from_dataset_feature_statistics(
+            bytes_feature_stats))
 
     struct_feature_stats = text_format.Parse(
         """
@@ -119,7 +122,8 @@ class GraphicsTest(parameterized.TestCase):
         type: STRUCT
         struct_stats {}""", statistics_pb2.FeatureNameStatistics())
     self.assertIsNone(
-        graphics._generate_graph_from_feature_statistics(struct_feature_stats))
+        graphics._extract_graph_data_from_dataset_feature_statistics(
+            struct_feature_stats))
 
   def test_annotate_dataset_feature_statistics_plots(self):
     train_stats = text_format.Parse(
@@ -298,23 +302,19 @@ class GraphicsTest(parameterized.TestCase):
     self.assertLen(model_card.model_parameters.data, 2)
 
     train_data = model_card.model_parameters.data[0]
-    self.assertSameElements([
-        g.name
-        for g in train_data.graphics.collection
-    ], expected_plot_names_train)
+    self.assertSameElements([g.name for g in train_data.graphics.collection],
+                            expected_plot_names_train)
 
     eval_data = model_card.model_parameters.data[1]
-    self.assertSameElements([
-        g.name
-        for g in eval_data.graphics.collection
-    ], expected_plot_names_eval)
+    self.assertSameElements([g.name for g in eval_data.graphics.collection],
+                            expected_plot_names_eval)
 
     graphs = train_data.graphics.collection + eval_data.graphics.collection
     for graph in graphs:
       logging.info('%s: %s', graph.name, graph.image)
       self.assertNotEmpty(graph.image, f'feature {graph.name} has empty plot')
 
-  def test_generate_graph_from_slicing_metrics(self):
+  def test_extract_graph_data_from_slicing_metrics(self):
     slicing_metrics = [
         ((('weekday', 0),), {
             '': {
@@ -386,8 +386,8 @@ class GraphicsTest(parameterized.TestCase):
         })
     ]
     self.assertGraphEqual(
-        graphics._generate_graph_from_slicing_metrics(slicing_metrics,
-                                                      'average_loss'),
+        graphics._extract_graph_data_from_slicing_metrics(
+            slicing_metrics, 'average_loss'),
         graphics._Graph(
             x=[
                 0.07875693589448929, 4.4887189865112305, 2.092138290405273,
@@ -400,9 +400,8 @@ class GraphicsTest(parameterized.TestCase):
             name='average_loss',
             color='#A142F4'))
     self.assertGraphEqual(
-        graphics._generate_graph_from_slicing_metrics(slicing_metrics,
-                                                      'average_loss',
-                                                      'weekday'),
+        graphics._extract_graph_data_from_slicing_metrics(
+            slicing_metrics, 'average_loss', 'weekday'),
         graphics._Graph(
             x=[
                 0.07875693589448929, 4.4887189865112305, 2.092138290405273,
@@ -415,8 +414,8 @@ class GraphicsTest(parameterized.TestCase):
             name='average_loss | weekday',
             color='#A142F4'))
     self.assertGraphEqual(
-        graphics._generate_graph_from_slicing_metrics(slicing_metrics,
-                                                      'prediction/mean'),
+        graphics._extract_graph_data_from_slicing_metrics(
+            slicing_metrics, 'prediction/mean'),
         graphics._Graph(
             x=[
                 0.5100112557411194, 0.4839990735054016, 0.3767518997192383,
@@ -432,9 +431,8 @@ class GraphicsTest(parameterized.TestCase):
             color='#A142F4'))
 
     self.assertGraphEqual(
-        graphics._generate_graph_from_slicing_metrics(slicing_metrics,
-                                                      'prediction/mean',
-                                                      'weekday'),
+        graphics._extract_graph_data_from_slicing_metrics(
+            slicing_metrics, 'prediction/mean', 'weekday'),
         graphics._Graph(
             x=[
                 0.5100112557411194, 0.4839990735054016, 0.3767518997192383,
