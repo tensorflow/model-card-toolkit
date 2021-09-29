@@ -154,6 +154,16 @@ message ModelParameters {
   optional string output_format = 4;
 }
 
+// The confidence interval of the metric.
+message ConfidenceInterval {
+
+  // The lower bound of performance metric.
+  optional string lower_bound = 1;
+
+  // The upper bound of the performance metric.
+  optional string upper_bound = 2;
+}
+
 // The details of the performance metric.
 message PerformanceMetric {
   // TODO(b/179415408): revist the design the of message
@@ -169,6 +179,9 @@ message PerformanceMetric {
   // The name of the slice this metric was computed on.
   // By default, assume this metric is not sliced.
   optional string slice = 3;
+
+  // The confidence interval of the metric.
+  optional ConfidenceInterval confidence_interval = 4;
 }
 
 // The quantitative analysis of a model.

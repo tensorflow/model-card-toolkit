@@ -218,11 +218,25 @@
         },
         "value": {
           "description": "The value of the performance metric.",
-          "type": "number"
+          "type": "string"
         },
         "slice": {
           "description": "The name of the slice this metric was computed on. By default, assume this metric is not sliced.",
           "type": "string"
+        },
+        "confidence_interval": {
+          "description": "The confidence interval of the metric.",
+          "type": "object",
+          "properties": {
+            "lower_bound": {
+              "description": "The lower bound of the confidence interval.",
+              "type": "string"
+            },
+            "upper_bound": {
+              "description": "The upper bound of the confidence interval.",
+              "type": "string"
+            }
+          }
         }
       }
     },

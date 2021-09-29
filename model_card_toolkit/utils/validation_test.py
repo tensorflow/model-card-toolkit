@@ -58,7 +58,7 @@ _MODEL_PARAMETERS_V1_DICT = {
         }
     }
 }
-_QUANTITATIVE_ANALYSIS_DICT = {
+_QUANTITATIVE_ANALYSIS_V1_DICT = {
     "graphics": {
         "collection": [{
             "name": "image1",
@@ -83,7 +83,7 @@ _CONSIDERATIONS_V1_DICT = {
 _MODEL_CARD_V1_DICT = {
     "model_details": _MODEL_DETAILS_V1_DICT,
     "model_parameters": _MODEL_PARAMETERS_V1_DICT,
-    "quantitative_analysis": _QUANTITATIVE_ANALYSIS_DICT,
+    "quantitative_analysis": _QUANTITATIVE_ANALYSIS_V1_DICT,
     "considerations": _CONSIDERATIONS_V1_DICT
 }
 
@@ -132,6 +132,18 @@ _MODEL_PARAMETERS_V2_DICT = {
         "link": "path/to/eval"
     }]
 }
+_QUANTITATIVE_ANALYSIS_V2_DICT = {
+    "graphics": {
+        "collection": [{
+            "name": "image1",
+            "image": "rawbytes"
+        }]
+    },
+    "performance_metrics": [{
+        "type": "log_loss",
+        "value": "0.2"
+    }]
+}
 _CONSIDERATIONS_V2_DICT = {
     "users": [{
         "description": "foo"
@@ -155,7 +167,7 @@ _CONSIDERATIONS_V2_DICT = {
 _MODEL_CARD_V2_DICT = {
     "model_details": _MODEL_DETAILS_V2_DICT,
     "model_parameters": _MODEL_PARAMETERS_V2_DICT,
-    "quantitative_analysis": _QUANTITATIVE_ANALYSIS_DICT,
+    "quantitative_analysis": _QUANTITATIVE_ANALYSIS_V2_DICT,
     "considerations": _CONSIDERATIONS_V2_DICT
 }
 

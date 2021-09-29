@@ -46,27 +46,27 @@
     "performance_metrics": [
       {
         "type": "accuracy",
-        "value": 0.9781249761581421,
-        "threshold": 0.5
+        "value": "0.9781249761581421",
+        "threshold": "0.5"
       },
       {
         "type": "accuracy",
-        "value": 0.9932885766029358,
+        "value": "0.9932885766029358",
         "slice": "cat",
-        "threshold": 0.5,
+        "threshold": "0.5",
         "confidence_interval": {
-          "lower_bound": 0.9832885766,
-          "upper_bound": 1.0032885766
+          "lower_bound": "0.9832885766",
+          "upper_bound": "1.0032885766"
         }
       },
       {
         "type": "accuracy",
-        "value": 0.9649122953414917,
+        "value": "0.9649122953414917",
         "slice": "Dog",
-        "threshold": 0.5,
+        "threshold": "0.5",
         "confidence_interval": {
-          "lower_bound": 0.95491229534,
-          "upper_bound": 0.97491229534
+          "lower_bound": "0.95491229534",
+          "upper_bound": "0.97491229534"
         }
       }
     ],

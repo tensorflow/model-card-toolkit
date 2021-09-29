@@ -5,6 +5,7 @@
 ## Major Features and Improvements
 
 * `ModelCard.from_json()` added.
+* `ConfidenceInterval` class.
 
 ## Bug fixes and other changes
 

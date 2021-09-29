@@ -45,6 +45,15 @@
     }]
   },
   "quantitative_analysis": {
+    "performance_metrics": [{
+      "type": "accuracy",
+      "value": "0.9",
+      "slice": "overall",
+      "confidence_interval": {
+        "lower_bound": "0.85",
+        "upper_bound": "0.95"
+      }
+    }],
     "graphics": {
       "collection": [{
         "name": "img",
