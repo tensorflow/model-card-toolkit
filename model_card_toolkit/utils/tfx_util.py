@@ -390,3 +390,38 @@ def read_metrics_eval_result(
     logging.warning('Cannot load eval results from: %s', metrics_artifact_uri)
     return None
   return result
+
+
+def annotate_eval_result_metrics(model_card: model_card_module.ModelCard,
+                                 eval_result: tfma.EvalResult):
+  """Annotates model_card's PerformanceMetrics for every metric in eval_result.
+
+  Args:
+    model_card: The model card object.
+    eval_result: A `tfma.EvalResult`.
+
+  Raises:
+    ValueError: if an unexpected metric or slice type is found.
+  """
+
+  for slice_repr, metrics_for_slice in (
+      eval_result.get_metrics_for_all_slices().items()):
+    # Parse the slice name
+    if not isinstance(slice_repr, tuple):
+      raise ValueError(
+          'Expected EvalResult slices to be tuples; found %s' %
+          type(slice_repr))
+    slice_name = '_X_'.join(f'{a}_{b}' for a, b in slice_repr)
+    for metric_name, metric_value in metrics_for_slice.items():
+      # Parse the metric value
+      if 'doubleValue' in metric_value:
+        parsed_value = metric_value['doubleValue']
+      elif 'boundedValue' in metric_value:
+        parsed_value = metric_value['boundedValue']['value']
+      else:
+        raise ValueError('Expected doubleValue or boundedValue; found %s' %
+                         metric_value.keys())
+      # Create the PerformanceMetric and append to the ModelCard
+      metric = model_card_module.PerformanceMetric(
+          type=metric_name, value=str(parsed_value), slice=slice_name)
+      model_card.quantitative_analysis.performance_metrics.append(metric)

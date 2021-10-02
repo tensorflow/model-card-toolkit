@@ -18,8 +18,12 @@ import uuid
 
 from absl.testing import absltest
 
+from model_card_toolkit.model_card import ModelCard
+from model_card_toolkit.model_card import PerformanceMetric
 from model_card_toolkit.utils import tfx_util
 from model_card_toolkit.utils.testdata import testdata_utils
+import tensorflow_model_analysis as tfma
+
 import ml_metadata as mlmd
 from ml_metadata.proto import metadata_store_pb2
 
@@ -157,6 +161,160 @@ class TfxUtilsTest(absltest.TestCase):
 
   def test_read_metrics_eval_result_with_invalid_uri(self):
     self.assertIsNone(tfx_util.read_metrics_eval_result('/does/not/exist/'))
+
+  def test_annotate_eval_results_metrics(self):
+    slicing_metrics = [((('weekday', 0),), {
+        '': {
+            '': {
+                'average_loss': {
+                    'doubleValue': 0.07875693589448929
+                },
+                'prediction/mean': {
+                    'boundedValue': {
+                        'value': 0.5100112557411194,
+                        'lower_bound': 0.4100112557411194,
+                        'upper_bound': 0.6100112557411194
+                    }
+                }
+            }
+        }
+    }),
+                       ((('weekday', 1),), {
+                           '': {
+                               '': {
+                                   'average_loss': {
+                                       'doubleValue': 4.4887189865112305
+                                   },
+                                   'prediction/mean': {
+                                       'boundedValue': {
+                                           'value': 0.4839990735054016,
+                                           'lower_bound': 0.3839990735054016,
+                                           'upper_bound': 0.5839990735054016
+                                       }
+                                   }
+                               }
+                           }
+                       }),
+                       ((('weekday', 2),), {
+                           '': {
+                               '': {
+                                   'average_loss': {
+                                       'doubleValue': 2.092138290405273
+                                   },
+                                   'prediction/mean': {
+                                       'boundedValue': {
+                                           'value': 0.3767518997192383,
+                                           'lower_bound': 0.1767518997192383,
+                                           'upper_bound': 0.5767518997192383
+                                       }
+                                   }
+                               }
+                           }
+                       }),
+                       ((('gender', 'male'), ('age', 10)), {
+                           '': {
+                               '': {
+                                   'average_loss': {
+                                       'doubleValue': 2.092138290405273
+                                   },
+                                   'prediction/mean': {
+                                       'boundedValue': {
+                                           'value': 0.3767518997192383,
+                                           'lower_bound': 0.1767518997192383,
+                                           'upper_bound': 0.5767518997192383
+                                       }
+                                   }
+                               }
+                           }
+                       }),
+                       ((('gender', 'female'), ('age', 20)), {
+                           '': {
+                               '': {
+                                   'average_loss': {
+                                       'doubleValue': 2.092138290405273
+                                   },
+                                   'prediction/mean': {
+                                       'doubleValue': 0.3767518997192383
+                                   }
+                               }
+                           }
+                       }),
+                       ((), {
+                           '': {
+                               '': {
+                                   'average_loss': {
+                                       'doubleValue': 1.092138290405273
+                                   },
+                                   'prediction/mean': {
+                                       'boundedValue': {
+                                           'value': 0.4767518997192383,
+                                           'lower_bound': 0.2767518997192383,
+                                           'upper_bound': 0.6767518997192383
+                                       }
+                                   },
+                               }
+                           }
+                       })]
+    eval_result = tfma.EvalResult(
+        slicing_metrics=slicing_metrics,
+        plots=None,
+        attributions=None,
+        config=None,
+        data_location=None,
+        file_format=None,
+        model_location=None)
+    model_card = ModelCard()
+    tfx_util.annotate_eval_result_metrics(model_card, eval_result)
+
+    expected_metrics = [
+        PerformanceMetric(
+            type='average_loss', value='0.07875693589448929',
+            slice='weekday_0'),
+        PerformanceMetric(
+            type='prediction/mean',
+            value='0.5100112557411194',
+            slice='weekday_0'),
+        PerformanceMetric(
+            type='average_loss', value='4.4887189865112305', slice='weekday_1'),
+        PerformanceMetric(
+            type='prediction/mean',
+            value='0.4839990735054016',
+            slice='weekday_1'),
+        PerformanceMetric(
+            type='average_loss', value='2.092138290405273', slice='weekday_2'),
+        PerformanceMetric(
+            type='prediction/mean',
+            value='0.3767518997192383',
+            slice='weekday_2'),
+        PerformanceMetric(
+            type='average_loss',
+            value='2.092138290405273',
+            slice='gender_male_X_age_10'),
+        PerformanceMetric(
+            type='prediction/mean',
+            value='0.3767518997192383',
+            slice='gender_male_X_age_10'),
+        PerformanceMetric(
+            type='average_loss',
+            value='2.092138290405273',
+            slice='gender_female_X_age_20'),
+        PerformanceMetric(
+            type='prediction/mean',
+            value='0.3767518997192383',
+            slice='gender_female_X_age_20'),
+        PerformanceMetric(
+            type='average_loss', value='1.092138290405273', slice=''),
+        PerformanceMetric(
+            type='prediction/mean', value='0.4767518997192383', slice='')
+    ]
+    self.assertEqual(
+        len(model_card.quantitative_analysis.performance_metrics),
+        len(expected_metrics))
+    for actual_metric, expected_metric in zip(
+        model_card.quantitative_analysis.performance_metrics, expected_metrics):
+      self.assertEqual(actual_metric.type, expected_metric.type)
+      self.assertEqual(actual_metric.slice, expected_metric.slice)
+      self.assertEqual(actual_metric.value, expected_metric.value)
 
 
 if __name__ == '__main__':

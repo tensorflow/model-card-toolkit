@@ -5,7 +5,8 @@
 ## Major Features and Improvements
 
 * `ModelCard.from_json()` added.
-* `ConfidenceInterval` class.
+* Added `model_card_toolkit.utils.tfx_util.annotate_eval_result_metrics()`. This function appends `PerformanceMetrics` to a `ModelCard` based on a `tfma.EvalResult`.
+* Added `ConfidenceInterval` class for `PerformanceMetric`s.
 
 ## Bug fixes and other changes
 
