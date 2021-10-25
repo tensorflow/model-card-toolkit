@@ -158,8 +158,9 @@ class ModelCardToolkit():
   def _scaffold_model_card(self) -> ModelCard:
     """Generates the ModelCard for scaffold_assets().
 
-    If MLMD store is used, pre-populate ModelCard fields with data from MLMD.
-    See `model_card_toolkit.utils.tfx_util` documentation for more details.
+    If MLMD store is provided, pre-populate ModelCard fields with data from
+    MLMD. See `model_card_toolkit.utils.tfx_util` documentation for more
+    details.
 
     Returns:
       A ModelCard representing the given model.
@@ -177,6 +178,7 @@ class ModelCardToolkit():
     for metrics_artifact in metrics_artifacts:
       eval_result = tfx_util.read_metrics_eval_result(metrics_artifact.uri)
       if eval_result is not None:
+        tfx_util.annotate_eval_result_metrics(model_card, eval_result)
         graphics.annotate_eval_result_plots(model_card, eval_result)
 
     # Generate graphics for TFDV's `DatasetFeatureStatisticsList`s

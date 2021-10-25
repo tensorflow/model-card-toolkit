@@ -11,6 +11,8 @@
 
 ## Bug fixes and other changes
 
+* `model_card.quantitative_analysis.performance_metrics` is now populated when a `tfma.EvalResult` is found in MLMD store.
+
 ## Breaking changes and Deprecations
 
 * Complete deprecation of `ModelCardToolkit.update_model_card_json()`. Users should migrate to `ModelCardToolkit.update_model_card()`, which uses a proto representation. Alternatively, users can use `ModelCard.to_json()` and `ModelCard.from_json()` to interact with JSON representations.
