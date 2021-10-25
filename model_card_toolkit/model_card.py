@@ -134,6 +134,7 @@ class ModelDetails(BaseModelCardField):
       may be useful to your audience.
     citations: How should the model be cited? If the model is based on published
       academic research, cite the research.
+    path: The path where the model is stored.
   """
   name: Optional[Text] = None
   overview: Optional[Text] = None
@@ -143,6 +144,7 @@ class ModelDetails(BaseModelCardField):
   licenses: List[License] = dataclasses.field(default_factory=list)
   references: List[Reference] = dataclasses.field(default_factory=list)
   citations: List[Citation] = dataclasses.field(default_factory=list)
+  path: Optional[Text] = None
 
   _proto_type: dataclasses.InitVar[type(
       model_card_pb2.ModelDetails)] = model_card_pb2.ModelDetails

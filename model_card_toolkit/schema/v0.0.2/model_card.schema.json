@@ -45,6 +45,10 @@
           "description": "How to reference this model card.",
           "type": "array",
           "items": { "$ref": "#/definitions/citation" }
+        },
+        "path": {
+          "description": "The path where the model is stored.",
+          "type": "string"
         }
       }
     },

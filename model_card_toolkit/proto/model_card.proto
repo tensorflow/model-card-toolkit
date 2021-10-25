@@ -58,7 +58,7 @@ message Citation {
 }
 
 // This section provides a general, high-level description of the model.
-// The next tag number is 9.
+// The next tag number is 10.
 message ModelDetails {
   // The name of the model.
   optional string name = 1;
@@ -83,6 +83,9 @@ message ModelDetails {
 
   // How should the model be cited?
   repeated Citation citations = 8;
+
+  // Where is this model stored?
+  optional string path = 9;
 }
 
 // A named inline plot.

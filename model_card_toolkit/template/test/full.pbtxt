@@ -24,6 +24,8 @@ model_details: {
   references { reference: "https://arxiv.org/abs/1801.04381" }
 
   citations: { citation: "https://google.com" }
+
+  path: "my/model/path"
 }
 model_parameters {
   data {

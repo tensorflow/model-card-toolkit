@@ -22,7 +22,8 @@
     "licenses": [{"identifier": "Apache-2.0"}],
     "references": [{"reference": "https://www.kaggle.com/c/dogs-vs-cats"},
                    {"reference": "https://arxiv.org/abs/1801.04381"}],
-    "citations": [{"citation": "https://google.com"}]
+    "citations": [{"citation": "https://google.com"}],
+    "path": "my/model/path"
   },
   "model_parameters": {
     "data": [{
