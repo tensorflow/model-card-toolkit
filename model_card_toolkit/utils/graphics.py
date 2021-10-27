@@ -152,7 +152,7 @@ def _extract_graph_data_from_dataset_feature_statistics(
   Returns:
     _Graph or None if feature_stats is not num_stats or string_stats.
   """
-  feature_name = feature_stats.path.step[0]
+  feature_name = feature_stats.name or feature_stats.path.step[0]
   graph = _Graph()
 
   if feature_stats.HasField('num_stats'):
