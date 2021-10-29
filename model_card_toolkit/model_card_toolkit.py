@@ -17,10 +17,12 @@ The Model Card Toolkit (MCT) provides a set of utilities to generate Model Cards
 from trained models, evaluations, and datasets in ML pipelines.
 """
 
+import dataclasses
+import logging
 import os
 import pkgutil
 import tempfile
-from typing import Optional, Text
+from typing import List, Optional, Text
 
 from absl import logging
 import jinja2
@@ -29,6 +31,7 @@ from model_card_toolkit.model_card import ModelCard
 from model_card_toolkit.proto import model_card_pb2
 from model_card_toolkit.utils import graphics
 from model_card_toolkit.utils import tfx_util
+import tensorflow_model_analysis as tfma
 
 import ml_metadata as mlmd
 
@@ -47,6 +50,20 @@ _MCTA_RESOURCE_DIR = os.path.join('resources', 'plots')
 # Constants about the final generated model cards.
 _MODEL_CARDS_DIR = 'model_cards'
 _DEFAULT_MODEL_CARD_FILE_NAME = 'model_card.html'
+
+
+@dataclasses.dataclass
+class Source:
+  """Sources to extract data for a model card.
+
+  Attributes:
+    eval_result_paths: The paths to the output from TensorFlow Model Analysis or
+      TFX Evaluator.
+    dataset_statistics_paths: The paths to the output from TensorFlow Data
+      Validation or TFX ExampleValidator.
+  """
+  eval_result_paths: List[Text] = dataclasses.field(default_factory=list)
+  dataset_statistics_paths: List[Text] = dataclasses.field(default_factory=list)
 
 
 class ModelCardToolkit():
@@ -92,7 +109,8 @@ class ModelCardToolkit():
   def __init__(self,
                output_dir: Optional[Text] = None,
                mlmd_store: Optional[mlmd.MetadataStore] = None,
-               model_uri: Optional[Text] = None):
+               model_uri: Optional[Text] = None,
+               source: Optional[Source] = None):
     """Initializes the ModelCardToolkit.
 
     This function does not generate any assets by itself. Use the other API
@@ -107,6 +125,10 @@ class ModelCardToolkit():
         model card properties can be auto-populated from the `mlmd_store`.
       model_uri: The path to the trained model to generate model cards. Ignored
         if mlmd_store is not used.
+      source: A collection of sources to extract data for a model card. This can
+        be used instead of `mlmd_store`, or alongside it. Useful when using
+        tools like TensorFlow Model Analysis and Data Validation without writing
+        to a MLMD store.
 
     Raises:
       ValueError: If `mlmd_store` is given and the `model_uri` cannot be
@@ -116,6 +138,7 @@ class ModelCardToolkit():
     self._mcta_proto_file = os.path.join(self.output_dir, _MCTA_PROTO_FILE)
     self._mcta_template_dir = os.path.join(self.output_dir, _MCTA_TEMPLATE_DIR)
     self._model_cards_dir = os.path.join(self.output_dir, _MODEL_CARDS_DIR)
+    self._source = source
 
     # if mlmd_store and model_uri are both set, use them
     self._store = mlmd_store
@@ -158,38 +181,61 @@ class ModelCardToolkit():
   def _scaffold_model_card(self) -> ModelCard:
     """Generates the ModelCard for scaffold_assets().
 
+    If Source is provided, pre-populate ModelCard fields with data from Source.
     If MLMD store is provided, pre-populate ModelCard fields with data from
-    MLMD. See `model_card_toolkit.utils.tfx_util` documentation for more
-    details.
+    MLMD. See `model_card_toolkit.utils.tfx_util` and
+    `model_card_toolkit.utils.graphics` documentation for more details.
 
     Returns:
       A ModelCard representing the given model.
     """
-    if not self._store:
-      return ModelCard()
-
     # Pre-populate ModelCard fields
-    model_card = tfx_util.generate_model_card_for_model(
-        self._store, self._artifact_with_model_uri.id)
+    if self._store:
+      model_card = tfx_util.generate_model_card_for_model(
+          self._store, self._artifact_with_model_uri.id)
+    else:
+      model_card = ModelCard()
 
     # Generate graphics for TFMA's `EvalResult`s
-    metrics_artifacts = tfx_util.get_metrics_artifacts_for_model(
-        self._store, self._artifact_with_model_uri.id)
-    for metrics_artifact in metrics_artifacts:
-      eval_result = tfx_util.read_metrics_eval_result(metrics_artifact.uri)
-      if eval_result is not None:
-        tfx_util.annotate_eval_result_metrics(model_card, eval_result)
-        graphics.annotate_eval_result_plots(model_card, eval_result)
+    if self._source:
+      if self._source.eval_result_paths:
+        for eval_result_path in self._source.eval_result_paths:
+          eval_result = tfma.load_eval_result(
+              output_path=eval_result_path)
+          if eval_result:
+            logging.info('EvalResult found at path %s', eval_result_path)
+            tfx_util.annotate_eval_result_metrics(model_card, eval_result)
+            graphics.annotate_eval_result_plots(model_card, eval_result)
+          else:
+            logging.info('EvalResult not found at path %s', eval_result_path)
+    if self._store:
+      metrics_artifacts = tfx_util.get_metrics_artifacts_for_model(
+          self._store, self._artifact_with_model_uri.id)
+      for metrics_artifact in metrics_artifacts:
+        eval_result = tfx_util.read_metrics_eval_result(metrics_artifact.uri)
+        if eval_result is not None:
+          tfx_util.annotate_eval_result_metrics(model_card, eval_result)
+          graphics.annotate_eval_result_plots(model_card, eval_result)
 
     # Generate graphics for TFDV's `DatasetFeatureStatisticsList`s
-    stats_artifacts = tfx_util.get_stats_artifacts_for_model(
-        self._store, self._artifact_with_model_uri.id)
-    for stats_artifact in stats_artifacts:
-      train_stats = tfx_util.read_stats_proto(stats_artifact.uri,
-                                              'Split-train')
-      eval_stats = tfx_util.read_stats_proto(stats_artifact.uri, 'Split-eval')
-      graphics.annotate_dataset_feature_statistics_plots(
-          model_card, [train_stats, eval_stats])
+    if self._source:
+      if self._source.dataset_statistics_paths:
+        for dataset_statistics_path in self._source.dataset_statistics_paths:
+          train_stats = tfx_util.read_stats_proto(
+              dataset_statistics_path, 'Split-train')
+          eval_stats = tfx_util.read_stats_proto(
+              dataset_statistics_path, 'Split-eval')
+          graphics.annotate_dataset_feature_statistics_plots(
+              model_card, [train_stats, eval_stats])
+    if self._store:
+      stats_artifacts = tfx_util.get_stats_artifacts_for_model(
+          self._store, self._artifact_with_model_uri.id)
+      for stats_artifact in stats_artifacts:
+        train_stats = tfx_util.read_stats_proto(stats_artifact.uri,
+                                                'Split-train')
+        eval_stats = tfx_util.read_stats_proto(stats_artifact.uri, 'Split-eval')
+        graphics.annotate_dataset_feature_statistics_plots(
+            model_card, [train_stats, eval_stats])
 
     return model_card
 

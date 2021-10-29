@@ -8,6 +8,7 @@
 * Added `model_card_toolkit.utils.tfx_util.annotate_eval_result_metrics()`. This function appends `PerformanceMetrics` to a `ModelCard` based on a `tfma.EvalResult`.
 * Added `ConfidenceInterval` class for `PerformanceMetric`s.
 * Add `model_card.model_details.path` field.
+* Add `source` arg to ModelCardToolkit, allowing ModelCards to be populated with TFMA and TFDV outputs even without MLMD.
 
 ## Bug fixes and other changes
 

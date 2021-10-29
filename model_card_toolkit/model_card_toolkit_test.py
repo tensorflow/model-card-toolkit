@@ -14,18 +14,28 @@
 """Tests for model_card_toolkit."""
 
 import os
+from typing import List, Text
 from unittest import mock
 import uuid
 
 from absl.testing import absltest
+import apache_beam as beam
 
 from model_card_toolkit import model_card_toolkit
+from model_card_toolkit.model_card import PerformanceMetric
 from model_card_toolkit.proto import model_card_pb2
 from model_card_toolkit.utils import graphics
 from model_card_toolkit.utils.testdata import testdata_utils
 
+import tensorflow_model_analysis as tfma
+from tensorflow_model_analysis.eval_saved_model.example_trainers import fixed_prediction_estimator
+from tfx_bsl.tfxio import raw_tf_record
 
-class ModelCardToolkitTest(absltest.TestCase):
+from tensorflow_metadata.proto.v0 import statistics_pb2
+
+
+class ModelCardToolkitTest(
+    tfma.eval_saved_model.testutil.TensorflowModelAnalysisTest):
 
   def setUp(self):
     super(ModelCardToolkitTest, self).setUp()
@@ -35,6 +45,100 @@ class ModelCardToolkitTest(absltest.TestCase):
                                f'model_card_{uuid.uuid4()}')
     if not os.path.exists(self.tmpdir):
       os.makedirs(self.tmpdir)
+
+  def _write_tfma(self, tfma_path: Text):
+    _, eval_saved_model_path = (
+        fixed_prediction_estimator.simple_fixed_prediction_estimator(
+            export_path=None,
+            eval_export_path=os.path.join(self.tmpdir, 'eval_export_dir')))
+    eval_config = tfma.EvalConfig(model_specs=[tfma.ModelSpec()])
+    eval_shared_model = self.createTestEvalSharedModel(
+        eval_saved_model_path=eval_saved_model_path,
+        add_metrics_callbacks=[
+            tfma.post_export_metrics.example_count(),
+            tfma.post_export_metrics.calibration_plot_and_prediction_histogram(
+                num_buckets=2)
+        ])
+    extractors = [
+        tfma.extractors.legacy_predict_extractor.PredictExtractor(
+            eval_shared_model, eval_config=eval_config),
+        tfma.extractors.unbatch_extractor.UnbatchExtractor(),
+        tfma.extractors.slice_key_extractor.SliceKeyExtractor()
+    ]
+    evaluators = [
+        tfma.evaluators.legacy_metrics_and_plots_evaluator
+        .MetricsAndPlotsEvaluator(eval_shared_model)
+    ]
+    writers = [
+        tfma.writers.MetricsPlotsAndValidationsWriter(
+            output_paths={
+                'metrics': os.path.join(tfma_path, 'metrics'),
+                'plots': os.path.join(tfma_path, 'plots')
+            },
+            eval_config=eval_config,
+            add_metrics_callbacks=eval_shared_model.add_metrics_callbacks)
+    ]
+
+    tfx_io = raw_tf_record.RawBeamRecordTFXIO(
+        physical_format='inmemory',
+        raw_record_column_name='__raw_record__',
+        telemetry_descriptors=['TFMATest'])
+    with beam.Pipeline() as pipeline:
+      example1 = self._makeExample(prediction=0.0, label=1.0)
+      example2 = self._makeExample(prediction=1.0, label=1.0)
+      _ = (
+          pipeline
+          | 'Create' >> beam.Create([
+              example1.SerializeToString(),
+              example2.SerializeToString(),
+          ])
+          | 'BatchExamples' >> tfx_io.BeamSource()
+          | 'ExtractEvaluateAndWriteResults' >>
+          tfma.ExtractEvaluateAndWriteResults(
+              eval_config=eval_config,
+              eval_shared_model=eval_shared_model,
+              extractors=extractors,
+              evaluators=evaluators,
+              writers=writers))
+
+  def _write_tfdv(self, tfdv_path: Text, train_dataset_name: Text,
+                  train_features: List[Text], eval_dataset_name: Text,
+                  eval_features: List[Text]):
+
+    a_bucket = statistics_pb2.RankHistogram.Bucket(
+        low_rank=0, high_rank=0, label='a', sample_count=4.0)
+    b_bucket = statistics_pb2.RankHistogram.Bucket(
+        low_rank=1, high_rank=1, label='b', sample_count=3.0)
+    c_bucket = statistics_pb2.RankHistogram.Bucket(
+        low_rank=2, high_rank=2, label='c', sample_count=2.0)
+
+    train_stats = statistics_pb2.DatasetFeatureStatistics()
+    train_stats.name = train_dataset_name
+    for feature in train_features:
+      train_stats.features.add()
+      train_stats.features[0].name = feature
+      train_stats.features[0].string_stats.rank_histogram.buckets.extend(
+          [a_bucket, b_bucket, c_bucket])
+    train_stats_list = statistics_pb2.DatasetFeatureStatisticsList(
+        datasets=[train_stats])
+    train_stats_file = os.path.join(tfdv_path, 'Split-train', 'FeatureStats.pb')
+    os.makedirs(os.path.dirname(train_stats_file), exist_ok=True)
+    with open(train_stats_file, mode='wb') as f:
+      f.write(train_stats_list.SerializeToString())
+
+    eval_stats = statistics_pb2.DatasetFeatureStatistics()
+    eval_stats.name = eval_dataset_name
+    for feature in eval_features:
+      eval_stats.features.add()
+      eval_stats.features[0].path.step.append(feature)
+      eval_stats.features[0].string_stats.rank_histogram.buckets.extend(
+          [a_bucket, b_bucket, c_bucket])
+    eval_stats_list = statistics_pb2.DatasetFeatureStatisticsList(
+        datasets=[eval_stats])
+    eval_stats_file = os.path.join(tfdv_path, 'Split-eval', 'FeatureStats.pb')
+    os.makedirs(os.path.dirname(eval_stats_file), exist_ok=True)
+    with open(eval_stats_file, mode='wb') as f:
+      f.write(eval_stats_list.SerializeToString())
 
   def test_init_with_store_no_model_uri(self):
     store = testdata_utils.get_tfx_pipeline_metadata_store(self.tmp_db_path)
@@ -85,6 +189,57 @@ class ModelCardToolkitTest(absltest.TestCase):
                   os.listdir(os.path.join(output_dir, 'template/md')))
     self.assertEqual(mock_annotate_data_stats.call_count, num_stat_artifacts)
     self.assertEqual(mock_annotate_eval_results.call_count, num_eval_artifacts)
+
+  def test_scaffold_assets_with_source(self):
+    train_dataset_name = 'Dataset-Split-train'
+    train_features = ['feature_name1']
+    eval_dataset_name = 'Dataset-Split-eval'
+    eval_features = ['feature_name2']
+
+    tfma_path = os.path.join(self.tmpdir, 'tfma')
+    tfdv_path = os.path.join(self.tmpdir, 'tfdv')
+    self._write_tfma(tfma_path)
+    self._write_tfdv(tfdv_path, train_dataset_name, train_features,
+                     eval_dataset_name, eval_features)
+
+    mct_dir = os.path.join(self.tmpdir, 'mct')
+    mct = model_card_toolkit.ModelCardToolkit(
+        output_dir=mct_dir,
+        source=model_card_toolkit.Source(
+            eval_result_paths=[tfma_path],
+            dataset_statistics_paths=[tfdv_path]))
+    mc = mct.scaffold_assets()
+
+    list_to_proto = lambda lst: [x.to_proto() for x in lst]
+    expected_performance_metrics = [
+        PerformanceMetric(type='average_loss', value='0.5'),
+        PerformanceMetric(
+            type='post_export_metrics/example_count', value='2.0')
+    ]
+    with self.subTest(name='quantitative_analysis'):
+      self.assertCountEqual(
+          list_to_proto(mc.quantitative_analysis.performance_metrics),
+          list_to_proto(expected_performance_metrics))
+      self.assertLen(mc.quantitative_analysis.graphics.collection, 2)
+
+    with self.subTest(name='model_parameters.data'):
+      self.assertLen(mc.model_parameters.data, 2)
+      with self.subTest(name='Split-train'):
+        self.assertEqual(mc.model_parameters.data[0].name, train_dataset_name)
+        self.assertLen(mc.model_parameters.data[0].graphics.collection, 1)
+        self.assertEqual(
+            mc.model_parameters.data[0].graphics.collection[0].name,
+            'counts | feature_name1')
+      with self.subTest(name='Split-eval'):
+        self.assertEqual(mc.model_parameters.data[1].name, eval_dataset_name)
+        self.assertLen(mc.model_parameters.data[1].graphics.collection, 1)
+        self.assertEqual(
+            mc.model_parameters.data[1].graphics.collection[0].name,
+            'counts | feature_name2')
+
+  def test_scaffold_assets_with_empty_source(self):
+    model_card_toolkit.ModelCardToolkit(
+        source=model_card_toolkit.Source()).scaffold_assets()
 
   def test_update_model_card_with_valid_model_card(self):
     mct = model_card_toolkit.ModelCardToolkit(output_dir=self.tmpdir)
