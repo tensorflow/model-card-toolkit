@@ -21,8 +21,8 @@ import uuid
 from absl.testing import absltest
 import apache_beam as beam
 
+from model_card_toolkit import model_card
 from model_card_toolkit import model_card_toolkit
-from model_card_toolkit.model_card import PerformanceMetric
 from model_card_toolkit.proto import model_card_pb2
 from model_card_toolkit.utils import graphics
 from model_card_toolkit.utils.testdata import testdata_utils
@@ -212,8 +212,8 @@ class ModelCardToolkitTest(
 
     list_to_proto = lambda lst: [x.to_proto() for x in lst]
     expected_performance_metrics = [
-        PerformanceMetric(type='average_loss', value='0.5'),
-        PerformanceMetric(
+        model_card.PerformanceMetric(type='average_loss', value='0.5'),
+        model_card.PerformanceMetric(
             type='post_export_metrics/example_count', value='2.0')
     ]
     with self.subTest(name='quantitative_analysis'):
@@ -223,19 +223,25 @@ class ModelCardToolkitTest(
       self.assertLen(mc.quantitative_analysis.graphics.collection, 2)
 
     with self.subTest(name='model_parameters.data'):
-      self.assertLen(mc.model_parameters.data, 2)
-      with self.subTest(name='Split-train'):
-        self.assertEqual(mc.model_parameters.data[0].name, train_dataset_name)
-        self.assertLen(mc.model_parameters.data[0].graphics.collection, 1)
-        self.assertEqual(
-            mc.model_parameters.data[0].graphics.collection[0].name,
-            'counts | feature_name1')
-      with self.subTest(name='Split-eval'):
-        self.assertEqual(mc.model_parameters.data[1].name, eval_dataset_name)
-        self.assertLen(mc.model_parameters.data[1].graphics.collection, 1)
-        self.assertEqual(
-            mc.model_parameters.data[1].graphics.collection[0].name,
-            'counts | feature_name2')
+      self.assertLen(mc.model_parameters.data, 2)  # train and eval
+      for dataset in mc.model_parameters.data:
+        for graphic in dataset.graphics.collection:
+          self.assertIsNotNone(
+              graphic.image,
+              msg=f'No image found for graphic: {dataset.name} {graphic.name}')
+          graphic.image = None  # ignore graphic.image for below assertions
+      self.assertIn(
+          model_card.Dataset(
+              name=train_dataset_name,
+              graphics=model_card.GraphicsCollection(collection=[
+                  model_card.Graphic(name='counts | feature_name1')
+              ])), mc.model_parameters.data)
+      self.assertIn(
+          model_card.Dataset(
+              name=eval_dataset_name,
+              graphics=model_card.GraphicsCollection(collection=[
+                  model_card.Graphic(name='counts | feature_name2')
+              ])), mc.model_parameters.data)
 
   def test_scaffold_assets_with_empty_source(self):
     model_card_toolkit.ModelCardToolkit(
@@ -259,9 +265,9 @@ class ModelCardToolkitTest(
         output_dir=self.tmpdir,
         mlmd_store=store,
         model_uri=testdata_utils.TFX_0_21_MODEL_URI)
-    model_card = mct.scaffold_assets()
-    model_card.model_details.name = 'My Model'
-    mct.update_model_card(model_card)
+    mc = mct.scaffold_assets()
+    mc.model_details.name = 'My Model'
+    mct.update_model_card(mc)
     result = mct.export_format()
 
     proto_path = os.path.join(self.tmpdir, 'data/model_card.proto')
@@ -280,12 +286,12 @@ class ModelCardToolkitTest(
 
   def test_export_format_with_customized_template_and_output_name(self):
     mct = model_card_toolkit.ModelCardToolkit(output_dir=self.tmpdir)
-    model_card = mct.scaffold_assets()
-    model_card.model_details.name = 'My Model'
-    mct.update_model_card(model_card)
+    mc = mct.scaffold_assets()
+    mc.model_details.name = 'My Model'
+    mct.update_model_card(mc)
 
-    template_path = os.path.join(
-        self.tmpdir, 'template/html/default_template.html.jinja')
+    template_path = os.path.join(self.tmpdir,
+                                 'template/html/default_template.html.jinja')
     output_file = 'my_model_card.html'
     result = mct.export_format(
         template_path=template_path, output_file=output_file)
