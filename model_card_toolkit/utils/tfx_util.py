@@ -356,11 +356,11 @@ def read_stats_proto(
   stats_tfrecord_path = os.path.join(stats_artifact_uri,
                                      split, 'stats_tfrecord')
 
-  if os.path.exists(feature_stats_path):
+  if tf.io.gfile.exists(feature_stats_path):
     with tf.io.gfile.GFile(feature_stats_path, mode='rb') as f:
       stats.ParseFromString(f.read())
     return stats
-  elif os.path.exists(stats_tfrecord_path):
+  elif tf.io.gfile.exists(stats_tfrecord_path):
     serialized_stats = next(
         tf.compat.v1.io.tf_record_iterator(stats_tfrecord_path))
     stats.ParseFromString(serialized_stats)
