@@ -259,6 +259,19 @@ class ModelCardToolkitTest(
       model_card_proto.ParseFromString(f.read())
     self.assertEqual(model_card_proto, valid_model_card.to_proto())
 
+  def test_update_model_card_with_valid_model_card_as_proto(self):
+    valid_model_card = model_card_pb2.ModelCard()
+    valid_model_card.model_details.name = 'My Model'
+
+    mct = model_card_toolkit.ModelCardToolkit(output_dir=self.tmpdir)
+    mct.update_model_card(valid_model_card)
+    proto_path = os.path.join(self.tmpdir, 'data/model_card.proto')
+
+    model_card_proto = model_card_pb2.ModelCard()
+    with open(proto_path, 'rb') as f:
+      model_card_proto.ParseFromString(f.read())
+    self.assertEqual(model_card_proto, valid_model_card)
+
   def test_export_format(self):
     store = testdata_utils.get_tfx_pipeline_metadata_store(self.tmp_db_path)
     mct = model_card_toolkit.ModelCardToolkit(

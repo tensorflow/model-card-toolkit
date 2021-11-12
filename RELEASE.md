@@ -13,6 +13,7 @@
 ## Bug fixes and other changes
 
 * `model_card.quantitative_analysis.performance_metrics` is now populated when a `tfma.EvalResult` is found in MLMD store.
+* `export_format()` and `update_model_card()` now accept `model_card_pb2.ModelCard`'s, in addition to `model_card.ModelCard`'s.
 
 ## Breaking changes and Deprecations
 

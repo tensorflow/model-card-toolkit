@@ -22,7 +22,7 @@ import logging
 import os
 import pkgutil
 import tempfile
-from typing import List, Optional, Text
+from typing import List, Optional, Text, Union
 
 from absl import logging
 import jinja2
@@ -165,11 +165,16 @@ class ModelCardToolkit():
     with open(path, 'w+') as f:
       f.write(content)
 
-  def _write_proto_file(self, path: Text, model_card: ModelCard) -> None:
+  def _write_proto_file(
+      self, path: Text, model_card: Union[ModelCard,
+                                          model_card_pb2.ModelCard]) -> None:
     """Write serialized model card proto to the path."""
     os.makedirs(os.path.dirname(path), exist_ok=True)
     with open(path, 'wb') as f:
-      f.write(model_card.to_proto().SerializeToString())
+      if isinstance(model_card, ModelCard):
+        f.write(model_card.to_proto().SerializeToString())
+      else:
+        f.write(model_card.SerializeToString())
 
   def _read_proto_file(self, path: Text) -> ModelCard:
     """Read serialized model card proto from the path."""
@@ -276,7 +281,8 @@ class ModelCardToolkit():
 
     return model_card
 
-  def update_model_card(self, model_card: ModelCard) -> None:
+  def update_model_card(
+      self, model_card: Union[ModelCard, model_card_pb2.ModelCard]) -> None:
     """Updates the Proto file in the MCT assets directory.
 
     Args:
@@ -288,7 +294,8 @@ class ModelCardToolkit():
     self._write_proto_file(self._mcta_proto_file, model_card)
 
   def export_format(self,
-                    model_card: Optional[ModelCard] = None,
+                    model_card: Optional[Union[
+                        ModelCard, model_card_pb2.ModelCard]] = None,
                     template_path: Optional[Text] = None,
                     output_file=_DEFAULT_MODEL_CARD_FILE_NAME) -> Text:
     """Generates a model card document based on the MCT assets.
