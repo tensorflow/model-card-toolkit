@@ -337,6 +337,28 @@ def generate_model_card_for_model(
   return model_card
 
 
+def read_stats_protos(
+    stats_artifact_uri: Text
+) -> List[statistics_pb2.DatasetFeatureStatisticsList]:
+  """Reads DatasetFeatureStatisticsList protos from provided uri.
+
+  Args:
+    stats_artifact_uri: the output artifact path of a StatsGen component.
+
+  Returns:
+    For each DatasetFeatureStatisticsList found in the directory, return in a
+    list.
+  """
+  stats_protos = []
+  for file in os.scandir(stats_artifact_uri):
+    if os.path.isdir(os.path.join(stats_artifact_uri, file.name)):
+      stats_proto = read_stats_proto(stats_artifact_uri, file.name)
+      if stats_proto:
+        logging.info('Reading stats artifact from %s', file.name)
+        stats_protos.append(stats_proto)
+  return stats_protos
+
+
 def read_stats_proto(
     stats_artifact_uri: Text,
     split: Text) -> Optional[statistics_pb2.DatasetFeatureStatisticsList]:

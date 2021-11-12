@@ -130,6 +130,14 @@ class TfxUtilsTest(absltest.TestCase):
       tfx_util.generate_model_card_for_model(
           empty_db, testdata_utils.TFX_0_21_MODEL_ARTIFACT_ID)
 
+  def test_read_stats_protos(self):
+    store = testdata_utils.get_tfx_pipeline_metadata_store(self.tmp_db_path)
+    stats = store.get_artifacts_by_id(
+        [testdata_utils.TFX_0_21_STATS_ARTIFACT_ID])
+    self.assertLen(stats, 1)
+    data_stats = tfx_util.read_stats_protos(stats[-1].uri)
+    self.assertLen(data_stats, 2)  # Split-eval, Split-train
+
   def test_read_stats_proto(self):
     store = testdata_utils.get_tfx_pipeline_metadata_store(self.tmp_db_path)
     stats = store.get_artifacts_by_id(

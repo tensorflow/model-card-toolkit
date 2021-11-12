@@ -226,21 +226,16 @@ class ModelCardToolkit():
     if self._source:
       if self._source.dataset_statistics_paths:
         for dataset_statistics_path in self._source.dataset_statistics_paths:
-          train_stats = tfx_util.read_stats_proto(
-              dataset_statistics_path, 'Split-train')
-          eval_stats = tfx_util.read_stats_proto(
-              dataset_statistics_path, 'Split-eval')
+          data_stats = tfx_util.read_stats_protos(dataset_statistics_path)
           graphics.annotate_dataset_feature_statistics_plots(
-              model_card, [train_stats, eval_stats])
+              model_card, data_stats)
     if self._store:
       stats_artifacts = tfx_util.get_stats_artifacts_for_model(
           self._store, self._artifact_with_model_uri.id)
       for stats_artifact in stats_artifacts:
-        train_stats = tfx_util.read_stats_proto(stats_artifact.uri,
-                                                'Split-train')
-        eval_stats = tfx_util.read_stats_proto(stats_artifact.uri, 'Split-eval')
+        data_stats = tfx_util.read_stats_protos(stats_artifact.uri)
         graphics.annotate_dataset_feature_statistics_plots(
-            model_card, [train_stats, eval_stats])
+            model_card, data_stats)
 
     return model_card
 
