@@ -59,10 +59,13 @@ class Source:
   Attributes:
     eval_result_paths: The paths to the output from TensorFlow Model Analysis or
       TFX Evaluator.
+    eval_result_file_format: Optional file extension to filter eval result files
+      by.
     dataset_statistics_paths: The paths to the output from TensorFlow Data
       Validation or TFX ExampleValidator.
   """
   eval_result_paths: List[Text] = dataclasses.field(default_factory=list)
+  eval_result_file_format: Optional[Text] = ''
   dataset_statistics_paths: List[Text] = dataclasses.field(default_factory=list)
 
 
@@ -206,7 +209,8 @@ class ModelCardToolkit():
       if self._source.eval_result_paths:
         for eval_result_path in self._source.eval_result_paths:
           eval_result = tfma.load_eval_result(
-              output_path=eval_result_path)
+              output_path=eval_result_path,
+              output_file_format=self._source.eval_result_file_format)
           if eval_result:
             logging.info('EvalResult found at path %s', eval_result_path)
             tfx_util.annotate_eval_result_metrics(model_card, eval_result)

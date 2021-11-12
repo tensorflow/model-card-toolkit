@@ -31,10 +31,12 @@ import tensorflow_model_analysis as tfma
 from tensorflow_model_analysis.eval_saved_model.example_trainers import fixed_prediction_estimator
 from tfx_bsl.tfxio import raw_tf_record
 
+from absl.testing import parameterized
 from tensorflow_metadata.proto.v0 import statistics_pb2
 
 
 class ModelCardToolkitTest(
+    parameterized.TestCase,
     tfma.eval_saved_model.testutil.TensorflowModelAnalysisTest):
 
   def setUp(self):
@@ -46,7 +48,7 @@ class ModelCardToolkitTest(
     if not os.path.exists(self.tmpdir):
       os.makedirs(self.tmpdir)
 
-  def _write_tfma(self, tfma_path: Text):
+  def _write_tfma(self, tfma_path: Text, output_file_format: Text):
     _, eval_saved_model_path = (
         fixed_prediction_estimator.simple_fixed_prediction_estimator(
             export_path=None,
@@ -75,6 +77,7 @@ class ModelCardToolkitTest(
                 'metrics': os.path.join(tfma_path, 'metrics'),
                 'plots': os.path.join(tfma_path, 'plots')
             },
+            output_file_format=output_file_format,
             eval_config=eval_config,
             add_metrics_callbacks=eval_shared_model.add_metrics_callbacks)
     ]
@@ -190,7 +193,8 @@ class ModelCardToolkitTest(
     self.assertEqual(mock_annotate_data_stats.call_count, num_stat_artifacts)
     self.assertEqual(mock_annotate_eval_results.call_count, num_eval_artifacts)
 
-  def test_scaffold_assets_with_source(self):
+  @parameterized.parameters('', 'tfrecord')
+  def test_scaffold_assets_with_source(self, output_file_format: Text):
     train_dataset_name = 'Dataset-Split-train'
     train_features = ['feature_name1']
     eval_dataset_name = 'Dataset-Split-eval'
@@ -198,7 +202,7 @@ class ModelCardToolkitTest(
 
     tfma_path = os.path.join(self.tmpdir, 'tfma')
     tfdv_path = os.path.join(self.tmpdir, 'tfdv')
-    self._write_tfma(tfma_path)
+    self._write_tfma(tfma_path, output_file_format)
     self._write_tfdv(tfdv_path, train_dataset_name, train_features,
                      eval_dataset_name, eval_features)
 
