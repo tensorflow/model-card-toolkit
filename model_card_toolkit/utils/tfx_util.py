@@ -350,11 +350,11 @@ def read_stats_protos(
     list.
   """
   stats_protos = []
-  for file in os.scandir(stats_artifact_uri):
-    if os.path.isdir(os.path.join(stats_artifact_uri, file.name)):
-      stats_proto = read_stats_proto(stats_artifact_uri, file.name)
+  for filename in tf.io.gfile.listdir(stats_artifact_uri):
+    if os.path.isdir(os.path.join(stats_artifact_uri, filename)):
+      stats_proto = read_stats_proto(stats_artifact_uri, filename)
       if stats_proto:
-        logging.info('Reading stats artifact from %s', file.name)
+        logging.info('Reading stats artifact from %s', filename)
         stats_protos.append(stats_proto)
   return stats_protos
 
