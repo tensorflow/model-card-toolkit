@@ -15,7 +15,7 @@
 
 import enum
 import os
-from typing import Iterable, List, Optional, Text, Union
+from typing import Any, Dict, Iterable, List, Optional, Union
 
 from absl import logging
 import attr
@@ -34,6 +34,15 @@ _TFX_MODEL_TYPE = 'Model'
 _TFX_METRICS_TYPE = 'ModelEvaluation'
 _TFX_TRAINER_TYPE = 'tfx.components.trainer.component.Trainer'
 
+# Map of data types to field names in a TFMA arrayValue
+_TYPE_FIELD_MAP = {
+    'BYTES': 'bytes_values',
+    'INT32': 'int32_values',
+    'INT64': 'int64_values',
+    'FLOAT32': 'float32_values',
+    'FLOAT64': 'float64_values'
+}
+
 
 @attr.s(auto_attribs=True)
 class PipelineTypes(object):
@@ -47,8 +56,7 @@ class PipelineTypes(object):
   trainer_type: metadata_store_pb2.ExecutionType
 
 
-def _get_tfx_pipeline_types(
-    store: mlmd.MetadataStore) -> PipelineTypes:
+def _get_tfx_pipeline_types(store: mlmd.MetadataStore) -> PipelineTypes:
   """Retrieves the registered types in the given `store`.
 
   Args:
@@ -68,8 +76,7 @@ def _get_tfx_pipeline_types(
   missing_types = expected_artifact_types.difference(artifact_types.keys())
   if missing_types:
     raise ValueError(
-        f'Given `store` is invalid: missing ArtifactTypes: {missing_types}.'
-    )
+        f'Given `store` is invalid: missing ArtifactTypes: {missing_types}.')
   execution_types = {etype.name: etype for etype in store.get_execution_types()}
   expected_execution_types = {_TFX_TRAINER_TYPE}
   missing_types = expected_execution_types.difference(execution_types.keys())
@@ -274,8 +281,8 @@ def get_stats_artifacts_for_model(
 def _property_value(
     node: Union[metadata_store_pb2.Artifact, metadata_store_pb2.Execution,
                 metadata_store_pb2.Context],
-    name: Text,
-    is_custom_property: bool = False) -> Optional[Union[int, float, Text]]:
+    name: str,
+    is_custom_property: bool = False) -> Optional[Union[int, float, str]]:
   """Given a MLMD node and a (custom) property name, returns its value if any.
 
   Args:
@@ -338,7 +345,7 @@ def generate_model_card_for_model(
 
 
 def read_stats_protos(
-    stats_artifact_uri: Text
+    stats_artifact_uri: str
 ) -> List[statistics_pb2.DatasetFeatureStatisticsList]:
   """Reads DatasetFeatureStatisticsList protos from provided uri.
 
@@ -360,8 +367,8 @@ def read_stats_protos(
 
 
 def read_stats_proto(
-    stats_artifact_uri: Text,
-    split: Text) -> Optional[statistics_pb2.DatasetFeatureStatisticsList]:
+    stats_artifact_uri: str,
+    split: str) -> Optional[statistics_pb2.DatasetFeatureStatisticsList]:
   """Reads DatasetFeatureStatisticsList proto from provided stats artifact uri.
 
   Args:
@@ -375,8 +382,8 @@ def read_stats_proto(
   stats = statistics_pb2.DatasetFeatureStatisticsList()
   feature_stats_path = os.path.join(stats_artifact_uri, split,
                                     'FeatureStats.pb')
-  stats_tfrecord_path = os.path.join(stats_artifact_uri,
-                                     split, 'stats_tfrecord')
+  stats_tfrecord_path = os.path.join(stats_artifact_uri, split,
+                                     'stats_tfrecord')
 
   if tf.io.gfile.exists(feature_stats_path):
     with tf.io.gfile.GFile(feature_stats_path, mode='rb') as f:
@@ -394,8 +401,8 @@ def read_stats_proto(
 
 
 def read_metrics_eval_result(
-    metrics_artifact_uri: Text,
-    output_file_format: Optional[Text] = None) -> Optional[tfma.EvalResult]:
+    metrics_artifact_uri: str,
+    output_file_format: Optional[str] = None) -> Optional[tfma.EvalResult]:
   """Reads TFMA evaluation results from the evaluator output path.
 
   Args:
@@ -426,13 +433,21 @@ def annotate_eval_result_metrics(model_card: model_card_module.ModelCard,
     ValueError: if an unexpected metric or slice type is found.
   """
 
+  def _parse_array_value(array: Dict[str, Any]) -> str:
+    data_type = array['data_type']
+    if data_type in _TYPE_FIELD_MAP:
+      type_field = _TYPE_FIELD_MAP[data_type]
+      return ', '.join([str(value) for value in array[type_field]])
+    else:
+      logging.warning('Received unexpected array %s', str(array))
+      return ''
+
   for slice_repr, metrics_for_slice in (
       eval_result.get_metrics_for_all_slices().items()):
     # Parse the slice name
     if not isinstance(slice_repr, tuple):
       raise ValueError(
-          'Expected EvalResult slices to be tuples; found %s' %
-          type(slice_repr))
+          f'Expected EvalResult slices to be tuples; found {type(slice_repr)}')
     slice_name = '_X_'.join(f'{a}_{b}' for a, b in slice_repr)
     for metric_name, metric_value in metrics_for_slice.items():
       # Parse the metric value
@@ -440,10 +455,14 @@ def annotate_eval_result_metrics(model_card: model_card_module.ModelCard,
         parsed_value = metric_value['doubleValue']
       elif 'boundedValue' in metric_value:
         parsed_value = metric_value['boundedValue']['value']
+      elif 'arrayValue' in metric_value:
+        parsed_value = _parse_array_value(metric_value['arrayValue'])
       else:
-        raise ValueError('Expected doubleValue or boundedValue; found %s' %
-                         metric_value.keys())
+        raise ValueError(
+            f'Expected doubleValue, boundedValue, or arrayValue; found {metric_value.keys()}'
+        )
       # Create the PerformanceMetric and append to the ModelCard
-      metric = model_card_module.PerformanceMetric(
-          type=metric_name, value=str(parsed_value), slice=slice_name)
-      model_card.quantitative_analysis.performance_metrics.append(metric)
+      if parsed_value:
+        metric = model_card_module.PerformanceMetric(
+            type=metric_name, value=str(parsed_value), slice=slice_name)
+        model_card.quantitative_analysis.performance_metrics.append(metric)

@@ -260,6 +260,23 @@ class TfxUtilsTest(absltest.TestCase):
                                            'upper_bound': 0.6767518997192383
                                        }
                                    },
+                                   'int_array': {
+                                       'arrayValue': {
+                                           'data_type': 'INT32',
+                                           'int32_values': [1, 2, 3]
+                                       }
+                                   },
+                                   'float_array': {
+                                       'arrayValue': {
+                                           'data_type': 'FLOAT32',
+                                           'float32_values': [1.1, 2.2, 3.3]
+                                       }
+                                   },
+                                   'invalid_array': {
+                                       'arrayValue': {
+                                           'data_type': 'UNKNOWN'
+                                       }
+                                   }
                                }
                            }
                        })]
@@ -313,7 +330,11 @@ class TfxUtilsTest(absltest.TestCase):
         PerformanceMetric(
             type='average_loss', value='1.092138290405273', slice=''),
         PerformanceMetric(
-            type='prediction/mean', value='0.4767518997192383', slice='')
+            type='prediction/mean', value='0.4767518997192383', slice=''),
+        PerformanceMetric(
+            type='int_array', value='1, 2, 3', slice=''),
+        PerformanceMetric(
+            type='float_array', value='1.1, 2.2, 3.3', slice='')
     ]
     self.assertEqual(
         len(model_card.quantitative_analysis.performance_metrics),
