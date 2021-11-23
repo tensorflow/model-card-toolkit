@@ -69,9 +69,19 @@
           "description": "The data format for inputs to the model.",
           "type": "string"
         },
+        "input_format_map": {
+          "description": "The data format for inputs to the model, in key-value format.",
+          "type": "array",
+          "items": { "$ref": "#/definitions/keyval" }
+        },
         "output_format": {
           "description": "The data format for outputs from the model.",
           "type": "string"
+        },
+        "output_format_map": {
+          "description": "The data format for outputs from the model, in key-value format.",
+          "type": "array",
+          "items": { "$ref": "#/definitions/keyval" }
         }
       }
     },
@@ -189,6 +199,19 @@
         },
         "citation": {
           "description": "The citation itself.",
+          "type": "string"
+        }
+      }
+    },
+    "keyval": {
+      "type": "object",
+      "properties": {
+        "key": {
+          "description": "The key of a key-value pair.",
+          "type": "string"
+        },
+        "value": {
+          "description": "The value of a key-value pair.",
           "type": "string"
         }
       }

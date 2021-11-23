@@ -242,6 +242,21 @@ class Dataset(BaseModelCardField):
 
 
 @dataclasses.dataclass
+class KeyVal(BaseModelCardField):
+  """A generic key-value pair.
+
+  Attributes:
+    key: The key of the key-value pair.
+    value: The value of the key-value pair.
+  """
+  key: Optional[Text] = None
+  value: Optional[Text] = None
+
+  _proto_type: dataclasses.InitVar[type(
+      model_card_pb2.KeyVal)] = model_card_pb2.KeyVal
+
+
+@dataclasses.dataclass
 class ModelParameters(BaseModelCardField):
   """Parameters for construction of the model.
 
@@ -249,12 +264,18 @@ class ModelParameters(BaseModelCardField):
     model_architecture: specifies the architecture of your model.
     data: specifies the datasets used to train and evaluate your model.
     input_format: describes the data format for inputs to your model.
+    input_format_map: describes the data format for inputs to your model, in
+      key-value format.
     output_format: describes the data format for outputs from your model.
+    output_format_map: describes the data format for outputs to your model, in
+      key-value format
   """
   model_architecture: Optional[Text] = None
   data: List[Dataset] = dataclasses.field(default_factory=list)
   input_format: Optional[Text] = None
+  input_format_map: List[KeyVal] = dataclasses.field(default_factory=list)
   output_format: Optional[Text] = None
+  output_format_map: List[KeyVal] = dataclasses.field(default_factory=list)
 
   _proto_type: dataclasses.InitVar[type(
       model_card_pb2.ModelParameters)] = model_card_pb2.ModelParameters

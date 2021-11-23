@@ -43,7 +43,9 @@
        ]
       },
       "description": "description"
-    }]
+    }],
+    "input_format": "32-char-len-text",
+    "output_format_map": [{"key": "type", "value": "64-char-len-text"}]
   },
   "quantitative_analysis": {
     "performance_metrics": [{

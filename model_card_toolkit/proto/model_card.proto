@@ -141,8 +141,14 @@ message Dataset {
   optional string description = 5;
 }
 
+// A generic key-value pair.
+message KeyVal {
+  optional string key = 1;
+  optional string value = 2;
+}
+
 // Parameters for construction of the model.
-// The next tag number is 5.
+// The next tag number is 7.
 message ModelParameters {
   // Specifies the architecture of your model.
   optional string model_architecture = 1;
@@ -152,9 +158,11 @@ message ModelParameters {
 
   // Describes the data format for inputs to your model.
   optional string input_format = 3;
+  repeated KeyVal input_format_map = 5;
 
   // Describes the data format for outputs from your model.
   optional string output_format = 4;
+  repeated KeyVal output_format_map = 6;
 }
 
 // The confidence interval of the metric.

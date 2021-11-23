@@ -9,6 +9,7 @@
 * Added `ConfidenceInterval` class for `PerformanceMetric`s.
 * Add `model_card.model_details.path` field.
 * Add `source` arg to ModelCardToolkit, allowing ModelCards to be populated with TFMA and TFDV outputs even without MLMD.
+* Add `input_format_map` and `output_format_map` fields.
 
 ## Bug fixes and other changes
 
