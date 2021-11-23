@@ -39,6 +39,18 @@ class GraphicsTest(parameterized.TestCase):
     self.assertEqual(g.color, h.color)
 
   def test_extract_graph_data_from_dataset_feature_statistics(self):
+    empty_numeric_feature_stats = text_format.Parse(
+        """
+        path {
+          step: "numeric_feature"
+        }
+        type: INT
+        num_stats {
+        }""", statistics_pb2.FeatureNameStatistics())
+    self.assertIsNone(
+        graphics._extract_graph_data_from_dataset_feature_statistics(
+            empty_numeric_feature_stats))
+
     numeric_feature_stats = text_format.Parse(
         """
         path {

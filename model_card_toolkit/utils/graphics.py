@@ -155,7 +155,7 @@ def _extract_graph_data_from_dataset_feature_statistics(
   feature_name = feature_stats.name or feature_stats.path.step[0]
   graph = _Graph()
 
-  if feature_stats.HasField('num_stats'):
+  if feature_stats.HasField('num_stats') and feature_stats.num_stats.histograms:
     # Only generate graph for the first histogram.
     # The second one is QUANTILES graph.
     histogram = feature_stats.num_stats.histograms[0]
@@ -184,9 +184,9 @@ def _extract_graph_data_from_dataset_feature_statistics(
       graph.color = color
     return graph
 
-  logging.info(('Did not generate a graph for feature %s: '
-                'FeatureNameStatistics must have string_stats or num_stats'),
-               feature_name)
+  logging.warning('Did not generate a graph for feature %s: '
+                  'FeatureNameStatistics must have string_stats or num_stats',
+                  feature_name)
   return None
 
 
