@@ -61,10 +61,24 @@
 ### Input Format
 
 {{ model_parameters.input_format }}{% endif %}
+{% if model_parameters.input_format_map %}
+### Input
+
+| Key | Value |
+| --- | --- |
+{% for kv in model_parameters.input_format_map %}| {{ kv.key }} | {{ kv.value }} |
+{% endfor %}{% endif %}
 {% if model_parameters.output_format %}
 ### Output Format
 
-{{ model_parameters.output_format }}{% endif %}{% endif %}
+{{ model_parameters.output_format }}{% endif %}
+{% if model_parameters.output_format_map %}
+### Output
+
+| Key | Value |
+| --- | --- |
+{% for kv in model_parameters.output_format_map %}| {{ kv.key }} | {{ kv.value }} |
+{% endfor %}{% endif %}{% endif %}
 
 
 {% if considerations.users or considerations.use_cases or considerations.limitations or considerations.tradeoffs or considerations.ethical_considerations %}## Considerations

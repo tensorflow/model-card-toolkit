@@ -167,18 +167,28 @@
               {% endfor %}
               </ul>{% endif %}
         </div>
-      {% if model_parameters.model_architecture or model_parameters.input_format or model_parameters.output_format %}
+      {% if model_parameters.model_architecture or model_parameters.input_format or model_parameters.input_format_map or model_parameters.output_format or model_parameters.output_format_map %}
         <div class="col card">
           <h2>Model Parameters</h2>
             {% if model_parameters.model_architecture %}
               <h3>Model Architecture</h3>
                 <div style="white-space:pre-wrap;">{{ model_parameters.model_architecture }}</div>{% endif %}
-            {% if model_parameters.input_format %}
+            {% if model_parameters.input_format %}<h3>Input Format</h3>
+              <div style="white-space:pre-wrap;">{{ model_parameters.input_format }}</div>{% endif %}
+            {% if model_parameters.input_format_map %}
               <h3>Input Format</h3>
-                <div style="white-space:pre-wrap;">{{ model_parameters.input_format }}</div>{% endif %}
-            {% if model_parameters.output_format %}
+              <table>
+              <tr><th>Key</th><th>Value</th></tr>
+              {% for kv in model_parameters.input_format_map %}
+              <tr><td>{{ kv.key }}</td><td>{{ kv.value }}</td></tr>{% endfor %}</table>{% endif %}
+            {% if model_parameters.output_format %}<h3>Output Format</h3>
+              <div style="white-space:pre-wrap;">{{ model_parameters.output_format }}</div>{% endif %}
+            {% if model_parameters.output_format_map %}
               <h3>Output Format</h3>
-                <div style="white-space:pre-wrap;">{{ model_parameters.output_format }}</div>{% endif %}
+              <table>
+              <tr><th>Key</th><th>Value</th></tr>
+              {% for kv in model_parameters.output_format_map %}
+              <tr><td>{{ kv.key }}</td><td>{{ kv.value }}</td></tr>{% endfor %}</table>{% endif %}
       {% endif %}
       {% if considerations and (considerations.users or considerations.use_cases or considerations.limitations or considerations.tradeoffs or considerations.ethical_considerations) %}
       <div class="col card">

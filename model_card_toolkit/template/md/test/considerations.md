@@ -41,9 +41,11 @@ knn
 
 32-char-len-text
 
+
 ### Output Format
 
 64-char-len-text
+
 
 
 ## Considerations
