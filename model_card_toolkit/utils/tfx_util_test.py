@@ -262,19 +262,19 @@ class TfxUtilsTest(absltest.TestCase):
                                    },
                                    'int_array': {
                                        'arrayValue': {
-                                           'data_type': 'INT32',
-                                           'int32_values': [1, 2, 3]
+                                           'dataType': 'INT32',
+                                           'int32Values': [1, 2, 3]
                                        }
                                    },
                                    'float_array': {
                                        'arrayValue': {
-                                           'data_type': 'FLOAT32',
-                                           'float32_values': [1.1, 2.2, 3.3]
+                                           'dataType': 'FLOAT32',
+                                           'float32Values': [1.1, 2.2, 3.3]
                                        }
                                    },
                                    'invalid_array': {
                                        'arrayValue': {
-                                           'data_type': 'UNKNOWN'
+                                           'dataType': 'UNKNOWN'
                                        }
                                    }
                                }

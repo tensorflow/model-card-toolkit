@@ -36,11 +36,11 @@ _TFX_TRAINER_TYPE = 'tfx.components.trainer.component.Trainer'
 
 # Map of data types to field names in a TFMA arrayValue
 _TYPE_FIELD_MAP = {
-    'BYTES': 'bytes_values',
-    'INT32': 'int32_values',
-    'INT64': 'int64_values',
-    'FLOAT32': 'float32_values',
-    'FLOAT64': 'float64_values'
+    'BYTES': 'bytesValues',
+    'INT32': 'int32Values',
+    'INT64': 'int64Values',
+    'FLOAT32': 'float32Values',
+    'FLOAT64': 'float64Values'
 }
 
 
@@ -434,7 +434,7 @@ def annotate_eval_result_metrics(model_card: model_card_module.ModelCard,
   """
 
   def _parse_array_value(array: Dict[str, Any]) -> str:
-    data_type = array['data_type']
+    data_type = array['dataType']
     if data_type in _TYPE_FIELD_MAP:
       type_field = _TYPE_FIELD_MAP[data_type]
       return ', '.join([str(value) for value in array[type_field]])
