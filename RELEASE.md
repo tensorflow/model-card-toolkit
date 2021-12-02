@@ -16,6 +16,7 @@
 * `model_card.quantitative_analysis.performance_metrics` is now populated when a `tfma.EvalResult` is found in MLMD store.
 * `export_format()` and `update_model_card()` now accept `model_card_pb2.ModelCard`'s, in addition to `model_card.ModelCard`'s.
 * Add `tfx_util.read_stats_protos()`, which returns dataset stats protos for all splits in the provided directory.
+* Add `tfx_util.filter_metrics()` to facilitate filtering out unwanted TFMA metrics in model cards.
 
 ## Breaking changes and Deprecations
 

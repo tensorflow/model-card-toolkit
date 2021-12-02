@@ -17,9 +17,17 @@ class TfmaSource:
       Analysis or TFX Evaluator.
     file_format: Optional file extension to filter eval result files
       by.
+    metrics_include: The list of metric names to include in the model card. By
+      default, all metrics are included. Mutually exclusive with
+      metrics_exclude.
+    metrics_exclude: The list of metric names to exclude in the model card. By
+      default, no metrics are excluded. Mutually exclusive with
+      metrics_include.
   """
   eval_result_paths: List[Text] = dataclasses.field(default_factory=list)
   file_format: Optional[Text] = ''
+  metrics_include: List[Text] = dataclasses.field(default_factory=list)
+  metrics_exclude: List[Text] = dataclasses.field(default_factory=list)
 
 
 @dataclasses.dataclass

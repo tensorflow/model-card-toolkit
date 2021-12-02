@@ -211,13 +211,14 @@ class ModelCardToolkitTest(
     mct = model_card_toolkit.ModelCardToolkit(
         output_dir=mct_dir,
         source=src.Source(
-            tfma=src.TfmaSource(eval_result_paths=[tfma_path]),
+            tfma=src.TfmaSource(
+                eval_result_paths=[tfma_path],
+                metrics_exclude=['average_loss']),
             tfdv=src.TfdvSource(dataset_statistics_paths=[tfdv_path])))
     mc = mct.scaffold_assets()
 
     list_to_proto = lambda lst: [x.to_proto() for x in lst]
     expected_performance_metrics = [
-        model_card.PerformanceMetric(type='average_loss', value='0.5'),
         model_card.PerformanceMetric(
             type='post_export_metrics/example_count', value='2.0')
     ]
@@ -225,7 +226,7 @@ class ModelCardToolkitTest(
       self.assertCountEqual(
           list_to_proto(mc.quantitative_analysis.performance_metrics),
           list_to_proto(expected_performance_metrics))
-      self.assertLen(mc.quantitative_analysis.graphics.collection, 2)
+      self.assertLen(mc.quantitative_analysis.graphics.collection, 1)
 
     with self.subTest(name='model_parameters.data'):
       self.assertLen(mc.model_parameters.data, 2)  # train and eval
@@ -250,6 +251,17 @@ class ModelCardToolkitTest(
 
   def test_scaffold_assets_with_empty_source(self):
     model_card_toolkit.ModelCardToolkit(source=src.Source()).scaffold_assets()
+
+  def test_scaffold_assets_with_invalid_tfma_source(self):
+    with self.assertRaisesWithLiteralMatch(
+        ValueError,
+        'Only one of TfmaSource.metrics_include and TfmaSource.metrics_exclude '
+        'should be set.'):
+      model_card_toolkit.ModelCardToolkit(
+          source=src.Source(
+              tfma=src.TfmaSource(
+                  metrics_include=['false_positive_rate'],
+                  metrics_exclude=['false_negative_rate'])))
 
   def test_update_model_card_with_valid_model_card(self):
     mct = model_card_toolkit.ModelCardToolkit(output_dir=self.tmpdir)

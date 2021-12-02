@@ -27,6 +27,116 @@ import tensorflow_model_analysis as tfma
 import ml_metadata as mlmd
 from ml_metadata.proto import metadata_store_pb2
 
+_SLICING_METRICS = [((('weekday', 0),), {
+    '': {
+        '': {
+            'average_loss': {
+                'doubleValue': 0.07875693589448929
+            },
+            'prediction/mean': {
+                'boundedValue': {
+                    'value': 0.5100112557411194,
+                    'lower_bound': 0.4100112557411194,
+                    'upper_bound': 0.6100112557411194
+                }
+            }
+        }
+    }
+}),
+                    ((('weekday', 1),), {
+                        '': {
+                            '': {
+                                'average_loss': {
+                                    'doubleValue': 4.4887189865112305
+                                },
+                                'prediction/mean': {
+                                    'boundedValue': {
+                                        'value': 0.4839990735054016,
+                                        'lower_bound': 0.3839990735054016,
+                                        'upper_bound': 0.5839990735054016
+                                    }
+                                }
+                            }
+                        }
+                    }),
+                    ((('weekday', 2),), {
+                        '': {
+                            '': {
+                                'average_loss': {
+                                    'doubleValue': 2.092138290405273
+                                },
+                                'prediction/mean': {
+                                    'boundedValue': {
+                                        'value': 0.3767518997192383,
+                                        'lower_bound': 0.1767518997192383,
+                                        'upper_bound': 0.5767518997192383
+                                    }
+                                }
+                            }
+                        }
+                    }),
+                    ((('gender', 'male'), ('age', 10)), {
+                        '': {
+                            '': {
+                                'average_loss': {
+                                    'doubleValue': 2.092138290405273
+                                },
+                                'prediction/mean': {
+                                    'boundedValue': {
+                                        'value': 0.3767518997192383,
+                                        'lower_bound': 0.1767518997192383,
+                                        'upper_bound': 0.5767518997192383
+                                    }
+                                }
+                            }
+                        }
+                    }),
+                    ((('gender', 'female'), ('age', 20)), {
+                        '': {
+                            '': {
+                                'average_loss': {
+                                    'doubleValue': 2.092138290405273
+                                },
+                                'prediction/mean': {
+                                    'doubleValue': 0.3767518997192383
+                                }
+                            }
+                        }
+                    }),
+                    ((), {
+                        '': {
+                            '': {
+                                'average_loss': {
+                                    'doubleValue': 1.092138290405273
+                                },
+                                'prediction/mean': {
+                                    'boundedValue': {
+                                        'value': 0.4767518997192383,
+                                        'lower_bound': 0.2767518997192383,
+                                        'upper_bound': 0.6767518997192383
+                                    }
+                                },
+                                'int_array': {
+                                    'arrayValue': {
+                                        'dataType': 'INT32',
+                                        'int32Values': [1, 2, 3]
+                                    }
+                                },
+                                'float_array': {
+                                    'arrayValue': {
+                                        'dataType': 'FLOAT32',
+                                        'float32Values': [1.1, 2.2, 3.3]
+                                    }
+                                },
+                                'invalid_array': {
+                                    'arrayValue': {
+                                        'dataType': 'UNKNOWN'
+                                    }
+                                }
+                            }
+                        }
+                    })]
+
 
 class TfxUtilsTest(absltest.TestCase):
 
@@ -171,117 +281,8 @@ class TfxUtilsTest(absltest.TestCase):
     self.assertIsNone(tfx_util.read_metrics_eval_result('/does/not/exist/'))
 
   def test_annotate_eval_results_metrics(self):
-    slicing_metrics = [((('weekday', 0),), {
-        '': {
-            '': {
-                'average_loss': {
-                    'doubleValue': 0.07875693589448929
-                },
-                'prediction/mean': {
-                    'boundedValue': {
-                        'value': 0.5100112557411194,
-                        'lower_bound': 0.4100112557411194,
-                        'upper_bound': 0.6100112557411194
-                    }
-                }
-            }
-        }
-    }),
-                       ((('weekday', 1),), {
-                           '': {
-                               '': {
-                                   'average_loss': {
-                                       'doubleValue': 4.4887189865112305
-                                   },
-                                   'prediction/mean': {
-                                       'boundedValue': {
-                                           'value': 0.4839990735054016,
-                                           'lower_bound': 0.3839990735054016,
-                                           'upper_bound': 0.5839990735054016
-                                       }
-                                   }
-                               }
-                           }
-                       }),
-                       ((('weekday', 2),), {
-                           '': {
-                               '': {
-                                   'average_loss': {
-                                       'doubleValue': 2.092138290405273
-                                   },
-                                   'prediction/mean': {
-                                       'boundedValue': {
-                                           'value': 0.3767518997192383,
-                                           'lower_bound': 0.1767518997192383,
-                                           'upper_bound': 0.5767518997192383
-                                       }
-                                   }
-                               }
-                           }
-                       }),
-                       ((('gender', 'male'), ('age', 10)), {
-                           '': {
-                               '': {
-                                   'average_loss': {
-                                       'doubleValue': 2.092138290405273
-                                   },
-                                   'prediction/mean': {
-                                       'boundedValue': {
-                                           'value': 0.3767518997192383,
-                                           'lower_bound': 0.1767518997192383,
-                                           'upper_bound': 0.5767518997192383
-                                       }
-                                   }
-                               }
-                           }
-                       }),
-                       ((('gender', 'female'), ('age', 20)), {
-                           '': {
-                               '': {
-                                   'average_loss': {
-                                       'doubleValue': 2.092138290405273
-                                   },
-                                   'prediction/mean': {
-                                       'doubleValue': 0.3767518997192383
-                                   }
-                               }
-                           }
-                       }),
-                       ((), {
-                           '': {
-                               '': {
-                                   'average_loss': {
-                                       'doubleValue': 1.092138290405273
-                                   },
-                                   'prediction/mean': {
-                                       'boundedValue': {
-                                           'value': 0.4767518997192383,
-                                           'lower_bound': 0.2767518997192383,
-                                           'upper_bound': 0.6767518997192383
-                                       }
-                                   },
-                                   'int_array': {
-                                       'arrayValue': {
-                                           'dataType': 'INT32',
-                                           'int32Values': [1, 2, 3]
-                                       }
-                                   },
-                                   'float_array': {
-                                       'arrayValue': {
-                                           'dataType': 'FLOAT32',
-                                           'float32Values': [1.1, 2.2, 3.3]
-                                       }
-                                   },
-                                   'invalid_array': {
-                                       'arrayValue': {
-                                           'dataType': 'UNKNOWN'
-                                       }
-                                   }
-                               }
-                           }
-                       })]
     eval_result = tfma.EvalResult(
-        slicing_metrics=slicing_metrics,
+        slicing_metrics=_SLICING_METRICS,
         plots=None,
         attributions=None,
         config=None,
@@ -331,10 +332,8 @@ class TfxUtilsTest(absltest.TestCase):
             type='average_loss', value='1.092138290405273', slice=''),
         PerformanceMetric(
             type='prediction/mean', value='0.4767518997192383', slice=''),
-        PerformanceMetric(
-            type='int_array', value='1, 2, 3', slice=''),
-        PerformanceMetric(
-            type='float_array', value='1.1, 2.2, 3.3', slice='')
+        PerformanceMetric(type='int_array', value='1, 2, 3', slice=''),
+        PerformanceMetric(type='float_array', value='1.1, 2.2, 3.3', slice='')
     ]
     self.assertEqual(
         len(model_card.quantitative_analysis.performance_metrics),
@@ -344,6 +343,97 @@ class TfxUtilsTest(absltest.TestCase):
       self.assertEqual(actual_metric.type, expected_metric.type)
       self.assertEqual(actual_metric.slice, expected_metric.slice)
       self.assertEqual(actual_metric.value, expected_metric.value)
+
+  def test_filter_metrics(self):
+    eval_result = tfma.EvalResult(
+        slicing_metrics=_SLICING_METRICS,
+        plots=None,
+        attributions=None,
+        config=None,
+        data_location=None,
+        file_format=None,
+        model_location=None)
+    metrics_include = ['average_loss']
+    metrics_exclude = [
+        'prediction/mean', 'int_array', 'float_array', 'invalid_array'
+    ]
+    expected_slicing_metrics = [
+        ((('weekday', 0),), {
+            '': {
+                '': {
+                    'average_loss': {
+                        'doubleValue': 0.07875693589448929
+                    }
+                }
+            }
+        }),
+        ((('weekday', 1),), {
+            '': {
+                '': {
+                    'average_loss': {
+                        'doubleValue': 4.4887189865112305
+                    }
+                }
+            }
+        }),
+        ((('weekday', 2),), {
+            '': {
+                '': {
+                    'average_loss': {
+                        'doubleValue': 2.092138290405273
+                    }
+                }
+            }
+        }),
+        ((('gender', 'male'), ('age', 10)), {
+            '': {
+                '': {
+                    'average_loss': {
+                        'doubleValue': 2.092138290405273
+                    }
+                }
+            }
+        }),
+        ((('gender', 'female'), ('age', 20)), {
+            '': {
+                '': {
+                    'average_loss': {
+                        'doubleValue': 2.092138290405273
+                    }
+                }
+            }
+        }),
+        ((), {
+            '': {
+                '': {
+                    'average_loss': {
+                        'doubleValue': 1.092138290405273
+                    }
+                }
+            }
+        })
+    ]
+    with self.subTest(name='metrics_include'):
+      self.assertEqual(
+          tfx_util.filter_metrics(
+              eval_result, metrics_include=metrics_include).slicing_metrics,
+          expected_slicing_metrics)
+    with self.subTest(name='metrics_exclude'):
+      self.assertEqual(
+          tfx_util.filter_metrics(
+              eval_result, metrics_exclude=metrics_exclude).slicing_metrics,
+          expected_slicing_metrics)
+    with self.subTest(
+        name='both metrics_include and metrics_exclude (invalid)'):
+      with self.assertRaises(ValueError):
+        tfx_util.filter_metrics(
+            eval_result,
+            metrics_include=metrics_include,
+            metrics_exclude=metrics_exclude)
+    with self.subTest(
+        name='neither metrics_include nor metrics_exclude (invalid)'):
+      with self.assertRaises(ValueError):
+        tfx_util.filter_metrics(eval_result)
 
 
 if __name__ == '__main__':

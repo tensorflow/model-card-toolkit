@@ -120,6 +120,10 @@ class ModelCardToolkit():
       ValueError: If `mlmd_store` is given and the `model_uri` cannot be
         resolved as a model artifact in the metadata store.
     """
+    if source and source.tfma.metrics_include and source.tfma.metrics_exclude:
+      raise ValueError('Only one of TfmaSource.metrics_include and '
+                       'TfmaSource.metrics_exclude should be set.')
+
     self.output_dir = output_dir or tempfile.mkdtemp()
     self._mcta_proto_file = os.path.join(self.output_dir, _MCTA_PROTO_FILE)
     self._mcta_template_dir = os.path.join(self.output_dir, _MCTA_TEMPLATE_DIR)
@@ -196,6 +200,10 @@ class ModelCardToolkit():
               output_file_format=self._source.tfma.file_format)
           if eval_result:
             logging.info('EvalResult found at path %s', eval_result_path)
+            if self._source.tfma.metrics_include or self._source.tfma.metrics_exclude:
+              eval_result = tfx_util.filter_metrics(
+                  eval_result, self._source.tfma.metrics_include,
+                  self._source.tfma.metrics_exclude)
             tfx_util.annotate_eval_result_metrics(model_card, eval_result)
             graphics.annotate_eval_result_plots(model_card, eval_result)
           else:
