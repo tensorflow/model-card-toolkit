@@ -17,12 +17,11 @@ The Model Card Toolkit (MCT) provides a set of utilities to generate Model Cards
 from trained models, evaluations, and datasets in ML pipelines.
 """
 
-import dataclasses
 import logging
 import os
 import pkgutil
 import tempfile
-from typing import List, Optional, Text, Union
+from typing import Optional, Text, Union
 
 from absl import logging
 import jinja2
@@ -30,6 +29,7 @@ import jinja2
 from model_card_toolkit.model_card import ModelCard
 from model_card_toolkit.proto import model_card_pb2
 from model_card_toolkit.utils import graphics
+from model_card_toolkit.utils import source as src
 from model_card_toolkit.utils import tfx_util
 import tensorflow_model_analysis as tfma
 
@@ -50,23 +50,6 @@ _MCTA_RESOURCE_DIR = os.path.join('resources', 'plots')
 # Constants about the final generated model cards.
 _MODEL_CARDS_DIR = 'model_cards'
 _DEFAULT_MODEL_CARD_FILE_NAME = 'model_card.html'
-
-
-@dataclasses.dataclass
-class Source:
-  """Sources to extract data for a model card.
-
-  Attributes:
-    eval_result_paths: The paths to the output from TensorFlow Model Analysis or
-      TFX Evaluator.
-    eval_result_file_format: Optional file extension to filter eval result files
-      by.
-    dataset_statistics_paths: The paths to the output from TensorFlow Data
-      Validation or TFX ExampleValidator.
-  """
-  eval_result_paths: List[Text] = dataclasses.field(default_factory=list)
-  eval_result_file_format: Optional[Text] = ''
-  dataset_statistics_paths: List[Text] = dataclasses.field(default_factory=list)
 
 
 class ModelCardToolkit():
@@ -113,7 +96,7 @@ class ModelCardToolkit():
                output_dir: Optional[Text] = None,
                mlmd_store: Optional[mlmd.MetadataStore] = None,
                model_uri: Optional[Text] = None,
-               source: Optional[Source] = None):
+               source: Optional[src.Source] = None):
     """Initializes the ModelCardToolkit.
 
     This function does not generate any assets by itself. Use the other API
@@ -206,11 +189,11 @@ class ModelCardToolkit():
 
     # Generate graphics for TFMA's `EvalResult`s
     if self._source:
-      if self._source.eval_result_paths:
-        for eval_result_path in self._source.eval_result_paths:
+      if self._source.tfma.eval_result_paths:
+        for eval_result_path in self._source.tfma.eval_result_paths:
           eval_result = tfma.load_eval_result(
               output_path=eval_result_path,
-              output_file_format=self._source.eval_result_file_format)
+              output_file_format=self._source.tfma.file_format)
           if eval_result:
             logging.info('EvalResult found at path %s', eval_result_path)
             tfx_util.annotate_eval_result_metrics(model_card, eval_result)
@@ -228,9 +211,9 @@ class ModelCardToolkit():
 
     # Generate graphics for TFDV's `DatasetFeatureStatisticsList`s
     if self._source:
-      if self._source.dataset_statistics_paths:
-        for dataset_statistics_path in self._source.dataset_statistics_paths:
-          data_stats = tfx_util.read_stats_protos(dataset_statistics_path)
+      if self._source.tfdv.dataset_statistics_paths:
+        for dataset_stats_path in self._source.tfdv.dataset_statistics_paths:
+          data_stats = tfx_util.read_stats_protos(dataset_stats_path)
           graphics.annotate_dataset_feature_statistics_plots(
               model_card, data_stats)
     if self._store:
