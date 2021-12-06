@@ -37,6 +37,8 @@ The Model Card Toolkit is hosted on [PyPI](https://pypi.org/project/model-card-t
 
 If your machine learning pipeline uses the [TensorFlow Extended (TFX)](https://www.tensorflow.org/tfx) platform or [ML Metadata](https://www.tensorflow.org/tfx/guide/mlmd), you can automate model card generation. See [this demo notebook](model_card_toolkit/documentation/examples/MLMD_Model_Card_Toolkit_Demo.ipynb) for a demonstration of how to integrate the MCT into your pipeline.
 
+Starting with [v1.2.0](https://github.com/tensorflow/model-card-toolkit/blob/master/RELEASE.md), ModelCardToolkit can fetch TFMA and TFDV metrics from arbitrary paths using the [Source](https://github.com/tensorflow/model-card-toolkit/blob/master/model_card_toolkit/utils/source.py) API.
+
 ## Schema
 
 Model cards are stored in JSON as an intermediate format. You can see the model card JSON schema in the `schema` directory. Note that this is not a finalized path and may be hosted elsewhere in the future.
