@@ -37,8 +37,16 @@ class TfdvSource:
   Attributes:
     dataset_statistics_paths: The paths to the output from TensorFlow Data
       Validation or TFX ExampleValidator.
+    features_include: The feature paths to include from the dataset statistics.
+      By default, all features are included. Mutually exclusive with
+      features_exclude.
+    features_exclude: The feature paths to exclude from the dataset statistics.
+      By default, all features are included. Mutually exclusive with
+      features_include.
   """
   dataset_statistics_paths: List[Text] = dataclasses.field(default_factory=list)
+  features_include: List[Text] = dataclasses.field(default_factory=list)
+  features_exclude: List[Text] = dataclasses.field(default_factory=list)
 
 
 @dataclasses.dataclass

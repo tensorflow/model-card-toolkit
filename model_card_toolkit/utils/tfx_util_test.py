@@ -137,6 +137,24 @@ _SLICING_METRICS = [((('weekday', 0),), {
                         }
                     })]
 
+_DATASET_FEATURES = [
+    'data_channel', 'date', 'slug', 'LDA_00', 'LDA_01', 'LDA_02', 'LDA_03',
+    'LDA_04', 'abs_title_sentiment_polarity', 'abs_title_subjectivity',
+    'average_token_length', 'avg_negative_polarity', 'avg_positive_polarity',
+    'global_rate_negative_words', 'global_rate_positive_words',
+    'global_sentiment_polarity', 'global_subjectivity', 'is_weekend',
+    'kw_avg_avg', 'kw_avg_max', 'kw_avg_min', 'kw_max_avg', 'kw_max_max',
+    'kw_max_min', 'kw_min_avg', 'kw_min_max', 'kw_min_min',
+    'max_negative_polarity', 'max_positive_polarity', 'min_negative_polarity',
+    'min_positive_polarity', 'n_hrefs', 'n_imgs', 'n_keywords',
+    'n_non_stop_unique_tokens', 'n_non_stop_words', 'n_self_hrefs',
+    'n_shares_percentile', 'n_tokens_content', 'n_tokens_title',
+    'n_unique_tokens', 'n_videos', 'rate_negative_words', 'rate_positive_words',
+    'self_reference_avg_shares', 'self_reference_max_shares',
+    'self_reference_min_shares', 'timedelta', 'title_sentiment_polarity',
+    'title_subjectivity', 'weekday'
+]
+
 
 class TfxUtilsTest(absltest.TestCase):
 
@@ -269,6 +287,39 @@ class TfxUtilsTest(absltest.TestCase):
   def test_read_stats_proto_with_invalid_uri(self):
     self.assertIsNone(tfx_util.read_stats_proto('/does/not/exist/', 'train'))
     self.assertIsNone(tfx_util.read_stats_proto('/does/not/exist/', 'eval'))
+
+  def test_filter_features(self):
+    store = testdata_utils.get_tfx_pipeline_metadata_store(self.tmp_db_path)
+    stats = store.get_artifacts_by_id(
+        [testdata_utils.TFX_0_21_STATS_ARTIFACT_ID])
+    dataset_stats = tfx_util.read_stats_protos(stats[-1].uri)[0].datasets[0]
+
+    one_half_of_the_features = _DATASET_FEATURES[:27]
+    the_other_half_of_the_features = _DATASET_FEATURES[27:]
+
+    with self.subTest(name='features_include'):
+      filtered_features = [
+          feature.path.step[0] for feature in tfx_util.filter_features(
+              dataset_stats, features_include=one_half_of_the_features).features
+      ]
+      self.assertSameElements(one_half_of_the_features, filtered_features)
+    with self.subTest(name='features_exclude'):
+      filtered_features = [
+          feature.path.step[0] for feature in tfx_util.filter_features(
+              dataset_stats, features_exclude=one_half_of_the_features).features
+      ]
+      self.assertSameElements(the_other_half_of_the_features, filtered_features)
+    with self.subTest(
+        name='both features_include and features_exclude (invalid)'):
+      with self.assertRaises(ValueError):
+        tfx_util.filter_features(
+            dataset_stats,
+            features_include=one_half_of_the_features,
+            features_exclude=the_other_half_of_the_features)
+    with self.subTest(
+        name='neither features_include nor features_exclude (invalid)'):
+      with self.assertRaises(ValueError):
+        tfx_util.filter_features(dataset_stats)
 
   def test_read_metrics_eval_result(self):
     store = testdata_utils.get_tfx_pipeline_metadata_store(self.tmp_db_path)

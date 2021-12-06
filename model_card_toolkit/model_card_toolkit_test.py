@@ -214,7 +214,9 @@ class ModelCardToolkitTest(
             tfma=src.TfmaSource(
                 eval_result_paths=[tfma_path],
                 metrics_exclude=['average_loss']),
-            tfdv=src.TfdvSource(dataset_statistics_paths=[tfdv_path])))
+            tfdv=src.TfdvSource(
+                dataset_statistics_paths=[tfdv_path],
+                features_include=['feature_name1'])))
     mc = mct.scaffold_assets()
 
     list_to_proto = lambda lst: [x.to_proto() for x in lst]
@@ -242,7 +244,7 @@ class ModelCardToolkitTest(
               graphics=model_card.GraphicsCollection(collection=[
                   model_card.Graphic(name='counts | feature_name1')
               ])), mc.model_parameters.data)
-      self.assertIn(
+      self.assertNotIn(
           model_card.Dataset(
               name=eval_dataset_name,
               graphics=model_card.GraphicsCollection(collection=[
@@ -262,6 +264,16 @@ class ModelCardToolkitTest(
               tfma=src.TfmaSource(
                   metrics_include=['false_positive_rate'],
                   metrics_exclude=['false_negative_rate'])))
+
+  def test_scaffold_assets_with_invalid_tfdv_source(self):
+    with self.assertRaisesWithLiteralMatch(
+        ValueError, 'Only one of TfdvSource.features_include and '
+        'TfdvSource.features_exclude should be set.'):
+      model_card_toolkit.ModelCardToolkit(
+          source=src.Source(
+              tfdv=src.TfdvSource(
+                  features_include=['brand_confidence'],
+                  features_exclude=['brand_prominence'])))
 
   def test_update_model_card_with_valid_model_card(self):
     mct = model_card_toolkit.ModelCardToolkit(output_dir=self.tmpdir)

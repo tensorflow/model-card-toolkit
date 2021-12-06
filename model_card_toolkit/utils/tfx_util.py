@@ -15,7 +15,7 @@
 
 import enum
 import os
-from typing import Any, Dict, Iterable, List, Optional, Text, Union
+from typing import Any, Dict, Iterable, List, Optional, Sequence, Text, Union
 
 from absl import logging
 import attr
@@ -519,3 +519,82 @@ def filter_metrics(
       data_location=eval_result.data_location,
       file_format=eval_result.file_format,
       model_location=eval_result.model_location)
+
+
+def filter_features(
+    dataset_stats: statistics_pb2.DatasetFeatureStatistics,
+    features_include: Optional[Sequence[Text]] = None,
+    features_exclude: Optional[Sequence[Text]] = None
+) -> statistics_pb2.DatasetFeatureStatistics:
+  """Filters features in a TFDV DatasetFeatureStatistics.
+
+  Args:
+    dataset_stats: The TFDV DatasetFeatureStatistics object.
+    features_include: The names or paths of features to keep. Mutually exclusive
+      with features_exclude.
+    features_exclude: The names or paths of features to discard. Mutually
+      exclusive with features_include.
+
+  Returns:
+    The DatasetFeatureStatisticsList with unwanted features filtered.
+
+  Raises:
+    ValueError: if both or neither of features_include and features_exclude are
+      provided.
+  """
+
+  # Check that inputs are valid, and create filter function
+  feature_name = lambda feature: feature.name or feature.path.step[0]
+  if features_include and not features_exclude:
+    include = lambda feature: feature_name(feature) in features_include
+  elif features_exclude and not features_include:
+    include = lambda feature: feature_name(feature) not in features_exclude
+  else:
+    raise ValueError('filter_features() requires exactly one of '
+                     'features_include and features_exclude.')
+
+  # Create new DatasetFeatureStatistics
+  filtered_data_stats = statistics_pb2.DatasetFeatureStatistics()
+  filtered_data_stats.CopyFrom(dataset_stats)
+
+  # Filter out features, and write to DatasetFeatureStatistics
+  filtered_features = [
+      feature for feature in dataset_stats.features if include(feature)
+  ]
+  del filtered_data_stats.features[:]
+  filtered_data_stats.features.extend(filtered_features)
+
+  # Return filtered DatasetFeatureStatistics
+  return filtered_data_stats
+
+
+def read_stats_protos_and_filter_features(
+    stats_artifact_uri: Text, features_include: Optional[Sequence[Text]] = None,
+    features_exclude: Optional[List[Text]] = None
+) -> List[statistics_pb2.DatasetFeatureStatisticsList]:
+  """Reads DatasetFeatureStatisticsList protos and filters features.
+
+  Args:
+    stats_artifact_uri: the output artifact path of a StatsGen component.
+    features_include: The names or paths of features to keep. Mutually exclusive
+      with features_exclude.
+    features_exclude: The names or paths of features to discard. Mutually
+      exclusive with features_include.
+
+  Returns:
+    A list of DatasetFeatureStatisticsList from the provided path, with unwanted
+      features filtered.
+
+  Raises:
+    ValueError: if both or neither of features_include and features_exclude are
+      provided.
+  """
+  data_stats = read_stats_protos(stats_artifact_uri)
+  for dsfl in data_stats:
+    filtered_datasets = [
+        filter_features(dataset, features_include, features_exclude)
+        for dataset in dsfl.datasets
+    ]
+    del dsfl.datasets[:]
+    dsfl.datasets.extend(filtered_datasets)
+  return data_stats

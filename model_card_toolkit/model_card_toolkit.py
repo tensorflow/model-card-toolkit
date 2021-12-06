@@ -123,6 +123,9 @@ class ModelCardToolkit():
     if source and source.tfma.metrics_include and source.tfma.metrics_exclude:
       raise ValueError('Only one of TfmaSource.metrics_include and '
                        'TfmaSource.metrics_exclude should be set.')
+    if source and source.tfdv.features_include and source.tfdv.features_exclude:
+      raise ValueError('Only one of TfdvSource.features_include and '
+                       'TfdvSource.features_exclude should be set.')
 
     self.output_dir = output_dir or tempfile.mkdtemp()
     self._mcta_proto_file = os.path.join(self.output_dir, _MCTA_PROTO_FILE)
@@ -221,7 +224,12 @@ class ModelCardToolkit():
     if self._source:
       if self._source.tfdv.dataset_statistics_paths:
         for dataset_stats_path in self._source.tfdv.dataset_statistics_paths:
-          data_stats = tfx_util.read_stats_protos(dataset_stats_path)
+          if self._source.tfdv.features_include or self._source.tfdv.features_exclude:
+            data_stats = tfx_util.read_stats_protos_and_filter_features(
+                dataset_stats_path, self._source.tfdv.features_include,
+                self._source.tfdv.features_exclude)
+          else:
+            data_stats = tfx_util.read_stats_protos(dataset_stats_path)
           graphics.annotate_dataset_feature_statistics_plots(
               model_card, data_stats)
     if self._store:
