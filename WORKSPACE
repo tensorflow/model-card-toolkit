@@ -10,8 +10,11 @@ http_archive(
         "https://github.com/bazelbuild/rules_proto/archive/97d8af4dc474595af3900dd85cb3a29ad28cc313.tar.gz",
     ],
 )
+
 load("@rules_proto//proto:repositories.bzl", "rules_proto_dependencies", "rules_proto_toolchains")
+
 rules_proto_dependencies()
+
 rules_proto_toolchains()
 
 git_repository(
@@ -19,5 +22,7 @@ git_repository(
     remote = "https://github.com/protocolbuffers/protobuf",
     tag = "v3.10.0",
 )
+
 load("@com_google_protobuf//:protobuf_deps.bzl", "protobuf_deps")
+
 protobuf_deps()

@@ -17,5 +17,5 @@ licenses(["notice"])
 sh_binary(
     name = "move_generated_files",
     srcs = ["move_generated_files.sh"],
-    data = ["//model_card_toolkit/proto:model_card_py_pb2"]
+    data = ["//model_card_toolkit/proto:model_card_py_pb2"],
 )

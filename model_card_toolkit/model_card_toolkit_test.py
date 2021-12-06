@@ -19,6 +19,7 @@ from unittest import mock
 import uuid
 
 from absl.testing import absltest
+from absl.testing import parameterized
 import apache_beam as beam
 
 from model_card_toolkit import model_card
@@ -32,7 +33,6 @@ import tensorflow_model_analysis as tfma
 from tensorflow_model_analysis.eval_saved_model.example_trainers import fixed_prediction_estimator
 from tfx_bsl.tfxio import raw_tf_record
 
-from absl.testing import parameterized
 from tensorflow_metadata.proto.v0 import statistics_pb2
 
 
