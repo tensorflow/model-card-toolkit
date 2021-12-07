@@ -75,7 +75,7 @@ class ModelCardToolkit():
   ```python
   import model_card_toolkit
 
-  # Initialize the Model Card Toolkit with a path to store generate assets
+  # Initialize the Model Card Toolkit with a path to store generated assets
   model_card_output_path = ...
   mct = model_card_toolkit.ModelCardToolkit(model_card_output_path)
 
