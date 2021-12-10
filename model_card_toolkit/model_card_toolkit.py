@@ -169,8 +169,10 @@ class ModelCardToolkit():
       else:
         f.write(model_card.SerializeToString())
 
-  def _read_proto_file(self, path: Text) -> ModelCard:
+  def _read_proto_file(self, path: Text) -> Optional[ModelCard]:
     """Read serialized model card proto from the path."""
+    if not os.path.exists(path):
+      return None
     model_card_proto = model_card_pb2.ModelCard()
     with open(path, 'rb') as f:
       model_card_proto.ParseFromString(f.read())
@@ -328,12 +330,12 @@ class ModelCardToolkit():
     if model_card:
       self.update_model_card(model_card)
     # If model_card is not passed in, read from Proto file.
-    elif os.path.exists(self._mcta_proto_file):
-      model_card = self._read_proto_file(self._mcta_proto_file)
-    # If model card proto never created, raise exception.
     else:
-      raise ValueError(
-          'scaffold_assets() must be called before export_format().')
+      model_card = self._read_proto_file(self._mcta_proto_file)
+      if not model_card:
+        raise ValueError(
+            'model_card could not be found. '
+            'Call scaffold_assets() to generate model_card.')
 
     # Generate Model Card.
     jinja_env = jinja2.Environment(
