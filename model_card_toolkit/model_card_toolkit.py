@@ -33,8 +33,6 @@ from model_card_toolkit.utils import source as src
 from model_card_toolkit.utils import tfx_util
 import tensorflow_model_analysis as tfma
 
-import ml_metadata as mlmd
-
 # Constants about provided UI templates.
 _UI_TEMPLATES = (
     'template/html/default_template.html.jinja',
@@ -91,12 +89,11 @@ class ModelCardToolkit():
   ```
   """
 
-  # TODO(b/188707257): combine mlmd_store and model_uri args
   def __init__(self,
                output_dir: Optional[Text] = None,
-               mlmd_store: Optional[mlmd.MetadataStore] = None,
-               model_uri: Optional[Text] = None,
-               source: Optional[src.Source] = None):
+               mlmd_source: Optional[src.MlmdSource] = None,
+               source: Optional[src.Source] = None,
+               ):
     """Initializes the ModelCardToolkit.
 
     This function does not generate any assets by itself. Use the other API
@@ -106,19 +103,16 @@ class ModelCardToolkit():
     Args:
       output_dir: The path where MCT assets (such as data files and model cards)
         are written to. If not provided, a temp directory is used.
-      mlmd_store: A ml-metadata MetadataStore to retrieve metadata and lineage
-        information about the model stored at `model_uri`. If given, a set of
-        model card properties can be auto-populated from the `mlmd_store`.
-      model_uri: The path to the trained model to generate model cards. Ignored
-        if mlmd_store is not used.
+      mlmd_source: The ML Metadata Store to retrieve metadata and lineage
+        information about the model. If given, a set of
+        model card properties can be auto-populated from the `store`.
       source: A collection of sources to extract data for a model card. This can
-        be used instead of `mlmd_store`, or alongside it. Useful when using
+        be used instead of `mlmd_source`, or alongside it. Useful when using
         tools like TensorFlow Model Analysis and Data Validation without writing
         to a MLMD store.
 
     Raises:
-      ValueError: If `mlmd_store` is given and the `model_uri` cannot be
-        resolved as a model artifact in the metadata store.
+      ValueError: If a model cannot be found at mlmd_source.model_uri.
     """
     if source and source.tfma.metrics_include and source.tfma.metrics_exclude:
       raise ValueError('Only one of TfmaSource.metrics_include and '
@@ -132,24 +126,35 @@ class ModelCardToolkit():
     self._mcta_template_dir = os.path.join(self.output_dir, _MCTA_TEMPLATE_DIR)
     self._model_cards_dir = os.path.join(self.output_dir, _MODEL_CARDS_DIR)
     self._source = source
+    self._store = None
+    self._artifact_with_model_uri = None
+    if mlmd_source:
+      self._process_mlmd_source(mlmd_source)
 
-    # if mlmd_store and model_uri are both set, use them
-    self._store = mlmd_store
-    if mlmd_store and model_uri:
-      models = self._store.get_artifacts_by_uri(model_uri)
-      if not models:
-        raise ValueError(f'"{model_uri}" cannot be found in the `mlmd_store`.')
-      if len(models) > 1:
-        logging.info(
-            '%d artifacts are found with the `model_uri`="%s". '
-            'The last one is used.', len(models), model_uri)
-      self._artifact_with_model_uri = models[-1]
-    elif mlmd_store and not model_uri:
-      raise ValueError('If `mlmd_store` is set, `model_uri` should be set.')
-    elif model_uri and not mlmd_store:
-      logging.info('`model_uri` ignored when `mlmd_store` is not set.')
+  def _process_mlmd_source(self, mlmd_source: src.MlmdSource) -> None:
+    """Process the MLMD source.
 
-  def _jinja_loader(self, template_dir: Text):
+    This gets the MLMD store, and the artifact corresponding to model_uri.
+
+    Args:
+      mlmd_source: The ML Metadata Store to retrieve metadata and lineage
+        information about the model.
+
+    Raises:
+      ValueError: If a model cannot be found at mlmd_source.model_uri.
+    """
+    self._store = mlmd_source.store
+    models = self._store.get_artifacts_by_uri(mlmd_source.model_uri)
+    if not models:
+      raise ValueError(
+          f'"{mlmd_source.model_uri}" cannot be found in the `store`.')
+    if len(models) > 1:
+      logging.info(
+          '%d artifacts are found with the `model_uri`="%s". '
+          'The last one is used.', len(models), mlmd_source.model_uri)
+    self._artifact_with_model_uri = models[-1]
+
+  def _jinja_loader(self, template_dir: Text) -> jinja2.FileSystemLoader:
     return jinja2.FileSystemLoader(template_dir)
 
   def _write_file(self, path: Text, content: Text) -> None:

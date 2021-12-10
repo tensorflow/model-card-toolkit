@@ -7,6 +7,21 @@ populate a ModelCard.
 import dataclasses
 from typing import List, Optional, Text
 
+import ml_metadata as mlmd
+
+
+@dataclasses.dataclass
+class MlmdSource:
+  """MLMD source to populate a model card.
+
+  Attributes:
+    store: A ml-metadata MetadataStore to retrieve metadata and lineage
+      information about the model.
+    model_uri: The path to the trained model used to generate the model card.
+  """
+  store: mlmd.MetadataStore
+  model_uri: Text
+
 
 @dataclasses.dataclass
 class TfmaSource:
@@ -15,14 +30,12 @@ class TfmaSource:
   Attributes:
     eval_result_paths: The paths to the eval result output from TensorFlow Model
       Analysis or TFX Evaluator.
-    file_format: Optional file extension to filter eval result files
-      by.
+    file_format: Optional file extension to filter eval result files by.
     metrics_include: The list of metric names to include in the model card. By
       default, all metrics are included. Mutually exclusive with
       metrics_exclude.
     metrics_exclude: The list of metric names to exclude in the model card. By
-      default, no metrics are excluded. Mutually exclusive with
-      metrics_include.
+      default, no metrics are excluded. Mutually exclusive with metrics_include.
   """
   eval_result_paths: List[Text] = dataclasses.field(default_factory=list)
   file_format: Optional[Text] = ''

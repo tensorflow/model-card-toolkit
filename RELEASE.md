@@ -10,6 +10,7 @@
 * Add `model_card.model_details.path` field.
 * Add `model_card_toolkit.util.source` module, containing config options to populate a ModelCard even without MLMD.
 * Add `input_format_map` and `output_format_map` fields. These render inputs and outputs in tabular form..
+* Add `model_card_toolkit.utils.source.MlmdSource` to bundle `mlmd_store` and `model_uri` args.
 
 ## Bug fixes and other changes
 

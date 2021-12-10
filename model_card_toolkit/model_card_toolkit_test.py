@@ -144,20 +144,13 @@ class ModelCardToolkitTest(
     with open(eval_stats_file, mode='wb') as f:
       f.write(eval_stats_list.SerializeToString())
 
-  def test_init_with_store_no_model_uri(self):
-    store = testdata_utils.get_tfx_pipeline_metadata_store(self.tmp_db_path)
-    with self.assertRaisesRegex(
-        ValueError, 'If `mlmd_store` is set, `model_uri` should be set.'):
-      model_card_toolkit.ModelCardToolkit(
-          output_dir=self.tmpdir, mlmd_store=store)
-
   def test_init_with_store_model_uri_not_found(self):
     store = testdata_utils.get_tfx_pipeline_metadata_store(self.tmp_db_path)
     unknown_model = 'unknown_model'
     with self.assertRaisesRegex(
-        ValueError, f'"{unknown_model}" cannot be found in the `mlmd_store`'):
+        ValueError, f'"{unknown_model}" cannot be found in the `store`'):
       model_card_toolkit.ModelCardToolkit(
-          mlmd_store=store, model_uri=unknown_model)
+          mlmd_source=src.MlmdSource(store=store, model_uri=unknown_model))
 
   def test_scaffold_assets(self):
     output_dir = self.tmpdir
@@ -182,8 +175,8 @@ class ModelCardToolkitTest(
     store = testdata_utils.get_tfx_pipeline_metadata_store(self.tmp_db_path)
     mct = model_card_toolkit.ModelCardToolkit(
         output_dir=output_dir,
-        mlmd_store=store,
-        model_uri=testdata_utils.TFX_0_21_MODEL_URI)
+        mlmd_source=src.MlmdSource(
+            store=store, model_uri=testdata_utils.TFX_0_21_MODEL_URI))
     mc = mct.scaffold_assets()
     self.assertIsNotNone(mc.model_details.name)
     self.assertIsNotNone(mc.model_details.version.name)
@@ -304,8 +297,8 @@ class ModelCardToolkitTest(
     store = testdata_utils.get_tfx_pipeline_metadata_store(self.tmp_db_path)
     mct = model_card_toolkit.ModelCardToolkit(
         output_dir=self.tmpdir,
-        mlmd_store=store,
-        model_uri=testdata_utils.TFX_0_21_MODEL_URI)
+        mlmd_source=src.MlmdSource(
+            store=store, model_uri=testdata_utils.TFX_0_21_MODEL_URI))
     mc = mct.scaffold_assets()
     mc.model_details.name = 'My Model'
     mct.update_model_card(mc)
