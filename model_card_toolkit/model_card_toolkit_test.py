@@ -14,7 +14,7 @@
 """Tests for model_card_toolkit."""
 
 import os
-from typing import List, Text
+from typing import List, Optional, Text
 from unittest import mock
 import uuid
 
@@ -31,8 +31,11 @@ from model_card_toolkit.utils.testdata import testdata_utils
 
 import tensorflow_model_analysis as tfma
 from tensorflow_model_analysis.eval_saved_model.example_trainers import fixed_prediction_estimator
+from tfx.types import standard_artifacts
 from tfx_bsl.tfxio import raw_tf_record
 
+import ml_metadata as mlmd
+from ml_metadata.proto import metadata_store_pb2
 from tensorflow_metadata.proto.v0 import statistics_pb2
 
 
@@ -49,7 +52,10 @@ class ModelCardToolkitTest(
     if not os.path.exists(self.tmpdir):
       os.makedirs(self.tmpdir)
 
-  def _write_tfma(self, tfma_path: Text, output_file_format: Text):
+  def _write_tfma(self,
+                  tfma_path: Text,
+                  output_file_format: Text,
+                  store: Optional[mlmd.MetadataStore] = None):
     _, eval_saved_model_path = (
         fixed_prediction_estimator.simple_fixed_prediction_estimator(
             export_path=None,
@@ -105,9 +111,23 @@ class ModelCardToolkitTest(
               evaluators=evaluators,
               writers=writers))
 
-  def _write_tfdv(self, tfdv_path: Text, train_dataset_name: Text,
-                  train_features: List[Text], eval_dataset_name: Text,
-                  eval_features: List[Text]):
+    if store:
+      eval_type = metadata_store_pb2.ArtifactType()
+      eval_type.name = standard_artifacts.ModelEvaluation.TYPE_NAME
+      eval_type_id = store.put_artifact_type(eval_type)
+
+      artifact = metadata_store_pb2.Artifact()
+      artifact.uri = tfma_path
+      artifact.type_id = eval_type_id
+      store.put_artifacts([artifact])
+
+  def _write_tfdv(self,
+                  tfdv_path: Text,
+                  train_dataset_name: Text,
+                  train_features: List[Text],
+                  eval_dataset_name: Text,
+                  eval_features: List[Text],
+                  store: Optional[mlmd.MetadataStore] = None):
 
     a_bucket = statistics_pb2.RankHistogram.Bucket(
         low_rank=0, high_rank=0, label='a', sample_count=4.0)
@@ -143,6 +163,16 @@ class ModelCardToolkitTest(
     os.makedirs(os.path.dirname(eval_stats_file), exist_ok=True)
     with open(eval_stats_file, mode='wb') as f:
       f.write(eval_stats_list.SerializeToString())
+
+    if store:
+      stats_type = metadata_store_pb2.ArtifactType()
+      stats_type.name = standard_artifacts.ExampleStatistics.TYPE_NAME
+      stats_type_id = store.put_artifact_type(stats_type)
+
+      artifact = metadata_store_pb2.Artifact()
+      artifact.uri = tfdv_path
+      artifact.type_id = stats_type_id
+      store.put_artifacts([artifact])
 
   def test_init_with_store_model_uri_not_found(self):
     store = testdata_utils.get_tfx_pipeline_metadata_store(self.tmp_db_path)
@@ -187,8 +217,17 @@ class ModelCardToolkitTest(
     self.assertEqual(mock_annotate_data_stats.call_count, num_stat_artifacts)
     self.assertEqual(mock_annotate_eval_results.call_count, num_eval_artifacts)
 
-  @parameterized.parameters('', 'tfrecord')
-  def test_scaffold_assets_with_source(self, output_file_format: Text):
+  @parameterized.parameters(('', True), ('', False), ('tfrecord', True),
+                            ('tfrecord', False))
+  def test_scaffold_assets_with_source(self, output_file_format: Text,
+                                       artifacts: bool):
+    if artifacts:
+      connection_config = metadata_store_pb2.ConnectionConfig()
+      connection_config.fake_database.SetInParent()
+      mlmd_store = mlmd.MetadataStore(connection_config)
+    else:
+      mlmd_store = None
+
     train_dataset_name = 'Dataset-Split-train'
     train_features = ['feature_name1']
     eval_dataset_name = 'Dataset-Split-eval'
@@ -196,28 +235,37 @@ class ModelCardToolkitTest(
 
     tfma_path = os.path.join(self.tmpdir, 'tfma')
     tfdv_path = os.path.join(self.tmpdir, 'tfdv')
-    self._write_tfma(tfma_path, output_file_format)
+    self._write_tfma(tfma_path, output_file_format, mlmd_store)
     self._write_tfdv(tfdv_path, train_dataset_name, train_features,
-                     eval_dataset_name, eval_features)
+                     eval_dataset_name, eval_features, mlmd_store)
 
-    mct_dir = os.path.join(self.tmpdir, 'mct')
-    mct = model_card_toolkit.ModelCardToolkit(
-        output_dir=mct_dir,
-        source=src.Source(
-            tfma=src.TfmaSource(
-                eval_result_paths=[tfma_path],
-                metrics_exclude=['average_loss']),
-            tfdv=src.TfdvSource(
-                dataset_statistics_paths=[tfdv_path],
-                features_include=['feature_name1'])))
-    mc = mct.scaffold_assets()
+    if artifacts:
+      model_evaluation_artifacts = mlmd_store.get_artifacts_by_type(
+          standard_artifacts.ModelEvaluation.TYPE_NAME)
+      example_statistics_artifacts = mlmd_store.get_artifacts_by_type(
+          standard_artifacts.ExampleStatistics.TYPE_NAME)
+      source = src.Source(
+          tfma=src.TfmaSource(
+              model_evaluation_artifacts=model_evaluation_artifacts,
+              metrics_exclude=['average_loss']),
+          tfdv=src.TfdvSource(
+              example_statistics_artifacts=example_statistics_artifacts,
+              features_include=['feature_name1']))
+    else:
+      source = src.Source(
+          tfma=src.TfmaSource(
+              eval_result_paths=[tfma_path], metrics_exclude=['average_loss']),
+          tfdv=src.TfdvSource(
+              dataset_statistics_paths=[tfdv_path],
+              features_include=['feature_name1']))
+    mc = model_card_toolkit.ModelCardToolkit(source=source).scaffold_assets()
 
-    list_to_proto = lambda lst: [x.to_proto() for x in lst]
-    expected_performance_metrics = [
-        model_card.PerformanceMetric(
-            type='post_export_metrics/example_count', value='2.0')
-    ]
     with self.subTest(name='quantitative_analysis'):
+      list_to_proto = lambda lst: [x.to_proto() for x in lst]
+      expected_performance_metrics = [
+          model_card.PerformanceMetric(
+              type='post_export_metrics/example_count', value='2.0')
+      ]
       self.assertCountEqual(
           list_to_proto(mc.quantitative_analysis.performance_metrics),
           list_to_proto(expected_performance_metrics))
@@ -255,6 +303,7 @@ class ModelCardToolkitTest(
       model_card_toolkit.ModelCardToolkit(
           source=src.Source(
               tfma=src.TfmaSource(
+                  eval_result_paths=['dummy/path'],
                   metrics_include=['false_positive_rate'],
                   metrics_exclude=['false_negative_rate'])))
 
@@ -265,6 +314,7 @@ class ModelCardToolkitTest(
       model_card_toolkit.ModelCardToolkit(
           source=src.Source(
               tfdv=src.TfdvSource(
+                  dataset_statistics_paths=['dummy/path'],
                   features_include=['brand_confidence'],
                   features_exclude=['brand_prominence'])))
 

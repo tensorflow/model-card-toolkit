@@ -89,11 +89,12 @@ class ModelCardToolkit():
   ```
   """
 
-  def __init__(self,
-               output_dir: Optional[Text] = None,
-               mlmd_source: Optional[src.MlmdSource] = None,
-               source: Optional[src.Source] = None,
-               ):
+  def __init__(
+      self,
+      output_dir: Optional[Text] = None,
+      mlmd_source: Optional[src.MlmdSource] = None,
+      source: Optional[src.Source] = None,
+  ):
     """Initializes the ModelCardToolkit.
 
     This function does not generate any assets by itself. Use the other API
@@ -104,8 +105,8 @@ class ModelCardToolkit():
       output_dir: The path where MCT assets (such as data files and model cards)
         are written to. If not provided, a temp directory is used.
       mlmd_source: The ML Metadata Store to retrieve metadata and lineage
-        information about the model. If given, a set of
-        model card properties can be auto-populated from the `store`.
+        information about the model. If given, a set of model card properties
+        can be auto-populated from the `store`.
       source: A collection of sources to extract data for a model card. This can
         be used instead of `mlmd_source`, or alongside it. Useful when using
         tools like TensorFlow Model Analysis and Data Validation without writing
@@ -114,12 +115,6 @@ class ModelCardToolkit():
     Raises:
       ValueError: If a model cannot be found at mlmd_source.model_uri.
     """
-    if source and source.tfma.metrics_include and source.tfma.metrics_exclude:
-      raise ValueError('Only one of TfmaSource.metrics_include and '
-                       'TfmaSource.metrics_exclude should be set.')
-    if source and source.tfdv.features_include and source.tfdv.features_exclude:
-      raise ValueError('Only one of TfdvSource.features_include and '
-                       'TfdvSource.features_exclude should be set.')
 
     self.output_dir = output_dir or tempfile.mkdtemp()
     self._mcta_proto_file = os.path.join(self.output_dir, _MCTA_PROTO_FILE)
@@ -183,6 +178,85 @@ class ModelCardToolkit():
       model_card_proto.ParseFromString(f.read())
     return ModelCard().copy_from_proto(model_card_proto)
 
+  def _annotate_eval_results(self, model_card: ModelCard) -> ModelCard:
+    """Annotates a model card with info from TFMA evaluation results.
+
+    The eval results are annotated as PerformanceMetrics in the model_card.
+    Graphics are also generated and appended to the QuantitativeAnalysis
+    section.
+
+    EvalResults are read from both TfmaSource or MlmdSource, whichever is
+    provided. Using both may cause duplicates to be recorded. If neither is
+    provided, this function will be a no-op.
+
+    Args:
+      model_card: The model card object to annotate with TFMA EvalResult
+        metrics.
+
+    Returns:
+      The model_card with eval result metrics annotated.
+    """
+    if self._source and self._source.tfma:
+      for eval_result_path in self._source.tfma.eval_result_paths:
+        eval_result = tfma.load_eval_result(
+            output_path=eval_result_path,
+            output_file_format=self._source.tfma.file_format)
+        if eval_result:
+          logging.info('EvalResult found at path %s', eval_result_path)
+          if self._source.tfma.metrics_include or self._source.tfma.metrics_exclude:
+            eval_result = tfx_util.filter_metrics(
+                eval_result, self._source.tfma.metrics_include,
+                self._source.tfma.metrics_exclude)
+          tfx_util.annotate_eval_result_metrics(model_card, eval_result)
+          graphics.annotate_eval_result_plots(model_card, eval_result)
+        else:
+          logging.info('EvalResult not found at path %s', eval_result_path)
+    if self._store:
+      metrics_artifacts = tfx_util.get_metrics_artifacts_for_model(
+          self._store, self._artifact_with_model_uri.id)
+      for metrics_artifact in metrics_artifacts:
+        eval_result = tfx_util.read_metrics_eval_result(metrics_artifact.uri)
+        if eval_result is not None:
+          tfx_util.annotate_eval_result_metrics(model_card, eval_result)
+          graphics.annotate_eval_result_plots(model_card, eval_result)
+    return model_card
+
+  def _annotate_dataset_statistics(self, model_card: ModelCard) -> ModelCard:
+    """Annotates a model card with info from TFDV dataset statistics.
+
+    Graphics for the dataset statistics are generated and appended to the
+    Dataset section.
+
+    Dataset statistics are read from both TfdvSource or MlmdSource, whichever is
+    provided. Using both may cause duplicates to be recorded. If neither is
+    provided, this function will be a no-op.
+
+    Args:
+      model_card: The model card object to annotate with TFDV dataset
+        statistics.
+
+    Returns:
+      The model_card with dataset statistics annotated.
+    """
+    if self._source and self._source.tfdv:
+      for dataset_stats_path in self._source.tfdv.dataset_statistics_paths:
+        if self._source.tfdv.features_include or self._source.tfdv.features_exclude:
+          data_stats = tfx_util.read_stats_protos_and_filter_features(
+              dataset_stats_path, self._source.tfdv.features_include,
+              self._source.tfdv.features_exclude)
+        else:
+          data_stats = tfx_util.read_stats_protos(dataset_stats_path)
+        graphics.annotate_dataset_feature_statistics_plots(
+            model_card, data_stats)
+    if self._store:
+      stats_artifacts = tfx_util.get_stats_artifacts_for_model(
+          self._store, self._artifact_with_model_uri.id)
+      for stats_artifact in stats_artifacts:
+        data_stats = tfx_util.read_stats_protos(stats_artifact.uri)
+        graphics.annotate_dataset_feature_statistics_plots(
+            model_card, data_stats)
+    return model_card
+
   def _scaffold_model_card(self) -> ModelCard:
     """Generates the ModelCard for scaffold_assets().
 
@@ -200,53 +274,8 @@ class ModelCardToolkit():
           self._store, self._artifact_with_model_uri.id)
     else:
       model_card = ModelCard()
-
-    # Generate graphics for TFMA's `EvalResult`s
-    if self._source:
-      if self._source.tfma.eval_result_paths:
-        for eval_result_path in self._source.tfma.eval_result_paths:
-          eval_result = tfma.load_eval_result(
-              output_path=eval_result_path,
-              output_file_format=self._source.tfma.file_format)
-          if eval_result:
-            logging.info('EvalResult found at path %s', eval_result_path)
-            if self._source.tfma.metrics_include or self._source.tfma.metrics_exclude:
-              eval_result = tfx_util.filter_metrics(
-                  eval_result, self._source.tfma.metrics_include,
-                  self._source.tfma.metrics_exclude)
-            tfx_util.annotate_eval_result_metrics(model_card, eval_result)
-            graphics.annotate_eval_result_plots(model_card, eval_result)
-          else:
-            logging.info('EvalResult not found at path %s', eval_result_path)
-    if self._store:
-      metrics_artifacts = tfx_util.get_metrics_artifacts_for_model(
-          self._store, self._artifact_with_model_uri.id)
-      for metrics_artifact in metrics_artifacts:
-        eval_result = tfx_util.read_metrics_eval_result(metrics_artifact.uri)
-        if eval_result is not None:
-          tfx_util.annotate_eval_result_metrics(model_card, eval_result)
-          graphics.annotate_eval_result_plots(model_card, eval_result)
-
-    # Generate graphics for TFDV's `DatasetFeatureStatisticsList`s
-    if self._source:
-      if self._source.tfdv.dataset_statistics_paths:
-        for dataset_stats_path in self._source.tfdv.dataset_statistics_paths:
-          if self._source.tfdv.features_include or self._source.tfdv.features_exclude:
-            data_stats = tfx_util.read_stats_protos_and_filter_features(
-                dataset_stats_path, self._source.tfdv.features_include,
-                self._source.tfdv.features_exclude)
-          else:
-            data_stats = tfx_util.read_stats_protos(dataset_stats_path)
-          graphics.annotate_dataset_feature_statistics_plots(
-              model_card, data_stats)
-    if self._store:
-      stats_artifacts = tfx_util.get_stats_artifacts_for_model(
-          self._store, self._artifact_with_model_uri.id)
-      for stats_artifact in stats_artifacts:
-        data_stats = tfx_util.read_stats_protos(stats_artifact.uri)
-        graphics.annotate_dataset_feature_statistics_plots(
-            model_card, data_stats)
-
+    model_card = self._annotate_eval_results(model_card)
+    model_card = self._annotate_dataset_statistics(model_card)
     return model_card
 
   def scaffold_assets(self) -> ModelCard:
@@ -338,9 +367,8 @@ class ModelCardToolkit():
     else:
       model_card = self._read_proto_file(self._mcta_proto_file)
       if not model_card:
-        raise ValueError(
-            'model_card could not be found. '
-            'Call scaffold_assets() to generate model_card.')
+        raise ValueError('model_card could not be found. '
+                         'Call scaffold_assets() to generate model_card.')
 
     # Generate Model Card.
     jinja_env = jinja2.Environment(

@@ -11,6 +11,7 @@
 * Add `model_card_toolkit.util.source` module, containing config options to populate a ModelCard even without MLMD.
 * Add `input_format_map` and `output_format_map` fields. These render inputs and outputs in tabular form..
 * Add `model_card_toolkit.utils.source.MlmdSource` to bundle `mlmd_store` and `model_uri` args.
+* Add `model_evaluation_artifact` and `example_statistics_artifact`, allowing users to pass in [TFX standard artifacts](https://www.tensorflow.org/tfx/api_docs/python/tfx/v1/types/standard_artifacts) directly.
 
 ## Bug fixes and other changes
 
