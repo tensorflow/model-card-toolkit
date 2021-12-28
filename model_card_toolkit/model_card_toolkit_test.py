@@ -235,6 +235,7 @@ class ModelCardToolkitTest(
 
     tfma_path = os.path.join(self.tmpdir, 'tfma')
     tfdv_path = os.path.join(self.tmpdir, 'tfdv')
+    pushed_model_path = os.path.join(self.tmpdir, 'pushed_model')
     self._write_tfma(tfma_path, output_file_format, mlmd_store)
     self._write_tfdv(tfdv_path, train_dataset_name, train_features,
                      eval_dataset_name, eval_features, mlmd_store)
@@ -244,21 +245,26 @@ class ModelCardToolkitTest(
           standard_artifacts.ModelEvaluation.TYPE_NAME)
       example_statistics_artifacts = mlmd_store.get_artifacts_by_type(
           standard_artifacts.ExampleStatistics.TYPE_NAME)
-      source = src.Source(
-          tfma=src.TfmaSource(
-              model_evaluation_artifacts=model_evaluation_artifacts,
-              metrics_exclude=['average_loss']),
-          tfdv=src.TfdvSource(
-              example_statistics_artifacts=example_statistics_artifacts,
-              features_include=['feature_name1']))
+      pushed_model_artifact = standard_artifacts.PushedModel()
+      pushed_model_artifact.uri = pushed_model_path
+      tfma_src = src.TfmaSource(
+          model_evaluation_artifacts=model_evaluation_artifacts,
+          metrics_exclude=['average_loss'])
+      tfdv_src = src.TfdvSource(
+          example_statistics_artifacts=example_statistics_artifacts,
+          features_include=['feature_name1'])
+      model_src = src.ModelSource(pushed_model_artifact=pushed_model_artifact)
     else:
-      source = src.Source(
-          tfma=src.TfmaSource(
-              eval_result_paths=[tfma_path], metrics_exclude=['average_loss']),
-          tfdv=src.TfdvSource(
-              dataset_statistics_paths=[tfdv_path],
-              features_include=['feature_name1']))
-    mc = model_card_toolkit.ModelCardToolkit(source=source).scaffold_assets()
+      tfma_src = src.TfmaSource(
+          eval_result_paths=[tfma_path], metrics_exclude=['average_loss'])
+      tfdv_src = src.TfdvSource(
+          dataset_statistics_paths=[tfdv_path],
+          features_include=['feature_name1'])
+      model_src = src.ModelSource(pushed_model_path=pushed_model_path)
+
+    mc = model_card_toolkit.ModelCardToolkit(
+        source=src.Source(tfma=tfma_src, tfdv=tfdv_src,
+                          model=model_src)).scaffold_assets()
 
     with self.subTest(name='quantitative_analysis'):
       list_to_proto = lambda lst: [x.to_proto() for x in lst]
@@ -291,6 +297,9 @@ class ModelCardToolkitTest(
               graphics=model_card.GraphicsCollection(collection=[
                   model_card.Graphic(name='counts | feature_name2')
               ])), mc.model_parameters.data)
+
+    with self.subTest(name='model_details.path'):
+      self.assertEqual(mc.model_details.path, pushed_model_path)
 
   def test_scaffold_assets_with_empty_source(self):
     model_card_toolkit.ModelCardToolkit(source=src.Source()).scaffold_assets()

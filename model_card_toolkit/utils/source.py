@@ -115,12 +115,39 @@ class TfdvSource:
 
 
 @dataclasses.dataclass
+class ModelSource:
+  """Sources to extract PushedModel data for a model card.
+
+  Provide exactly one of `pushed_model_path` or `pushed_model_artifact`.
+
+  Attributes:
+    pushed_model_path: The path of a PushedModel.
+    pushed_model_artifact: The MLMD artifact for a PushedModel.
+  """
+  pushed_model_path: Optional[Text] = ''
+  pushed_model_artifact: Optional[standard_artifacts.PushedModel] = None
+
+  def __post_init__(self):
+    if self.pushed_model_path and not self.pushed_model_artifact:
+      pass
+    elif self.pushed_model_artifact and not self.pushed_model_path:
+      self.pushed_model_path = self.pushed_model_artifact.uri
+    else:
+      raise ValueError(
+          'ModelSource needs exactly one of pushed_model_path or '
+          'pushed_model_artifact.'
+      )
+
+
+@dataclasses.dataclass
 class Source:
   """Sources to extract data for a model card.
 
   Attributes:
     tfma: The source info for TFMA.
     tfdv: The source info for TFDV.
+    model: The source info for PushedModel.
   """
   tfma: Optional[TfmaSource] = None
   tfdv: Optional[TfdvSource] = None
+  model: Optional[ModelSource] = None

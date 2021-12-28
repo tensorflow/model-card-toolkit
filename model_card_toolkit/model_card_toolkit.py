@@ -257,6 +257,23 @@ class ModelCardToolkit():
             model_card, data_stats)
     return model_card
 
+  def _annotate_model(self, model_card: ModelCard) -> ModelCard:
+    """Annotates a model card with info from ModelSource.
+
+    The `PushedModel` path (either provided directly via `pushed_model_path`, or
+    through a TFX Artifact via `pushed_model_artifact`) is used to populate the
+    ModelCard's `model_details.path` field.
+
+    Args:
+      model_card: The model card object to annotate with model info.
+
+    Returns:
+      The model_card with model info annotated.
+    """
+    if self._source and self._source.model:
+      model_card.model_details.path = self._source.model.pushed_model_path
+    return model_card
+
   def _scaffold_model_card(self) -> ModelCard:
     """Generates the ModelCard for scaffold_assets().
 
@@ -276,6 +293,7 @@ class ModelCardToolkit():
       model_card = ModelCard()
     model_card = self._annotate_eval_results(model_card)
     model_card = self._annotate_dataset_statistics(model_card)
+    model_card = self._annotate_model(model_card)
     return model_card
 
   def scaffold_assets(self) -> ModelCard:
