@@ -22,8 +22,7 @@ model_card = mct.scaffold_assets()
 model_card.model_details.name = 'My Model'
 
 # Write the model card data to a file
-mct.update_model_card(model_card)       # writes to proto
-mct.update_model_card_json(model_card)  # writes to JSON
+mct.update_model_card(model_card)
 
 # Return the model card document as an HTML page, and save to file
 html = mct.export_format()
