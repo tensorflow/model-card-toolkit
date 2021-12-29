@@ -4,26 +4,43 @@
 
 ## Major Features and Improvements
 
-* `ModelCard.from_json()` added.
-* Added `model_card_toolkit.utils.tfx_util.annotate_eval_result_metrics()`. This function appends `PerformanceMetrics` to a `ModelCard` based on a `tfma.EvalResult`.
-* Added `ConfidenceInterval` class for `PerformanceMetric`s.
-* Add `model_card.model_details.path` field.
-* Add `model_card_toolkit.util.source` module, containing config options to populate a ModelCard even without MLMD.
-* Add `input_format_map` and `output_format_map` fields. These render inputs and outputs in tabular form..
-* Add `model_card_toolkit.utils.source.MlmdSource` to bundle `mlmd_store` and `model_uri` args.
-* Add `model_evaluation_artifact` and `example_statistics_artifact`, allowing users to pass in [TFX standard artifacts](https://www.tensorflow.org/tfx/api_docs/python/tfx/v1/types/standard_artifacts) directly.
-* Add `ModelSource`, allowing users to specify the path of the PushedModel.
-
 ## Bug fixes and other changes
-
-* `model_card.quantitative_analysis.performance_metrics` is now populated when a `tfma.EvalResult` is found in MLMD store.
-* `export_format()` and `update_model_card()` now accept `model_card_pb2.ModelCard`'s, in addition to `model_card.ModelCard`'s.
-* Add `tfx_util.read_stats_protos()`, which returns dataset stats protos for all splits in the provided directory.
-* Add `tfx_util.filter_metrics()` to facilitate filtering out unwanted TFMA metrics in model cards.
-* Add `tfx_util.filter_features()` and `tfx._util.read_stats_protos_and_filter_features()` to facilitate filtering out unwanted TFDV features in model cards.
 
 ## Breaking changes and Deprecations
 
+# Release 1.2.0
+
+## Major Features and Improvements
+
+* `ModelCard` updates
+  * Fields
+    * Add `model_details.path`.
+      * This is populated with the new `ModelSource` object, which stores a reference to a [TFX PushedModel](https://github.com/tensorflow/tfx/blob/0c62544df6e01bdfa222a860ec565301a19ff927/tfx/types/standard_artifacts.py#L136).
+    * Add `model_parameters.input_format_map` and `model_parameters.output_format_map`.
+      * These are key-value pairs, and are used to render inputs and outputs in tabular form. They can be used as an alternative to the singular `model_parameters.input_format` and `model_parameters.output_format` fields.
+  * Functions
+    * Add `from_json()`.
+* `model_card_toolkit.source`
+  * This is a new submodule, and is responsible for `ModelCardToolkit`'s' inputs (see [TFX standard artifacts](https://www.tensorflow.org/tfx/api_docs/python/tfx/v1/types/standard_artifacts)). It provides the following classes:
+    * `MlmdSource`: Args to extract data from TFX artifacts in MLMD. Contains the `mlmd_store` and `model_uri` args. Previously, these were args to `ModelCardToolkit`.
+    * `Source`: Args to extract data from TFX artifacts outside MLMD (by passing in a path to the artifact, or by passing in the artifact directly). Contains `tfma`, `tfdv`, and `model` args.
+
+## Bug fixes and other changes
+
+* `ModelCardToolkit`
+  * `model_card.quantitative_analysis.performance_metrics` is now populated when a `tfma.EvalResult` is found in MLMD store.
+  * `export_format()` and `update_model_card()` now accept `model_card_pb2.ModelCard`'s, in addition to `model_card.ModelCard`'s.
+* `tfx_util`
+  * Add `annotate_eval_result_metrics()`, which appends `PerformanceMetrics` to a `ModelCard` based on a `tfma.EvalResult`.
+  * Add `read_stats_protos()`, which returns dataset stats protos for all splits in the provided directory.
+  * Add `filter_metrics()` to facilitate filtering out unwanted TFMA metrics in model cards.
+  * Add `filter_features()` and `tfx._util.read_stats_protos_and_filter_features()` to facilitate filtering out unwanted TFDV features in model cards.
+* `PerformanceMetrics`
+  * Add `confidence_interval` field.
+
+## Breaking changes and Deprecations
+
+* Replace `ModelCardToolkit(output_dir, mlmd_store, model_uri)` with `ModelCardToolkit(output_dir, mlmd_source, source)`. See "Major Features and Improvements" above for details.
 * Complete deprecation of `ModelCardToolkit.update_model_card_json()`. Users should migrate to `ModelCardToolkit.update_model_card()`, which uses a proto representation. Alternatively, users can use `ModelCard.to_json()` and `ModelCard.from_json()` to interact with JSON representations.
 
 # Release 1.1.0
