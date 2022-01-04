@@ -36,6 +36,7 @@ REQUIRED_PACKAGES = [
     'jsonschema>=3.2.0,<4',
     'tensorflow-model-analysis>=0.36.0,<0.37.0',
     'tensorflow-metadata>=1.5.0,<1.6.0',
+    'tfx>=1.5.0,<1.6.0',
     'ml-metadata>=1.5.0,<1.6.0',
     'dataclasses;python_version<"3.7"',
 ]
