@@ -369,7 +369,7 @@ class ModelCardToolkit():
       The model card file content.
 
     Raises:
-      MCTError: If `export_format` is called before `scaffold_assets` has
+      ValueError: If `export_format` is called before `scaffold_assets` has
         generated model card assets.
     """
     if not template_path:
