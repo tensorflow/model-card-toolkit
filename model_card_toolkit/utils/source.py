@@ -5,7 +5,7 @@ populate a ModelCard.
 """
 
 import dataclasses
-from typing import List, Optional, Text
+from typing import List, Optional
 from tfx.types import standard_artifacts
 
 import ml_metadata as mlmd
@@ -21,7 +21,7 @@ class MlmdSource:
     model_uri: The path to the trained model used to generate the model card.
   """
   store: mlmd.MetadataStore
-  model_uri: Text
+  model_uri: str
 
 
 @dataclasses.dataclass
@@ -42,13 +42,13 @@ class TfmaSource:
     metrics_exclude: The list of metric names to exclude in the model card. By
       default, no metrics are excluded. Mutually exclusive with metrics_include.
   """
-  eval_result_paths: List[Text] = dataclasses.field(default_factory=list)
-  file_format: Optional[Text] = ''
+  eval_result_paths: List[str] = dataclasses.field(default_factory=list)
+  file_format: Optional[str] = ''
   model_evaluation_artifacts: List[
       standard_artifacts.ModelEvaluation] = dataclasses.field(
           default_factory=list)
-  metrics_include: List[Text] = dataclasses.field(default_factory=list)
-  metrics_exclude: List[Text] = dataclasses.field(default_factory=list)
+  metrics_include: List[str] = dataclasses.field(default_factory=list)
+  metrics_exclude: List[str] = dataclasses.field(default_factory=list)
 
   def __post_init__(self):
     if self.eval_result_paths and not self.model_evaluation_artifacts:
@@ -88,12 +88,12 @@ class TfdvSource:
       By default, all features are included. Mutually exclusive with
       features_include.
   """
-  dataset_statistics_paths: List[Text] = dataclasses.field(default_factory=list)
+  dataset_statistics_paths: List[str] = dataclasses.field(default_factory=list)
   example_statistics_artifacts: List[
       standard_artifacts.ExampleStatistics] = dataclasses.field(
           default_factory=list)
-  features_include: List[Text] = dataclasses.field(default_factory=list)
-  features_exclude: List[Text] = dataclasses.field(default_factory=list)
+  features_include: List[str] = dataclasses.field(default_factory=list)
+  features_exclude: List[str] = dataclasses.field(default_factory=list)
 
   def __post_init__(self):
     if self.dataset_statistics_paths and not self.example_statistics_artifacts:
@@ -124,7 +124,7 @@ class ModelSource:
     pushed_model_path: The path of a PushedModel.
     pushed_model_artifact: The MLMD artifact for a PushedModel.
   """
-  pushed_model_path: Optional[Text] = ''
+  pushed_model_path: Optional[str] = ''
   pushed_model_artifact: Optional[standard_artifacts.PushedModel] = None
 
   def __post_init__(self):

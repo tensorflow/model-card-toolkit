@@ -14,7 +14,7 @@
 """Tests for model_card_toolkit."""
 
 import os
-from typing import List, Optional, Text
+from typing import List, Optional
 from unittest import mock
 import uuid
 
@@ -53,8 +53,8 @@ class ModelCardToolkitTest(
       os.makedirs(self.tmpdir)
 
   def _write_tfma(self,
-                  tfma_path: Text,
-                  output_file_format: Text,
+                  tfma_path: str,
+                  output_file_format: str,
                   store: Optional[mlmd.MetadataStore] = None):
     _, eval_saved_model_path = (
         fixed_prediction_estimator.simple_fixed_prediction_estimator(
@@ -122,11 +122,11 @@ class ModelCardToolkitTest(
       store.put_artifacts([artifact])
 
   def _write_tfdv(self,
-                  tfdv_path: Text,
-                  train_dataset_name: Text,
-                  train_features: List[Text],
-                  eval_dataset_name: Text,
-                  eval_features: List[Text],
+                  tfdv_path: str,
+                  train_dataset_name: str,
+                  train_features: List[str],
+                  eval_dataset_name: str,
+                  eval_features: List[str],
                   store: Optional[mlmd.MetadataStore] = None):
 
     a_bucket = statistics_pb2.RankHistogram.Bucket(
@@ -219,7 +219,7 @@ class ModelCardToolkitTest(
 
   @parameterized.parameters(('', True), ('', False), ('tfrecord', True),
                             ('tfrecord', False))
-  def test_scaffold_assets_with_source(self, output_file_format: Text,
+  def test_scaffold_assets_with_source(self, output_file_format: str,
                                        artifacts: bool):
     if artifacts:
       connection_config = metadata_store_pb2.ConnectionConfig()

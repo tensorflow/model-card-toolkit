@@ -22,7 +22,7 @@ ModelCardsToolkit serves as an API to read and write MC properties by the users.
 
 import dataclasses
 import json as json_lib
-from typing import Any, Dict, List, Optional, Text
+from typing import Any, Dict, List, Optional
 
 from model_card_toolkit.base_model_card_field import BaseModelCardField
 from model_card_toolkit.proto import model_card_pb2
@@ -41,8 +41,8 @@ class Owner(BaseModelCardField):
       be individual email addresses, a team mailing list expressly, or a
       monitored feedback form.
   """
-  name: Optional[Text] = None
-  contact: Optional[Text] = None
+  name: Optional[str] = None
+  contact: Optional[str] = None
 
   _proto_type: dataclasses.InitVar[type(
       model_card_pb2.Owner)] = model_card_pb2.Owner
@@ -64,9 +64,9 @@ class Version(BaseModelCardField):
     date: The date this version was released.
     diff: The changes from the previous version.
   """
-  name: Optional[Text] = None
-  date: Optional[Text] = None
-  diff: Optional[Text] = None
+  name: Optional[str] = None
+  date: Optional[str] = None
+  diff: Optional[str] = None
 
   _proto_type: dataclasses.InitVar[type(
       model_card_pb2.Version)] = model_card_pb2.Version
@@ -81,8 +81,8 @@ class License(BaseModelCardField):
       or "proprietary" for an unlicensed Module.
     custom_text: The text of a custom license.
   """
-  identifier: Optional[Text] = None
-  custom_text: Optional[Text] = None
+  identifier: Optional[str] = None
+  custom_text: Optional[str] = None
 
   _proto_type: dataclasses.InitVar[type(
       model_card_pb2.License)] = model_card_pb2.License
@@ -95,7 +95,7 @@ class Reference(BaseModelCardField):
   Attributes:
     reference: A reference to a resource.
   """
-  reference: Optional[Text] = None
+  reference: Optional[str] = None
 
   _proto_type: dataclasses.InitVar[type(
       model_card_pb2.Reference)] = model_card_pb2.Reference
@@ -109,8 +109,8 @@ class Citation(BaseModelCardField):
     style: The citation style, such as MLA, APA, Chicago, or IEEE.
     citation: the citation.
   """
-  style: Optional[Text] = None
-  citation: Optional[Text] = None
+  style: Optional[str] = None
+  citation: Optional[str] = None
 
   _proto_type: dataclasses.InitVar[type(
       model_card_pb2.Citation)] = model_card_pb2.Citation
@@ -136,15 +136,15 @@ class ModelDetails(BaseModelCardField):
       academic research, cite the research.
     path: The path where the model is stored.
   """
-  name: Optional[Text] = None
-  overview: Optional[Text] = None
-  documentation: Optional[Text] = None
+  name: Optional[str] = None
+  overview: Optional[str] = None
+  documentation: Optional[str] = None
   owners: List[Owner] = dataclasses.field(default_factory=list)
   version: Optional[Version] = dataclasses.field(default_factory=Version)
   licenses: List[License] = dataclasses.field(default_factory=list)
   references: List[Reference] = dataclasses.field(default_factory=list)
   citations: List[Citation] = dataclasses.field(default_factory=list)
-  path: Optional[Text] = None
+  path: Optional[str] = None
 
   _proto_type: dataclasses.InitVar[type(
       model_card_pb2.ModelDetails)] = model_card_pb2.ModelDetails
@@ -158,8 +158,8 @@ class Graphic(BaseModelCardField):
     name: The name of the graphic.
     image: The image string encoded as a base64 string.
   """
-  name: Optional[Text] = None
-  image: Optional[Text] = None
+  name: Optional[str] = None
+  image: Optional[str] = None
 
   _proto_type: dataclasses.InitVar[type(
       model_card_pb2.Graphic)] = model_card_pb2.Graphic
@@ -193,7 +193,7 @@ class GraphicsCollection(BaseModelCardField):
     description: The description of graphics.
     collection: A collection of graphics.
   """
-  description: Optional[Text] = None
+  description: Optional[str] = None
   collection: List[Graphic] = dataclasses.field(default_factory=list)
 
   _proto_type: dataclasses.InitVar[type(
@@ -212,7 +212,7 @@ class SensitiveData(BaseModelCardField):
       age, race, and gender, can be used to identify individuals when
       aggregated. Please describe any such fields here.
   """
-  sensitive_data: List[Text] = dataclasses.field(default_factory=list)
+  sensitive_data: List[str] = dataclasses.field(default_factory=list)
 
   _proto_type: dataclasses.InitVar[type(
       model_card_pb2.SensitiveData)] = model_card_pb2.SensitiveData
@@ -229,9 +229,9 @@ class Dataset(BaseModelCardField):
     sensitive: Does this dataset contain human or other sensitive data?
     graphics: Visualizations of the dataset.
   """
-  name: Optional[Text] = None
-  description: Optional[Text] = None
-  link: Optional[Text] = None
+  name: Optional[str] = None
+  description: Optional[str] = None
+  link: Optional[str] = None
   sensitive: Optional[SensitiveData] = dataclasses.field(
       default_factory=SensitiveData)
   graphics: GraphicsCollection = dataclasses.field(
@@ -249,8 +249,8 @@ class KeyVal(BaseModelCardField):
     key: The key of the key-value pair.
     value: The value of the key-value pair.
   """
-  key: Optional[Text] = None
-  value: Optional[Text] = None
+  key: Optional[str] = None
+  value: Optional[str] = None
 
   _proto_type: dataclasses.InitVar[type(
       model_card_pb2.KeyVal)] = model_card_pb2.KeyVal
@@ -270,11 +270,11 @@ class ModelParameters(BaseModelCardField):
     output_format_map: describes the data format for outputs to your model, in
       key-value format
   """
-  model_architecture: Optional[Text] = None
+  model_architecture: Optional[str] = None
   data: List[Dataset] = dataclasses.field(default_factory=list)
-  input_format: Optional[Text] = None
+  input_format: Optional[str] = None
   input_format_map: List[KeyVal] = dataclasses.field(default_factory=list)
-  output_format: Optional[Text] = None
+  output_format: Optional[str] = None
   output_format_map: List[KeyVal] = dataclasses.field(default_factory=list)
 
   _proto_type: dataclasses.InitVar[type(
@@ -289,8 +289,8 @@ class ConfidenceInterval(BaseModelCardField):
     lower_bound: The lower bound of the performance metric.
     upper_bound: The upper bound of the performance metric.
   """
-  lower_bound: Optional[Text] = None
-  upper_bound: Optional[Text] = None
+  lower_bound: Optional[str] = None
+  upper_bound: Optional[str] = None
 
   _proto_type: dataclasses.InitVar[BaseModelCardField._get_type(
       model_card_pb2.ConfidenceInterval)] = model_card_pb2.ConfidenceInterval
@@ -306,9 +306,9 @@ class PerformanceMetric(BaseModelCardField):
     slice: What slice of your data was this metric computed on?
     confidence_interval: The confidence interval of the metric.
   """
-  type: Optional[Text] = None
-  value: Optional[Text] = None
-  slice: Optional[Text] = None
+  type: Optional[str] = None
+  value: Optional[str] = None
+  slice: Optional[str] = None
   confidence_interval: ConfidenceInterval = dataclasses.field(
       default_factory=ConfidenceInterval)
 
@@ -356,7 +356,7 @@ class User(BaseModelCardField):
   Attributes:
     description: A description of a user.
   """
-  description: Optional[Text] = None
+  description: Optional[str] = None
 
   _proto_type: dataclasses.InitVar[type(
       model_card_pb2.User)] = model_card_pb2.User
@@ -369,7 +369,7 @@ class UseCase(BaseModelCardField):
   Attributes:
     description: A description of a use case.
   """
-  description: Optional[Text] = None
+  description: Optional[str] = None
 
   _proto_type: dataclasses.InitVar[type(
       model_card_pb2.UseCase)] = model_card_pb2.UseCase
@@ -382,7 +382,7 @@ class Limitation(BaseModelCardField):
   Attributes:
     description: A description of the limitation.
   """
-  description: Optional[Text] = None
+  description: Optional[str] = None
 
   _proto_type: dataclasses.InitVar[type(
       model_card_pb2.Limitation)] = model_card_pb2.Limitation
@@ -395,7 +395,7 @@ class Tradeoff(BaseModelCardField):
   Attributes:
     description: A description of the tradeoff.
   """
-  description: Optional[Text] = None
+  description: Optional[str] = None
 
   _proto_type: dataclasses.InitVar[type(
       model_card_pb2.Tradeoff)] = model_card_pb2.Tradeoff
@@ -410,8 +410,8 @@ class Risk(BaseModelCardField):
     mitigation_strategy: A mitigation strategy that you've implemented, or one
       that you suggest to users.
   """
-  name: Optional[Text] = None
-  mitigation_strategy: Optional[Text] = None
+  name: Optional[str] = None
+  mitigation_strategy: Optional[str] = None
 
   _proto_type: dataclasses.InitVar[type(
       model_card_pb2.Risk)] = model_card_pb2.Risk
@@ -474,14 +474,14 @@ class ModelCard(BaseModelCardField):
   _proto_type: dataclasses.InitVar[type(
       model_card_pb2.ModelCard)] = model_card_pb2.ModelCard
 
-  def to_json(self) -> Text:
+  def to_json(self) -> str:
     """Write ModelCard to JSON."""
     model_card_dict = self.to_dict()
     model_card_dict[
         _SCHEMA_VERSION_STRING] = validation.get_latest_schema_version()
     return json_lib.dumps(model_card_dict, indent=2)
 
-  def from_json(self, json_dict: Dict[Text, Any]) -> None:
+  def from_json(self, json_dict: Dict[str, Any]) -> None:
     """Reads ModelCard from JSON.
 
     If ModelCard fields have already been set, this function will overwrite any
@@ -499,7 +499,7 @@ class ModelCard(BaseModelCardField):
         definition.
     """
 
-    def _populate_from_json(json_dict: Dict[Text, Any],
+    def _populate_from_json(json_dict: Dict[str, Any],
                             field: BaseModelCardField) -> BaseModelCardField:
       for subfield_key in json_dict:
         if subfield_key.startswith(_SCHEMA_VERSION_STRING):

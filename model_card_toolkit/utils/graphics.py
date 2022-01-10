@@ -17,7 +17,7 @@
 import base64
 import io
 import logging
-from typing import Sequence, Text, Tuple, Union, Optional
+from typing import Sequence, Tuple, Union, Optional
 
 import attr
 import matplotlib
@@ -40,18 +40,18 @@ class _Graph():
   """Model Card graph."""
 
   # Necessary data to draw a graph.
-  x: Optional[Sequence[Union[Text, int, float]]] = None
+  x: Optional[Sequence[Union[str, int, float]]] = None
   xerr: Optional[Sequence[Sequence[Union[int, float]]]] = None
-  y: Optional[Sequence[Union[Text, int, float]]] = None
-  xlabel: Optional[Text] = None
-  ylabel: Optional[Text] = None
-  title: Optional[Text] = None
-  name: Optional[Text] = None
-  color: Text = _COLOR_PALETTE['material_cyan_700']
+  y: Optional[Sequence[Union[str, int, float]]] = None
+  xlabel: Optional[str] = None
+  ylabel: Optional[str] = None
+  title: Optional[str] = None
+  name: Optional[str] = None
+  color: str = _COLOR_PALETTE['material_cyan_700']
 
   # Graph generated from the data above.
   figure: Optional[matplotlib.figure.Figure] = None
-  base64str: Optional[Text] = None
+  base64str: Optional[str] = None
 
 
 def annotate_dataset_feature_statistics_plots(
@@ -135,7 +135,7 @@ def annotate_eval_result_plots(model_card: model_card_module.ModelCard,
 
 def _extract_graph_data_from_dataset_feature_statistics(
     feature_stats: statistics_pb2.FeatureNameStatistics,
-    color: Optional[Text] = None) -> Union[_Graph, None]:
+    color: Optional[str] = None) -> Union[_Graph, None]:
   """Generates a _Graph object based on the histograms of feature_stats.
 
   Each bar in the histogram corresponds to a bucket in histogram.buckets.
@@ -192,10 +192,10 @@ def _extract_graph_data_from_dataset_feature_statistics(
 
 def _extract_graph_data_from_slicing_metrics(
     slicing_metrics: Sequence[tfma.view.SlicedMetrics],
-    metric: Text,
-    slices_key: Text = '',
-    output_name: Text = '',
-    sub_key: Text = '',
+    metric: str,
+    slices_key: str = '',
+    output_name: str = '',
+    sub_key: str = '',
 ) -> Optional[_Graph]:
   """Generates a barchart for a metric.
 
@@ -289,7 +289,7 @@ def _draw_histogram(graph: _Graph) -> Optional[_Graph]:
   try:
     # generate and open a new figure
     figure, ax = plt.subplots()
-    # When graph.x or y is Text, the histogram is ill-defined.
+    # When graph.x or y is str, the histogram is ill-defined.
     ax.barh(graph.y, graph.x, color=graph.color)
     ax.set_title(graph.title)
     if graph.xlabel:
@@ -330,19 +330,19 @@ def figure_to_base64str(fig: matplotlib.figure.Figure) -> str:
 
 
 # FeatureValueType represents a value that a feature could take.
-FeatureValueType = Union[Text, int, float]  # pylint: disable=invalid-name
+FeatureValueType = Union[str, int, float]  # pylint: disable=invalid-name
 
 # SingletonSliceKeyType is a tuple, where the first element is the key of the
 # feature, and the second element is its value. This describes a single
 # feature-value pair.
-SingletonSliceKeyType = Tuple[Text, FeatureValueType]  # pylint: disable=invalid-name
+SingletonSliceKeyType = Tuple[str, FeatureValueType]  # pylint: disable=invalid-name
 
 # SliceKeyType is a either the empty tuple (for the overal slice) or a tuple of
 # SingletonSliceKeyType. This completely describes a single slice.
 SliceKeyType = Union[Tuple[()], Tuple[SingletonSliceKeyType, ...]]  # pylint: disable=invalid-name
 
 
-def stringify_slice_key(slice_key: SliceKeyType) -> Tuple[Text, Text]:
+def stringify_slice_key(slice_key: SliceKeyType) -> Tuple[str, str]:
   """Stringifies a slice key.
 
   The string representation of a SingletonSliceKeyType is "feature:value". When

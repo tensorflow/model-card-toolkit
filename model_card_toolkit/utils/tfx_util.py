@@ -15,7 +15,7 @@
 
 import enum
 import os
-from typing import Any, Dict, Iterable, List, Optional, Sequence, Text, Union
+from typing import Any, Dict, Iterable, List, Optional, Sequence, Union
 
 from absl import logging
 import attr
@@ -471,8 +471,8 @@ def annotate_eval_result_metrics(model_card: model_card_module.ModelCard,
 
 def filter_metrics(
     eval_result: tfma.EvalResult,
-    metrics_include: Optional[List[Text]] = None,
-    metrics_exclude: Optional[List[Text]] = None) -> tfma.EvalResult:
+    metrics_include: Optional[List[str]] = None,
+    metrics_exclude: Optional[List[str]] = None) -> tfma.EvalResult:
   """Filters metrics in a TFMA EvalResult.
 
   Args:
@@ -523,8 +523,8 @@ def filter_metrics(
 
 def filter_features(
     dataset_stats: statistics_pb2.DatasetFeatureStatistics,
-    features_include: Optional[Sequence[Text]] = None,
-    features_exclude: Optional[Sequence[Text]] = None
+    features_include: Optional[Sequence[str]] = None,
+    features_exclude: Optional[Sequence[str]] = None
 ) -> statistics_pb2.DatasetFeatureStatistics:
   """Filters features in a TFDV DatasetFeatureStatistics.
 
@@ -569,9 +569,9 @@ def filter_features(
 
 
 def read_stats_protos_and_filter_features(
-    stats_artifact_uri: Text,
-    features_include: Optional[Sequence[Text]] = None,
-    features_exclude: Optional[List[Text]] = None
+    stats_artifact_uri: str,
+    features_include: Optional[Sequence[str]] = None,
+    features_exclude: Optional[List[str]] = None
 ) -> List[statistics_pb2.DatasetFeatureStatisticsList]:
   """Reads DatasetFeatureStatisticsList protos and filters features.
 

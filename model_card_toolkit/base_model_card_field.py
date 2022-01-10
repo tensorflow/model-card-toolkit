@@ -18,9 +18,9 @@ see model_card.py).
 """
 
 import abc
-import json as json_lib
-from typing import Any, Dict, Text
 import dataclasses
+import json as json_lib
+from typing import Any, Dict
 
 from google.protobuf import descriptor
 from google.protobuf import message
@@ -117,11 +117,11 @@ class BaseModelCardField(abc.ABC):
     self.clear()
     return self._from_proto(proto)
 
-  def to_json(self) -> Text:
+  def to_json(self) -> str:
     """Convert this class object to json."""
     return json_lib.dumps(self.to_dict(), indent=2)
 
-  def to_dict(self) -> Dict[Text, Any]:
+  def to_dict(self) -> Dict[str, Any]:
     """Convert your model card to a python dictionary."""
     # ignore None properties recursively to allow missing values.
     ignore_none = lambda properties: {k: v for k, v in properties if v}

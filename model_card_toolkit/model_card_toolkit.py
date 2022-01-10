@@ -21,7 +21,7 @@ import logging
 import os
 import pkgutil
 import tempfile
-from typing import Optional, Text, Union
+from typing import Optional, Union
 
 from absl import logging
 import jinja2
@@ -91,7 +91,7 @@ class ModelCardToolkit():
 
   def __init__(
       self,
-      output_dir: Optional[Text] = None,
+      output_dir: Optional[str] = None,
       mlmd_source: Optional[src.MlmdSource] = None,
       source: Optional[src.Source] = None,
   ):
@@ -149,18 +149,18 @@ class ModelCardToolkit():
           'The last one is used.', len(models), mlmd_source.model_uri)
     self._artifact_with_model_uri = models[-1]
 
-  def _jinja_loader(self, template_dir: Text) -> jinja2.FileSystemLoader:
+  def _jinja_loader(self, template_dir: str) -> jinja2.FileSystemLoader:
     return jinja2.FileSystemLoader(template_dir)
 
-  def _write_file(self, path: Text, content: Text) -> None:
+  def _write_file(self, path: str, content: str) -> None:
     """Write content to the path."""
     os.makedirs(os.path.dirname(path), exist_ok=True)
     with open(path, 'w+') as f:
       f.write(content)
 
   def _write_proto_file(
-      self, path: Text, model_card: Union[ModelCard,
-                                          model_card_pb2.ModelCard]) -> None:
+      self, path: str, model_card: Union[ModelCard,
+                                         model_card_pb2.ModelCard]) -> None:
     """Write serialized model card proto to the path."""
     os.makedirs(os.path.dirname(path), exist_ok=True)
     with open(path, 'wb') as f:
@@ -169,7 +169,7 @@ class ModelCardToolkit():
       else:
         f.write(model_card.SerializeToString())
 
-  def _read_proto_file(self, path: Text) -> Optional[ModelCard]:
+  def _read_proto_file(self, path: str) -> Optional[ModelCard]:
     """Read serialized model card proto from the path."""
     if not os.path.exists(path):
       return None
@@ -348,8 +348,8 @@ class ModelCardToolkit():
   def export_format(self,
                     model_card: Optional[Union[
                         ModelCard, model_card_pb2.ModelCard]] = None,
-                    template_path: Optional[Text] = None,
-                    output_file=_DEFAULT_MODEL_CARD_FILE_NAME) -> Text:
+                    template_path: Optional[str] = None,
+                    output_file=_DEFAULT_MODEL_CARD_FILE_NAME) -> str:
     """Generates a model card document based on the MCT assets.
 
     The model card document is both returned by this function, as well as saved
