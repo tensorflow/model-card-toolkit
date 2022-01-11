@@ -22,13 +22,11 @@ ModelCardsToolkit serves as an API to read and write MC properties by the users.
 
 import dataclasses
 import json as json_lib
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Union
 
 from model_card_toolkit.base_model_card_field import BaseModelCardField
 from model_card_toolkit.proto import model_card_pb2
 from model_card_toolkit.utils import validation
-
-_SCHEMA_VERSION_STRING = "schema_version"
 
 
 @dataclasses.dataclass
@@ -478,14 +476,14 @@ class ModelCard(BaseModelCardField):
     """Write ModelCard to JSON."""
     model_card_dict = self.to_dict()
     model_card_dict[
-        _SCHEMA_VERSION_STRING] = validation.get_latest_schema_version()
+        validation
+        .SCHEMA_VERSION_STRING] = validation.get_latest_schema_version()
     return json_lib.dumps(model_card_dict, indent=2)
 
   def from_json(self, json_dict: Dict[str, Any]) -> None:
     """Reads ModelCard from JSON.
 
-    If ModelCard fields have already been set, this function will overwrite any
-    existing values.
+    This function will overwrite all existing ModelCard fields.
 
     Args:
       json_dict: A JSON dict from which to populate fields in the model card
@@ -499,31 +497,27 @@ class ModelCard(BaseModelCardField):
         definition.
     """
 
-    def _populate_from_json(json_dict: Dict[str, Any],
-                            field: BaseModelCardField) -> BaseModelCardField:
-      for subfield_key in json_dict:
-        if subfield_key.startswith(_SCHEMA_VERSION_STRING):
-          continue
-        elif not hasattr(field, subfield_key):
-          raise ValueError(
-              "BaseModelCardField %s has no such field named '%s.'" %
-              (field, subfield_key))
-        elif isinstance(json_dict[subfield_key], dict):
-          subfield_value = _populate_from_json(
-              json_dict[subfield_key], getattr(field, subfield_key))
-        elif isinstance(json_dict[subfield_key], list):
-          subfield_value = []
-          for item in json_dict[subfield_key]:
-            if isinstance(item, dict):
-              new_object = field.__annotations__[subfield_key].__args__[0]()  # pytype: disable=attribute-error
-              subfield_value.append(_populate_from_json(item, new_object))
-            else:  # if primitive
-              subfield_value.append(item)
-        else:
-          subfield_value = json_dict[subfield_key]
-        setattr(field, subfield_key, subfield_value)
-      return field
-
     validation.validate_json_schema(json_dict)
     self.clear()
-    _populate_from_json(json_dict, self)
+    self._from_json(json_dict, self)
+
+  def merge_from_json(self, json: Union[Dict[str, Any], str]) -> None:
+    """Reads ModelCard from JSON.
+
+    This function will only overwrite ModelCard fields specified in the JSON.
+
+    Args:
+      json: A JSON object from whichto populate fields in the model card. This
+        can be provided as either a dictionary or a string.
+
+    Raises:
+      JSONDecodeError: If `json_dict` is not a valid JSON string.
+      ValidationError: If `json_dict` does not follow the model card JSON
+        schema.
+      ValueError: If `json_dict` contains a value not in the class or schema
+        definition.
+    """
+    if isinstance(json, str):
+      json = json_lib.loads(json)
+    validation.validate_json_schema(json)
+    self._from_json(json, self)

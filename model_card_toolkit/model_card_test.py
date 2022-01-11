@@ -145,13 +145,51 @@ class ModelCardTest(absltest.TestCase):
   def test_from_json_overwrites_previous_fields(self):
     overwritten_limitation = model_card.Limitation(
         description="This model can only be used on text up to 140 characters.")
+    overwritten_user = model_card.User(description="language researchers")
     model_card_py = model_card.ModelCard(
         considerations=model_card.Considerations(
-            limitations=[overwritten_limitation]))
+            limitations=[overwritten_limitation], users=[overwritten_user]))
     model_card_json = json.loads(_FULL_JSON)
     model_card_py.from_json(model_card_json)
     self.assertNotIn(overwritten_limitation,
                      model_card_py.considerations.limitations)
+    self.assertNotIn(overwritten_user, model_card_py.considerations.users)
+
+  def test_merge_from_json_does_not_overwrite_all_fields(self):
+    # We want the "Limitations" field to be overwritten, but not "Users".
+
+    # Initially, the ModelCard's "Limitations" and "Users" are specified.
+    overwritten_limitation = model_card.Limitation(
+        description="This model can only be used on text up to 140 characters.")
+    not_overwritten_user = model_card.User(description="language researchers")
+    model_card_py = model_card.ModelCard(
+        considerations=model_card.Considerations(
+            limitations=[overwritten_limitation], users=[not_overwritten_user]))
+
+    # We create a JSON that specifies "Limitations" but not "Users".
+    model_card_json = json.loads(_FULL_JSON)
+    assert "limitations" in model_card_json["considerations"]
+    assert "users" not in model_card_json["considerations"]
+
+    # merge_from_json() overwrites ModelCard fields that were specified in JSON.
+    # "Limitations" was specified, so it is overwritten, but "Users" is not.
+    model_card_py.merge_from_json(model_card_json)
+    self.assertNotIn(overwritten_limitation,
+                     model_card_py.considerations.limitations)
+    self.assertIn(not_overwritten_user,
+                  model_card_py.considerations.users)
+
+  def test_merge_from_json_dict_and_str(self):
+    json_dict = json.loads(_FULL_JSON)
+    json_str = json.dumps(json_dict)
+
+    model_card_from_dict = model_card.ModelCard()
+    model_card_from_dict.merge_from_json(json_dict)
+
+    model_card_from_str = model_card.ModelCard()
+    model_card_from_str.merge_from_json(json_str)
+
+    self.assertEqual(model_card_from_dict, model_card_from_str)
 
   def test_from_invalid_json(self):
     invalid_json_dict = {"model_name": "the_greatest_model"}

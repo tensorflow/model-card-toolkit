@@ -21,7 +21,7 @@ import logging
 import os
 import pkgutil
 import tempfile
-from typing import Optional, Union
+from typing import Any, Dict, Optional, Union
 
 from absl import logging
 import jinja2
@@ -31,6 +31,7 @@ from model_card_toolkit.proto import model_card_pb2
 from model_card_toolkit.utils import graphics
 from model_card_toolkit.utils import source as src
 from model_card_toolkit.utils import tfx_util
+
 import tensorflow_model_analysis as tfma
 
 # Constants about provided UI templates.
@@ -296,7 +297,9 @@ class ModelCardToolkit():
     model_card = self._annotate_model(model_card)
     return model_card
 
-  def scaffold_assets(self) -> ModelCard:
+  def scaffold_assets(self,
+                      json: Optional[Union[Dict[str, Any],
+                                           str]] = None) -> ModelCard:
     """Generates the Model Card Tookit assets.
 
     Assets include the ModelCard proto file, Model Card document, and jinja
@@ -306,8 +309,14 @@ class ModelCardToolkit():
     An assets directory is created if one does not already exist.
 
     If the MCT is initialized with a `mlmd_store`, it further auto-populates
-    the model cards properties as well as generating related plots such as model
-    performance and data distributions.
+    ModelCard properties and generates plots for model performance and data
+    distributions.
+
+    Args:
+      json: An optional JSON object which can be used to populate fields in the
+        model card. This can be provided as either a dictionary or a string. If
+        provided, any fields used here will overwrite fields populated by
+        `mlmd_store`.
 
     Returns:
       A ModelCard representing the given model.
@@ -318,6 +327,8 @@ class ModelCardToolkit():
 
     # Generate ModelCard.
     model_card = self._scaffold_model_card()
+    if json:
+      model_card.merge_from_json(json)
 
     # Write Proto file.
     self._write_proto_file(self._mcta_proto_file, model_card)

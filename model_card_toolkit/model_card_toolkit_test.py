@@ -186,13 +186,18 @@ class ModelCardToolkitTest(
     output_dir = self.tmpdir
     mct = model_card_toolkit.ModelCardToolkit(output_dir=output_dir)
     self.assertEqual(mct.output_dir, output_dir)
-    mc = mct.scaffold_assets()  # pylint: disable=unused-variable
+    mct.scaffold_assets()
     self.assertIn('default_template.html.jinja',
                   os.listdir(os.path.join(output_dir, 'template/html')))
     self.assertIn('default_template.md.jinja',
                   os.listdir(os.path.join(output_dir, 'template/md')))
     self.assertIn('model_card.proto',
                   os.listdir(os.path.join(output_dir, 'data')))
+
+  def test_scaffold_assets_with_json(self):
+    mct = model_card_toolkit.ModelCardToolkit(output_dir=self.tmpdir)
+    mc = mct.scaffold_assets({'model_details': {'name': 'json_test',}})
+    self.assertEqual(mc.model_details.name, 'json_test')
 
   @mock.patch.object(
       graphics, 'annotate_dataset_feature_statistics_plots', autospec=True)

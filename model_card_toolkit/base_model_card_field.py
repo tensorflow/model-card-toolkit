@@ -21,6 +21,7 @@ import abc
 import dataclasses
 import json as json_lib
 from typing import Any, Dict
+from model_card_toolkit.utils import validation
 
 from google.protobuf import descriptor
 from google.protobuf import message
@@ -116,6 +117,32 @@ class BaseModelCardField(abc.ABC):
     """Copies the contents of the model card proto into current object."""
     self.clear()
     return self._from_proto(proto)
+
+  def _from_json(self, json_dict: Dict[str, Any],
+                 field: "BaseModelCardField") -> "BaseModelCardField":
+    """Parses a JSON dictionary into the current object."""
+    for subfield_key, subfield_json_value in json_dict.items():
+      if subfield_key.startswith(validation.SCHEMA_VERSION_STRING):
+        continue
+      elif not hasattr(field, subfield_key):
+        raise ValueError(
+            "BaseModelCardField %s has no such field named '%s.'" %
+            (field, subfield_key))
+      elif isinstance(subfield_json_value, dict):
+        subfield_value = self._from_json(
+            subfield_json_value, getattr(field, subfield_key))
+      elif isinstance(subfield_json_value, list):
+        subfield_value = []
+        for item in subfield_json_value:
+          if isinstance(item, dict):
+            new_object = field.__annotations__[subfield_key].__args__[0]()  # pytype: disable=attribute-error
+            subfield_value.append(self._from_json(item, new_object))
+          else:  # if primitive
+            subfield_value.append(item)
+      else:
+        subfield_value = subfield_json_value
+      setattr(field, subfield_key, subfield_value)
+    return field
 
   def to_json(self) -> str:
     """Convert this class object to json."""
