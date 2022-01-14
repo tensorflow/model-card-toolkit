@@ -22,6 +22,7 @@ from absl.testing import parameterized
 from model_card_toolkit import model_card
 from model_card_toolkit import model_card_toolkit
 from model_card_toolkit.proto import model_card_pb2
+from model_card_toolkit.tfx import artifact
 from model_card_toolkit.utils import graphics
 from model_card_toolkit.utils import source as src
 from model_card_toolkit.utils.testdata import testdata_utils
@@ -288,67 +289,109 @@ class ModelCardToolkitTest(parameterized.TestCase, TfxTest):
       model_card_toolkit.ModelCardToolkit().export_format()
 
   def test_save_mlmd_without_mlmd(self):
-    mct = model_card_toolkit.ModelCardToolkit(
-        output_dir=self.tmpdir)
+    mct = model_card_toolkit.ModelCardToolkit(output_dir=self.tmpdir)
     with self.assertRaises(ValueError):
-      mct.save_mlmd()
+      mct.save_mlmd(metadata_store_pb2.Artifact())
 
-  def test_save_mlmd_before_generating_model_card(self):
-    store = testdata_utils.get_tfx_pipeline_metadata_store(self.tmp_db_path)
-    mct = model_card_toolkit.ModelCardToolkit(
-        output_dir=self.tmpdir,
-        mlmd_source=src.MlmdSource(
-            store=store, model_uri=testdata_utils.TFX_0_21_MODEL_URI))
-    with self.assertRaises(ValueError):
-      mct.save_mlmd()
+  def test_artifact_from_mlmd_source(self):
 
-  def test_save_mlmd(self):
-    # Create a MLMD store, MCT instance, ModelCard assets, and MLMD artifact.
-    # These assets are saved at the artifact uri.
+    # Create a MLMD store.
     store = testdata_utils.get_tfx_pipeline_metadata_store(self.tmp_db_path)
+    mlmd_source = src.MlmdSource(
+        store=store, model_uri=testdata_utils.TFX_0_21_MODEL_URI)
+
+    # Instantiate the MCT instance.
+    # We pass in an artifact_type_id, which should be ignored in favor of the
+    # MLMD source.
     artifact_uri = self.tmpdir.full_path
+    ignored_type_id = -1
     mct = model_card_toolkit.ModelCardToolkit(
         output_dir=artifact_uri,
-        mlmd_source=src.MlmdSource(
-            store=store, model_uri=testdata_utils.TFX_0_21_MODEL_URI))
-    mc = mct.scaffold_assets()
+        mlmd_source=mlmd_source,
+        artifact_type_id=ignored_type_id)
+
+    # Create ModelCard assets, which are stored as an Artifact.
+    model_name = 'online_news_trainer.py'
+    mc = mct.scaffold_assets(json={'model_details': {'name': model_name}})
     mct.export_format()
 
-    # verify ModelCard artifact was generated with expected values
-    model_card_artifacts = store.get_artifacts_by_type('ModelCard')
-    with self.subTest(name='artifact'):
-      self.assertLen(model_card_artifacts, 1)
-      model_card_artifact = model_card_artifacts[0]
-      self.assertEqual(model_card_artifact.id, mct.artifact_id)
-      self.assertEqual(model_card_artifact.uri, artifact_uri)
-      self.assertStartsWith(model_card_artifact.name,
-                            mc.model_details.name)
+    mc_artifacts_from_store = store.get_artifacts_by_type('ModelCard')
+    with self.subTest(name='check_artifact_saved_to_store'):
+      self.assertLen(mc_artifacts_from_store, 1)
+      self.assertEqual(mct.artifact, mc_artifacts_from_store[0])
 
-    # verify ModelCard assets are stored at ModelCard artifact's uri
-    with self.subTest(name='assets'):
+    with self.subTest(name='check_artifact_fields_have_expected_values'):
+      self.assertEqual(mct.artifact.uri, artifact_uri)
+      self.assertStartsWith(mct.artifact.name, model_name)
+
+    with self.subTest(name='check_type_id_was_ignored'):
+      self.assertNotEqual(mct.artifact.type_id, ignored_type_id)
+
+    with self.subTest(name='check_artifact_directory_contents'):
       self.assertContainsSubset(['data', 'model_cards'],
-                                os.listdir(model_card_artifact.uri))
+                                os.listdir(mct.artifact.uri))
       self.assertContainsSubset(['model_card.proto'],
                                 os.listdir(
-                                    os.path.join(model_card_artifact.uri,
-                                                 'data')))
+                                    os.path.join(mct.artifact.uri, 'data')))
       self.assertContainsSubset(['model_card.html'],
                                 os.listdir(
-                                    os.path.join(model_card_artifact.uri,
+                                    os.path.join(mct.artifact.uri,
                                                  'model_cards')))
+      with self.subTest(name='check_model_card_proto'):
+        model_card_from_mlmd = model_card_pb2.ModelCard()
+        with open(
+            os.path.join(mct.artifact.uri, 'data', 'model_card.proto'),
+            'rb') as f:
+          model_card_from_mlmd.ParseFromString(f.read())
+        self.assertEqual(mc.to_proto(), model_card_from_mlmd)
 
-    # verify ModelCard saved to MLMD is same as ModelCard from MCT instance
-    with self.subTest(name='model card'):
-      model_card_from_mlmd = model_card_pb2.ModelCard()
-      with open(
-          os.path.join(model_card_artifact.uri, 'data', 'model_card.proto'),
-          'rb') as f:
-        model_card_from_mlmd.ParseFromString(f.read())
-      self.assertEqual(mc.to_proto(), model_card_from_mlmd)
+    with self.subTest(name='check_save_mlmd_returns_same_artifact'):
+      self.assertEqual(mct.save_mlmd(mct.artifact), mct.artifact)
 
-    # verify save_mlmd() returns the same artifact id on repeat calls
-    with self.subTest(name='artifact id'):
-      self.assertEqual(mct.save_mlmd(), mct.artifact_id)
+  def test_artifact_from_type_id(self):
+
+    # Create a MLMD store with ModelCard artifact type.
+    store = testdata_utils.get_tfx_pipeline_metadata_store(self.tmp_db_path)
+    type_id = artifact.put_model_card_artifact_type(store)
+
+    # Instantiate the MCT instance, using artifact type instead of MLMD store.
+    artifact_uri = self.tmpdir.full_path
+    mct = model_card_toolkit.ModelCardToolkit(
+        output_dir=artifact_uri, artifact_type_id=type_id)
+
+    # Create ModelCard assets, which are stored as an Artifact.
+    model_name = 'online_news_trainer.py'
+    mc = mct.scaffold_assets(json={'model_details': {'name': model_name}})
+    mct.export_format()
+
+    with self.subTest(name='check_artifact_fields_have_expected_values'):
+      self.assertEqual(mct.artifact.uri, artifact_uri)
+      self.assertStartsWith(mct.artifact.name, model_name)
+      self.assertEqual(mct.artifact.type_id, type_id)
+
+    with self.subTest(name='check_artifact_directory_contents'):
+      self.assertContainsSubset(['data', 'model_cards'],
+                                os.listdir(mct.artifact.uri))
+      self.assertContainsSubset(['model_card.proto'],
+                                os.listdir(
+                                    os.path.join(mct.artifact.uri, 'data')))
+      self.assertContainsSubset(['model_card.html'],
+                                os.listdir(
+                                    os.path.join(mct.artifact.uri,
+                                                 'model_cards')))
+      with self.subTest(name='check_model_card_proto'):
+        model_card_from_mlmd = model_card_pb2.ModelCard()
+        with open(
+            os.path.join(mct.artifact.uri, 'data', 'model_card.proto'),
+            'rb') as f:
+          model_card_from_mlmd.ParseFromString(f.read())
+        self.assertEqual(mc.to_proto(), model_card_from_mlmd)
+
+    with self.subTest(name='check_save_mlmd_fails_without_mlmd_store'):
+      with self.assertRaisesWithLiteralMatch(
+          ValueError, 'Cannot save to MLMD store because MLMD store was not '
+          'registered to ModelCardToolkit instance.'):
+        mct.save_mlmd(mct.artifact)
 
 
 if __name__ == '__main__':
