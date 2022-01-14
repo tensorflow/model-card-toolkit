@@ -28,6 +28,7 @@ import jinja2
 
 from model_card_toolkit.model_card import ModelCard
 from model_card_toolkit.proto import model_card_pb2
+from model_card_toolkit.tfx import artifact
 from model_card_toolkit.utils import graphics
 from model_card_toolkit.utils import source as src
 from model_card_toolkit.utils import tfx_util
@@ -122,10 +123,15 @@ class ModelCardToolkit():
     self._mcta_template_dir = os.path.join(self.output_dir, _MCTA_TEMPLATE_DIR)
     self._model_cards_dir = os.path.join(self.output_dir, _MODEL_CARDS_DIR)
     self._source = source
+
+    # set in _process_mlmd_source()
     self._store = None
     self._artifact_with_model_uri = None
     if mlmd_source:
       self._process_mlmd_source(mlmd_source)
+
+    # set in save_mlmd()
+    self.artifact_id = None
 
   def _process_mlmd_source(self, mlmd_source: src.MlmdSource) -> None:
     """Process the MLMD source.
@@ -310,7 +316,7 @@ class ModelCardToolkit():
 
     If the MCT is initialized with a `mlmd_store`, it further auto-populates
     ModelCard properties and generates plots for model performance and data
-    distributions.
+    distributions. The ModelCard is saved as an Artifact to the `mlmd_store`.
 
     Args:
       json: An optional JSON object which can be used to populate fields in the
@@ -341,6 +347,10 @@ class ModelCardToolkit():
       template_content = template_content.decode('utf8')
       self._write_file(
           os.path.join(self.output_dir, template_path), template_content)
+
+    # Save assets to MLMD.
+    if self._store:
+      self.save_mlmd()
 
     return model_card
 
@@ -417,6 +427,41 @@ class ModelCardToolkit():
     self._write_file(mode_card_file_path, model_card_file_content)
     return model_card_file_content
 
-  def save_mlmd(self) -> None:
-    """Saves the model card of the model artifact with `model_uri` to MLMD."""
-    pass
+  def save_mlmd(self) -> int:
+    """Saves model card assets to MLMD.
+
+    This creates a ModelCard artifact type and a ModelCard artifact in the MLMD
+    store. If these already exist, they are simply re-used.
+
+    Returns:
+      The artifact id. This can be used to retrieve the artifact via
+      `MetadataStore.get_artifacts_by_id([id])`.
+
+    Raises:
+      ValueError: If `ModelCardToolkit` was initialized without `mlmd_store`, or
+        if assets directory has not been generated via `scaffold_assets` yet.
+    """
+
+    # If artifact already exists, re-use it.
+    if self.artifact_id:
+      return self.artifact_id
+
+    # Verify that MLMD store and model card assets exist.
+    if not self._store:
+      raise ValueError('Cannot save to MLMD store because MLMD store was not '
+                       'registered to ModelCardToolkit instance.')
+    if os.path.exists(self._mcta_proto_file):
+      model_card = self._read_proto_file(self._mcta_proto_file)
+    else:
+      raise ValueError(
+          'scaffold_assets() must be called before save_mlmd() to generate '
+          'Model Card assets.')
+
+    # create ModelCard artifact and write to MLMD
+    model_card_artifact = artifact.create_model_card_artifact(
+        model_card, self.output_dir, self._store)
+    logging.info('Saving MLMD artifact %s with id=%s and uri=%s.',
+                 model_card_artifact.name, model_card_artifact.id,
+                 model_card_artifact.uri)
+    self.artifact_id = self._store.put_artifacts([model_card_artifact])[0]
+    return self.artifact_id
