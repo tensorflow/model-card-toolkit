@@ -6,9 +6,9 @@ populate a ModelCard.
 
 import dataclasses
 from typing import List, Optional
-from tfx.types import standard_artifacts
 
 import ml_metadata as mlmd
+from ml_metadata.proto import metadata_store_pb2
 
 
 @dataclasses.dataclass
@@ -45,8 +45,7 @@ class TfmaSource:
   eval_result_paths: List[str] = dataclasses.field(default_factory=list)
   file_format: Optional[str] = ''
   model_evaluation_artifacts: List[
-      standard_artifacts.ModelEvaluation] = dataclasses.field(
-          default_factory=list)
+      metadata_store_pb2.Artifact] = dataclasses.field(default_factory=list)
   metrics_include: List[str] = dataclasses.field(default_factory=list)
   metrics_exclude: List[str] = dataclasses.field(default_factory=list)
 
@@ -90,8 +89,7 @@ class TfdvSource:
   """
   dataset_statistics_paths: List[str] = dataclasses.field(default_factory=list)
   example_statistics_artifacts: List[
-      standard_artifacts.ExampleStatistics] = dataclasses.field(
-          default_factory=list)
+      metadata_store_pb2.Artifact] = dataclasses.field(default_factory=list)
   features_include: List[str] = dataclasses.field(default_factory=list)
   features_exclude: List[str] = dataclasses.field(default_factory=list)
 
@@ -125,7 +123,7 @@ class ModelSource:
     pushed_model_artifact: The MLMD artifact for a PushedModel.
   """
   pushed_model_path: Optional[str] = ''
-  pushed_model_artifact: Optional[standard_artifacts.PushedModel] = None
+  pushed_model_artifact: Optional[metadata_store_pb2.Artifact] = None
 
   def __post_init__(self):
     if self.pushed_model_path and not self.pushed_model_artifact:
