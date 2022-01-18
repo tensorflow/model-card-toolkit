@@ -1,16 +1,12 @@
 """Tests for artifact."""
 
 from absl.testing import absltest
-from absl.testing import parameterized
-from model_card_toolkit import model_card
 from model_card_toolkit.tfx import artifact
 import ml_metadata as mlmd
 from ml_metadata.proto import metadata_store_pb2
 
-_TYPE_NAME = 'ModelCard'
 
-
-class ArtifactTest(parameterized.TestCase):
+class ArtifactTest(absltest.TestCase):
 
   def setUp(self):
     super(ArtifactTest, self).setUp()
@@ -18,27 +14,23 @@ class ArtifactTest(parameterized.TestCase):
     connection_config.fake_database.SetInParent()
     self.store = mlmd.MetadataStore(connection_config)
 
-  @parameterized.parameters([True, False])
-  def test_create_artifact(self, version: bool):
+  def test_create_and_save_artifact(self):
+    mc_artifact = artifact.create_and_save_artifact(
+        artifact_name='my model',
+        artifact_uri='/path/to/model/card/assets',
+        store=self.store)
 
-    mc = model_card.ModelCard()
-    mc.model_details.name = 'my model'
-    if version:
-      mc.model_details.version.name = 'v1'
-
-    model_card_assets_path = '/path/to/model/card/assets'
-    mc_artifact = artifact.create_model_card_artifact(mc,
-                                                      model_card_assets_path,
-                                                      self.store)
-
-    self.assertEqual(mc_artifact.type, _TYPE_NAME)
-    self.assertEqual(mc_artifact.type_id,
-                     self.store.get_artifact_type(_TYPE_NAME).id)
-    self.assertEqual(mc_artifact.uri, model_card_assets_path)
-    if version:
-      self.assertStartsWith(mc_artifact.name, 'my model_v1_')
-    else:
-      self.assertStartsWith(mc_artifact.name, 'my model_')
+    with self.subTest('saved_to_mlmd'):
+      self.assertCountEqual([mc_artifact],
+                            self.store.get_artifacts_by_id([mc_artifact.id]))
+    with self.subTest('properties'):
+      with self.subTest('type_id'):
+        self.assertEqual(mc_artifact.type_id,
+                         self.store.get_artifact_type('ModelCard').id)
+      with self.subTest('uri'):
+        self.assertEqual(mc_artifact.uri, '/path/to/model/card/assets')
+      with self.subTest('name'):
+        self.assertStartsWith(mc_artifact.name, 'my model_')
 
 
 if __name__ == '__main__':
