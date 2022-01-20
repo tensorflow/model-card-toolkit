@@ -3,6 +3,7 @@
 import datetime
 from absl import logging
 from tfx.types.artifact import Artifact
+from tfx.types.system_artifacts import Metrics
 import ml_metadata as mlmd
 from ml_metadata import errors
 from ml_metadata.proto import metadata_store_pb2
@@ -10,6 +11,7 @@ from ml_metadata.proto import metadata_store_pb2
 
 class ModelCard(Artifact):
   TYPE_NAME = 'ModelCard'
+  TYPE_ANNOTATION = Metrics
 
 
 def create_and_save_artifact(

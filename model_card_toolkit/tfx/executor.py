@@ -77,8 +77,8 @@ class Executor(BaseExecutor):
         - template_io: A list of input/output pairs. The input is a jinja
           template path to use when generating model card documents. The output
           is the file name to write the model card document to. If nothing is
-          provided, `ModelCardToolkit`'s default HTML template and filename
-          are used.
+          provided, `ModelCardToolkit`'s default HTML template and file name are
+          used.
     """
 
     # Initialize ModelCardToolkit
