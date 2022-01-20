@@ -362,7 +362,7 @@ class ModelCardToolkit():
                     model_card: Optional[Union[
                         ModelCard, model_card_pb2.ModelCard]] = None,
                     template_path: Optional[str] = None,
-                    output_file=_DEFAULT_MODEL_CARD_FILE_NAME) -> str:
+                    output_file: Optional[str] = None) -> str:
     """Generates a model card document based on the MCT assets.
 
     The model card document is both returned by this function, as well as saved
@@ -390,6 +390,8 @@ class ModelCardToolkit():
                                    _DEFAULT_UI_TEMPLATE_FILE)
     template_dir = os.path.dirname(template_path)
     template_file = os.path.basename(template_path)
+    if not output_file:
+      output_file = _DEFAULT_MODEL_CARD_FILE_NAME
 
     # If model_card is passed in, write to Proto file.
     if model_card:
