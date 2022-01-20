@@ -35,6 +35,11 @@ class TfxTest(tfma.eval_saved_model.testutil.TensorflowModelAnalysisTest):
     self.tmp_db_path = os.path.join(self.create_tempdir(), 'test_mlmd.db')
     self.tmpdir = self.create_tempdir()
 
+  def _set_up_mlmd(self):
+    connection_config = metadata_store_pb2.ConnectionConfig()
+    connection_config.fake_database.SetInParent()
+    return mlmd.MetadataStore(connection_config)
+
   def _put_artifact(self, store: mlmd.MetadataStore, type_name: str,
                     uri: str) -> None:
     type_id = store.put_artifact_type(

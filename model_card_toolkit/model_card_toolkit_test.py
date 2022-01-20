@@ -29,9 +29,6 @@ from model_card_toolkit.utils.testdata.tfxtest import TfxTest
 import tensorflow_model_analysis as tfma
 from tfx.types import standard_artifacts
 
-import ml_metadata as mlmd
-from ml_metadata.proto import metadata_store_pb2
-
 
 class ModelCardToolkitTest(parameterized.TestCase, TfxTest):
 
@@ -94,6 +91,7 @@ class ModelCardToolkitTest(parameterized.TestCase, TfxTest):
                             ('tfrecord', False))
   def test_scaffold_assets_with_source(self, output_file_format: str,
                                        artifacts: bool):
+
     train_dataset_name = 'Dataset-Split-train'
     train_features = ['feature_name1']
     eval_dataset_name = 'Dataset-Split-eval'
@@ -111,9 +109,7 @@ class ModelCardToolkitTest(parameterized.TestCase, TfxTest):
     ]
 
     if artifacts:
-      connection_config = metadata_store_pb2.ConnectionConfig()
-      connection_config.fake_database.SetInParent()
-      mlmd_store = mlmd.MetadataStore(connection_config)
+      mlmd_store = self._set_up_mlmd()
       self._write_tfma(tfma_path, output_file_format, add_metrics_callbacks,
                        mlmd_store)
       self._write_tfdv(tfdv_path, train_dataset_name, train_features,

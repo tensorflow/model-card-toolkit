@@ -11,16 +11,8 @@ import tensorflow_model_analysis as tfma
 from tfx.types import standard_artifacts
 from tfx.types import standard_component_specs
 
-import ml_metadata as mlmd
-from ml_metadata.proto import metadata_store_pb2
-
 
 class ExecutorTest(parameterized.TestCase, TfxTest):
-
-  def _set_up_mlmd(self):
-    connection_config = metadata_store_pb2.ConnectionConfig()
-    connection_config.fake_database.SetInParent()
-    return mlmd.MetadataStore(connection_config)
 
   def setUp(self):
     super(ExecutorTest, self).setUp()
