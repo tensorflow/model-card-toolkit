@@ -61,12 +61,15 @@ class TfxTest(tfma.eval_saved_model.testutil.TensorflowModelAnalysisTest):
       tfma_path: The path to save the TFMA output to.
       output_file_format: The format to save TFMA output to. See [TFMA API
         Docs](https://www.tensorflow.org/tfx/model_analysis/api_docs/python/tfma/writers/MetricsPlotsAndValidationsWriter)
-          for the most up-to-date reference.
+          for the most up-to-date reference. If the empty string, 'tfrecord'
+          will be used.
       add_metrics_callbacks: TFMA metric callbacks to compute. See [TFMA API
         Docs](https://www.tensorflow.org/tfx/model_analysis/api_docs/python/tfma/post_export_metrics)
           for examples.
       store: The MLMD store to save the TFMA output artifact.
     """
+    if not output_file_format:
+      output_file_format = 'tfrecord'
     _, eval_saved_model_path = (
         fixed_prediction_estimator.simple_fixed_prediction_estimator(
             export_path=None,
