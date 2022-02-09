@@ -115,8 +115,18 @@
     margin-left: auto;
     margin-right: auto;
   }
-  table, th, td { border: 1px solid black; }
-  th, td { border: 1px solid #CCC; height: 30px; }
+  table th {
+    background: #eee;
+  }
+  table, th, td {
+    border: 1px solid black;
+    border-collapse: collapse;
+  }
+  th, td {
+    border: 1px solid #CCC; height: 30px;
+    text-align: left;
+    padding: 5px 10px
+  }
   caption { font-weight: bold; }
 </style>
 <title>
