@@ -12,6 +12,7 @@
 
 * `ModelCard.merge_from_json()`, allowing `ModelCard`s to be populated with JSON without overwriting all pre-existing fields.
 * Minor styling change to table CSS in default HTML template
+* Minor update to CSS linting in default HTML template
 
 ## Breaking changes and Deprecations
 
