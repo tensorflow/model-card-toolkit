@@ -34,12 +34,13 @@ class ModelCardGeneratorSpec(component_spec.ComponentSpec):
   INPUTS = {
       standard_component_specs.STATISTICS_KEY:
           component_spec.ChannelParameter(
-              type=standard_artifacts.ExampleStatistics),
+              type=standard_artifacts.ExampleStatistics, optional=True),
       standard_component_specs.EVALUATION_KEY:
           component_spec.ChannelParameter(
-              type=standard_artifacts.ModelEvaluation),
+              type=standard_artifacts.ModelEvaluation, optional=True),
       standard_component_specs.PUSHED_MODEL_KEY:
-          component_spec.ChannelParameter(type=standard_artifacts.PushedModel),
+          component_spec.ChannelParameter(
+              type=standard_artifacts.PushedModel, optional=True),
   }
   OUTPUTS = {
       MODEL_CARD_KEY:

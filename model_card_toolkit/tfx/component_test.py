@@ -50,6 +50,12 @@ class ComponentTest(absltest.TestCase):
                               ('path/to/md/template', 'mc.md')]
           }, this_component.exec_properties)
 
+  def test_empty_component_construction(self):
+    this_component = ModelCardGenerator()
+    with self.subTest('outputs'):
+      self.assertEqual(this_component.outputs['model_card'].type_name,
+                       artifact.ModelCard.TYPE_NAME)
+
 
 if __name__ == '__main__':
   absltest.main()
