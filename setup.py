@@ -29,7 +29,7 @@ from setuptools import setup
 
 # TODO(b/174880612): reduce dependency resolution search space
 REQUIRED_PACKAGES = [
-    'absl-py>=0.9,<0.11',
+    'absl-py>=1.0,<1.1',
     'semantic-version>=2.8.0,<3',
     'jinja2>=2.10,<3',
     'matplotlib>=3.2.0,<4',
@@ -113,7 +113,7 @@ setup(
     packages=[
         'model_card_toolkit', 'model_card_toolkit.documentation',
         'model_card_toolkit.documentation.examples', 'model_card_toolkit.proto',
-        'model_card_toolkit.utils'
+        'model_card_toolkit.tfx', 'model_card_toolkit.utils'
     ],
     package_data={
         'model_card_toolkit': ['schema/**/*.json', 'template/**/*.jinja']
