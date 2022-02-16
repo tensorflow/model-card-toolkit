@@ -10,6 +10,13 @@ from ml_metadata.proto import metadata_store_pb2
 
 
 class ModelCard(Artifact):
+  """A [TFX/MLMD artifact](https://www.tensorflow.org/tfx/guide/mlmd#data_model) to model card assets.
+
+  Assets include:
+    * a data file containing the model card fields, located at
+    `<uri>/data/model_card.proto`.
+    * the model card itself, located at the `<uri>/model_card/ directory`.
+  """
   TYPE_NAME = 'ModelCard'
   TYPE_ANNOTATION = Metrics
 

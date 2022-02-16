@@ -1,6 +1,7 @@
 """Model Card TFX Component Executor.
 
-The ModelCard Executor is used to generate model cards in TFX pipelines.
+The ModelCard Executor handles the ModelCardToolkit workflow in the
+ModelCardGenerator.
 """
 
 from typing import Any, Dict, List, Optional
@@ -54,31 +55,37 @@ class Executor(BaseExecutor):
     """Generate a model card for a TFX pipeline.
 
     This executes a Model Card Toolkit workflow, producing a `ModelCard`
-    artifact. This artifact references to a directory containing the Model Card
-    document, as well as the `ModelCard` used to construct the document.
+    artifact.
 
     Args:
       input_dict: Input dict from key to a list of artifacts, including:
-        - evaluation: TFMA output, used to populate quantitative analysis fields
-          in the model card.
-        - statistics: TFDV output, used to populate dataset fields in the model
-          card.
-        - pushed_model: PushedModel output, used to populate model details in
-          the model card.
+        - evaluation: TFMA output from an
+          [Evaluator](https://www.tensorflow.org/tfx/guide/evaluator) component,
+          used to populate quantitative analysis fields in the model card.
+        - statistics: TFDV output from a
+          [StatisticsGen](https://www.tensorflow.org/tfx/guide/statsgen)
+          component, used to populate dataset fields in the model card.
+        - pushed_model: PushedModel output from a
+          [Pusher](https://www.tensorflow.org/tfx/guide/pusher) component, used
+          to populate model details in the the model card.
       output_dict: Output dict from key to a list of artifacts, including:
         - model_card: An artifact referencing the directory containing the Model
           Card document, as well as the `ModelCard` used to construct the
           document.
       exec_properties: An optional dict of execution properties, including:
-        - json: A JSON object containing `ModelCard` fields. This is
+        - json: A JSON string containing `ModelCard` fields. This is
           particularly useful for fields that cannot be auto-populated from
           earlier TFX components. If a field is populated both by TFX and JSON,
-          the JSON value will overwrite the TFX value.
-        - template_io: A list of input/output pairs. The input is a jinja
-          template path to use when generating model card documents. The output
-          is the file name to write the model card document to. If nothing is
-          provided, `ModelCardToolkit`'s default HTML template and file name are
-          used.
+          the JSON value will overwrite the TFX value. Use the [Model Card JSON
+          schema](https://github.com/tensorflow/model-card-toolkit/blob/master/model_card_toolkit/schema/v0.0.2/model_card.schema.json).
+        - template_io: A list of input/output pairs. The input is the path to a
+          [Jinja](https://jinja.palletsprojects.com/) template. Using data
+          extracted from TFX components and `json`, this template is populated
+          and saved as a model card. The output is a file name where the model
+          card will be written to in the `model_card/` directory. By default,
+          `ModelCardToolkit`'s default HTML template
+          (`default_template.html.jinja`) and file name (`model_card.html`)
+          are used.
     """
 
     # Initialize ModelCardToolkit

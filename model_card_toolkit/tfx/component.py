@@ -1,6 +1,6 @@
 """Model Card TFX Component.
 
-The ModelCardGenerator is used to generate model cards in TFX pipelines.
+The ModelCardGenerator is used to generate model cards in a TFX pipeline.
 """
 
 from typing import Any, List, Tuple, Optional
@@ -19,7 +19,7 @@ MODEL_CARD_KEY = 'model_card'
 
 
 class ModelCardGeneratorSpec(component_spec.ComponentSpec):
-  """Component spec for Model Card TFX component."""
+  """Component spec for the ModelCardGenerator."""
   PARAMETERS = {
       'json':
           component_spec.ExecutionParameter(type=str, optional=True),
@@ -50,12 +50,34 @@ class ModelCardGeneratorSpec(component_spec.ComponentSpec):
 class ModelCardGenerator(BaseComponent):
   """A TFX component to generate a model card.
 
-  Uses ExampleStatistics, ModelEvaluation, and PushedModel artifacts to generate
-  a model card. Writes a ModelCard artifact.
+  The `ModelCardGenerator` is a [TFX
+  Component](https://www.tensorflow.org/tfx/guide/understanding_tfx_pipelines#component)
+  that generates model cards.
 
-  Accepts `json` to populate model card fields manually.
+  The model cards are written to a `ModelCard` artifact that can be fetched
+  from the `outputs['model_card]'` property.
 
-  Accepts `template_io` to use custom Jinja templates.
+  Example:
+
+  ```py
+  context = InteractiveContext()
+  ...
+  mc_gen = ModelCardGenerator(
+      statistics=statistics_gen.outputs['statistics'],
+      evaluation=evaluator.outputs['evaluation'],
+      pushed_model=pusher.outputs['pushed_model'],
+      json="{'model_details': {'name': 'my_model'}}",
+      template_io=[
+          ('html/default_template.html.jinja', 'model_card.html'),
+          ('md/default_template.md.jinja', 'model_card.md')
+      ]
+      )
+  context.run(mc_gen)
+  mc_artifact = mc_gen.outputs['model_card']
+  mc_path = os.path.join(mc_artifact.uri, 'model_card', 'model_card.html')
+  with open(mc_path) as f:
+    mc_content = f.readlines()
+  ```
   """
 
   SPEC_CLASS = ModelCardGeneratorSpec
@@ -70,21 +92,40 @@ class ModelCardGenerator(BaseComponent):
               ):
     """Generate a model card for a TFX pipeline.
 
+    This executes a Model Card Toolkit workflow, producing a `ModelCard`
+    artifact.
+
+    Model card generation is partially automated from TFX, using the
+    `ExampleStatistics`, `ModelEvaluation`, and `PushedModel` artifacts. Model
+    card fields may be manually populated using the `json` arg. See the Args
+    section for more details.
+
+    To use custom model card templates, use the `template_io` arg.
+    `ModelCardGenerator` can generate multiple model cards per execution.
+
     Args:
-      evaluation: TFMA output, used to populate quantitative analysis fields in
-        the model card.
-      statistics: TFDV output, used to populate dataset fields in the model
-        card.
-      pushed_model: PushedModel output, used to populate model details in the
-        the model card.
-      json: A JSON object containing `ModelCard` fields. This is particularly
+      evaluation: TFMA output from an
+        [Evaluator](https://www.tensorflow.org/tfx/guide/evaluator) component,
+        used to populate quantitative analysis fields in the model card.
+      statistics: TFDV output from a
+        [StatisticsGen](https://www.tensorflow.org/tfx/guide/statsgen)
+        component, used to populate dataset fields in the model card.
+      pushed_model: PushedModel output from a
+        [Pusher](https://www.tensorflow.org/tfx/guide/pusher) component, used to
+        populate model details in the the model card.
+      json: A JSON string containing `ModelCard` fields. This is particularly
         useful for fields that cannot be auto-populated from earlier TFX
         components. If a field is populated both by TFX and JSON, the JSON value
-        will overwrite the TFX value.
-      template_io: A list of input/output pairs. The input is a jinja template
-        path to use when generating model card documents. The output is the file
-        name to write the model card document to. If nothing is provided,
-        `ModelCardToolkit`'s default HTML template and file name are used.
+        will overwrite the TFX value. Use the [Model Card JSON
+        schema](https://github.com/tensorflow/model-card-toolkit/blob/master/model_card_toolkit/schema/v0.0.2/model_card.schema.json).
+      template_io: A list of input/output pairs. The input is the path to a
+        [Jinja](https://jinja.palletsprojects.com/) template. Using data
+        extracted from TFX components and `json`, this template is populated and
+        saved as a model card. The output is a file name where the model card
+        will be written to in the `model_card/` directory. By default,
+        `ModelCardToolkit`'s default HTML template
+        (`default_template.html.jinja`) and file name (`model_card.html`) are
+        used.
     """
     spec = ModelCardGeneratorSpec(
         evaluation=evaluation,
