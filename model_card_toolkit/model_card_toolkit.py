@@ -17,7 +17,6 @@ The Model Card Toolkit (MCT) provides a set of utilities to generate Model Cards
 from trained models, evaluations, and datasets in ML pipelines.
 """
 
-import logging
 import os
 import pkgutil
 import tempfile
