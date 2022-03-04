@@ -19,8 +19,8 @@ from unittest import mock
 from absl.testing import absltest
 from absl.testing import parameterized
 
+from model_card_toolkit import core
 from model_card_toolkit import model_card
-from model_card_toolkit import model_card_toolkit
 from model_card_toolkit.proto import model_card_pb2
 from model_card_toolkit.utils import graphics
 from model_card_toolkit.utils import source as src
@@ -30,10 +30,10 @@ import tensorflow_model_analysis as tfma
 from tfx.types import standard_artifacts
 
 
-class ModelCardToolkitTest(parameterized.TestCase, TfxTest):
+class CoreTest(parameterized.TestCase, TfxTest):
 
   def setUp(self):
-    super(ModelCardToolkitTest, self).setUp()
+    super(CoreTest, self).setUp()
     test_dir = self.create_tempdir()
     self.tmp_db_path = os.path.join(test_dir, 'test_mlmd.db')
     self.mct_dir = test_dir.mkdir(os.path.join(test_dir,
@@ -44,12 +44,12 @@ class ModelCardToolkitTest(parameterized.TestCase, TfxTest):
     unknown_model = 'unknown_model'
     with self.assertRaisesRegex(
         ValueError, f'"{unknown_model}" cannot be found in the `store`'):
-      model_card_toolkit.ModelCardToolkit(
+      core.ModelCardToolkit(
           mlmd_source=src.MlmdSource(store=store, model_uri=unknown_model))
 
   def test_scaffold_assets(self):
     output_dir = self.mct_dir
-    mct = model_card_toolkit.ModelCardToolkit(output_dir=output_dir)
+    mct = core.ModelCardToolkit(output_dir=output_dir)
     self.assertEqual(mct.output_dir, output_dir)
     mct.scaffold_assets()
     self.assertIn('default_template.html.jinja',
@@ -60,7 +60,7 @@ class ModelCardToolkitTest(parameterized.TestCase, TfxTest):
                   os.listdir(os.path.join(output_dir, 'data')))
 
   def test_scaffold_assets_with_json(self):
-    mct = model_card_toolkit.ModelCardToolkit(output_dir=self.mct_dir)
+    mct = core.ModelCardToolkit(output_dir=self.mct_dir)
     mc = mct.scaffold_assets({'model_details': {'name': 'json_test',}})
     self.assertEqual(mc.model_details.name, 'json_test')
 
@@ -73,7 +73,7 @@ class ModelCardToolkitTest(parameterized.TestCase, TfxTest):
     num_eval_artifacts = 1
     output_dir = self.mct_dir
     store = testdata_utils.get_tfx_pipeline_metadata_store(self.tmp_db_path)
-    mct = model_card_toolkit.ModelCardToolkit(
+    mct = core.ModelCardToolkit(
         output_dir=output_dir,
         mlmd_source=src.MlmdSource(
             store=store, model_uri=testdata_utils.TFX_0_21_MODEL_URI))
@@ -138,7 +138,7 @@ class ModelCardToolkitTest(parameterized.TestCase, TfxTest):
           features_include=['feature_name1', 'feature_name3'])
       model_src = src.ModelSource(pushed_model_path=pushed_model_path)
 
-    mc = model_card_toolkit.ModelCardToolkit(
+    mc = core.ModelCardToolkit(
         source=src.Source(tfma=tfma_src, tfdv=tfdv_src,
                           model=model_src)).scaffold_assets()
 
@@ -184,14 +184,14 @@ class ModelCardToolkitTest(parameterized.TestCase, TfxTest):
       self.assertEqual(mc.model_details.path, pushed_model_path)
 
   def test_scaffold_assets_with_empty_source(self):
-    model_card_toolkit.ModelCardToolkit(source=src.Source()).scaffold_assets()
+    core.ModelCardToolkit(source=src.Source()).scaffold_assets()
 
   def test_scaffold_assets_with_invalid_tfma_source(self):
     with self.assertRaisesWithLiteralMatch(
         ValueError,
         'Only one of TfmaSource.metrics_include and TfmaSource.metrics_exclude '
         'should be set.'):
-      model_card_toolkit.ModelCardToolkit(
+      core.ModelCardToolkit(
           source=src.Source(
               tfma=src.TfmaSource(
                   eval_result_paths=['dummy/path'],
@@ -202,7 +202,7 @@ class ModelCardToolkitTest(parameterized.TestCase, TfxTest):
     with self.assertRaisesWithLiteralMatch(
         ValueError, 'Only one of TfdvSource.features_include and '
         'TfdvSource.features_exclude should be set.'):
-      model_card_toolkit.ModelCardToolkit(
+      core.ModelCardToolkit(
           source=src.Source(
               tfdv=src.TfdvSource(
                   dataset_statistics_paths=['dummy/path'],
@@ -210,7 +210,7 @@ class ModelCardToolkitTest(parameterized.TestCase, TfxTest):
                   features_exclude=['brand_prominence'])))
 
   def test_update_model_card_with_valid_model_card(self):
-    mct = model_card_toolkit.ModelCardToolkit(output_dir=self.mct_dir)
+    mct = core.ModelCardToolkit(output_dir=self.mct_dir)
     valid_model_card = mct.scaffold_assets()
     valid_model_card.model_details.name = 'My Model'
     mct.update_model_card(valid_model_card)
@@ -225,7 +225,7 @@ class ModelCardToolkitTest(parameterized.TestCase, TfxTest):
     valid_model_card = model_card_pb2.ModelCard()
     valid_model_card.model_details.name = 'My Model'
 
-    mct = model_card_toolkit.ModelCardToolkit(output_dir=self.mct_dir)
+    mct = core.ModelCardToolkit(output_dir=self.mct_dir)
     mct.update_model_card(valid_model_card)
     proto_path = os.path.join(self.mct_dir, 'data/model_card.proto')
 
@@ -236,7 +236,7 @@ class ModelCardToolkitTest(parameterized.TestCase, TfxTest):
 
   def test_export_format(self):
     store = testdata_utils.get_tfx_pipeline_metadata_store(self.tmp_db_path)
-    mct = model_card_toolkit.ModelCardToolkit(
+    mct = core.ModelCardToolkit(
         output_dir=self.mct_dir,
         mlmd_source=src.MlmdSource(
             store=store, model_uri=testdata_utils.TFX_0_21_MODEL_URI))
@@ -260,7 +260,7 @@ class ModelCardToolkitTest(parameterized.TestCase, TfxTest):
       self.assertIn('My Model', content)
 
   def test_export_format_with_customized_template_and_output_name(self):
-    mct = model_card_toolkit.ModelCardToolkit(output_dir=self.mct_dir)
+    mct = core.ModelCardToolkit(output_dir=self.mct_dir)
     mc = mct.scaffold_assets()
     mc.model_details.name = 'My Model'
     mct.update_model_card(mc)
@@ -281,7 +281,7 @@ class ModelCardToolkitTest(parameterized.TestCase, TfxTest):
 
   def test_export_format_before_scaffold_assets(self):
     with self.assertRaises(ValueError):
-      model_card_toolkit.ModelCardToolkit().export_format()
+      core.ModelCardToolkit().export_format()
 
 
 if __name__ == '__main__':

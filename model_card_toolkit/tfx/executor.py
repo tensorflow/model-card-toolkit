@@ -6,7 +6,7 @@ ModelCardGenerator.
 
 from typing import Any, Dict, List, Optional
 
-from model_card_toolkit.model_card_toolkit import ModelCardToolkit
+from model_card_toolkit.core import ModelCardToolkit
 from model_card_toolkit.utils import source as src
 
 from tfx import types
@@ -101,4 +101,5 @@ class Executor(BaseExecutor):
     mct.scaffold_assets(json=exec_properties.get('json'))
     for template_path, output_file in exec_properties.get(
         'template_io', [(None, None)]):
-      mct.export_format(template_path=template_path, output_file=output_file)
+      mct.export_format(
+          template_path=template_path, output_file=output_file)
