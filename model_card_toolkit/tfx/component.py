@@ -74,7 +74,7 @@ class ModelCardGenerator(BaseComponent):
       ]
       )
   context.run(mc_gen)
-  mc_artifact = mc_gen.outputs['model_card']
+  mc_artifact = mc_gen.outputs['model_card'].get()[0]
   mc_path = os.path.join(mc_artifact.uri, 'model_card', 'model_card.html')
   with open(mc_path) as f:
     mc_content = f.readlines()

@@ -1,5 +1,15 @@
 <!-- mdlint off(HEADERS_TOO_MANY_H1) -->
 
+# Current Version (Still in Development)
+
+## Major Features and Improvements
+
+## Bug fixes and other changes
+
+* Fix bug where `ModelCardGenerator` fails if `template_io` is unspecified.
+
+## Breaking changes and Deprecations
+
 # Release 1.3.0
 
 ## Major Features and Improvements

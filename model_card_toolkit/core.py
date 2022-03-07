@@ -119,6 +119,8 @@ class ModelCardToolkit():
     self.output_dir = output_dir or tempfile.mkdtemp()
     self._mcta_proto_file = os.path.join(self.output_dir, _MCTA_PROTO_FILE)
     self._mcta_template_dir = os.path.join(self.output_dir, _MCTA_TEMPLATE_DIR)
+    self.default_template = os.path.join(self._mcta_template_dir,
+                                         _DEFAULT_UI_TEMPLATE_FILE)
     self._model_cards_dir = os.path.join(self.output_dir, _MODEL_CARDS_DIR)
     self._source = source
 
@@ -385,8 +387,7 @@ class ModelCardToolkit():
         generated model card assets.
     """
     if not template_path:
-      template_path = os.path.join(self._mcta_template_dir,
-                                   _DEFAULT_UI_TEMPLATE_FILE)
+      template_path = self.default_template
     template_dir = os.path.dirname(template_path)
     template_file = os.path.basename(template_path)
     if not output_file:

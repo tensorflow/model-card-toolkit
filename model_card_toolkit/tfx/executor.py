@@ -6,13 +6,15 @@ ModelCardGenerator.
 
 from typing import Any, Dict, List, Optional
 
-from model_card_toolkit.core import ModelCardToolkit
+from model_card_toolkit import core
 from model_card_toolkit.utils import source as src
 
 from tfx import types
 from tfx.dsl.components.base.base_executor import BaseExecutor
 from tfx.types import artifact_utils
 from tfx.types import standard_component_specs
+
+_DEFAULT_MODEL_CARD_FILE_NAME = 'model_card.html'
 
 
 class Executor(BaseExecutor):
@@ -89,17 +91,19 @@ class Executor(BaseExecutor):
     """
 
     # Initialize ModelCardToolkit
-    mct = ModelCardToolkit(
+    mct = core.ModelCardToolkit(
         source=src.Source(
             tfma=self._tfma_source(input_dict),
             tfdv=self._tfdv_source(input_dict),
             model=self._model_source(input_dict)),
         output_dir=artifact_utils.get_single_instance(
             output_dict['model_card']).uri)
+    template_io = exec_properties.get('template_io') or [
+        (mct.default_template, _DEFAULT_MODEL_CARD_FILE_NAME)
+    ]
 
     # Create model card assets from inputs
     mct.scaffold_assets(json=exec_properties.get('json'))
-    for template_path, output_file in exec_properties.get(
-        'template_io', [(None, None)]):
+    for template_path, output_file in template_io:
       mct.export_format(
           template_path=template_path, output_file=output_file)

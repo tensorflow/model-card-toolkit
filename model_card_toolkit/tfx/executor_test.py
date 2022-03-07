@@ -19,6 +19,10 @@ class ExecutorTest(parameterized.TestCase, TfxTest):
     self.mct_executor = executor.Executor()
     mlmd_store = self._set_up_mlmd()
 
+    # Write template
+    self.template_file = self.create_tempdir().create_file()
+    self.template_file.write_text('hello world')
+
     # Write TFMA metrics to store
     tfma_path = os.path.join(self.tmpdir, 'tfma')
     add_metrics_callbacks = [
@@ -89,7 +93,8 @@ class ExecutorTest(parameterized.TestCase, TfxTest):
     exec_properties = {}
     if exec_props:
       exec_properties['json'] = {'model_details': {'name': 'json_test',}}
-      exec_properties['template_io'] = [(None, 'my_cool_model_card.html')]
+      exec_properties['template_io'] = [(self.template_file.full_path,
+                                         'my_cool_model_card.html')]
 
     # Call MCT Executor
     self.mct_executor.Do(
@@ -112,11 +117,22 @@ class ExecutorTest(parameterized.TestCase, TfxTest):
         'rb') as f:
       model_card_proto.ParseFromString(f.read())
 
-    if exec_props:
-      self.assertEqual(model_card_proto.model_details.name, 'json_test')
-      self.assertIn(
-          'my_cool_model_card.html',
-          os.listdir(os.path.join(self.model_card_artifact.uri, 'model_cards')))
+    with self.subTest(name='exec_props'):
+      model_card_dir = os.path.join(self.model_card_artifact.uri, 'model_cards')
+      if exec_props:
+        self.assertEqual(model_card_proto.model_details.name, 'json_test')
+        model_card_file_name = 'my_cool_model_card.html'
+      else:
+        model_card_file_name = 'model_card.html'
+      self.assertIn(model_card_file_name, os.listdir(model_card_dir))
+      model_card_filepath = os.path.join(model_card_dir,
+                                         model_card_file_name)
+      with open(model_card_filepath) as f:
+        model_card_content = f.read()
+      if exec_props:
+        self.assertEqual(model_card_content, 'hello world')
+      else:
+        self.assertStartsWith(model_card_content, '<!DOCTYPE html>')
 
     if eval_artifacts:
       with self.subTest(name='eval_artifacts'):
