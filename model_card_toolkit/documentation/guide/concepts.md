@@ -26,6 +26,9 @@ card's available fields. A
 is also available. These objects can be interfaced with other systems for
 storage, analysis, or visualization.
 
+Today, the Model Card schema is strictly enforced. In Model Card Toolkit 2.0,
+this schema restriction will be lifted.
+
 #### Graphics
 
 Model Card Toolkit automatically generates graphics for TFX datasets and
@@ -62,15 +65,22 @@ used to convert graphics, such as Matplotlib figures, to base64 strings.
 
 By default, the generated model card document is a HTML file based on
 [default_template.html.jinja](https://github.com/tensorflow/model-card-toolkit/blob/master/model_card_toolkit/template/html/default_template.html.jinja).
-A
+However, you can also provide your own custom Jinja template. These templates
+files can be any text-based format (HTML, Markdown, LaTeX, etc.). A
 [Markdown template](https://github.com/tensorflow/model-card-toolkit/blob/master/model_card_toolkit/template/md/default_template.md.jinja)
-is also provided. However, you can provide your own template file to generate
-model cards via `ModelCardToolkit.export_format()`. These template files can be
-any text-based format (HTML, Markdown, LaTeX, etc.).
+is provided as an example.
 
 ### TFX and MLMD Integration
 
-The Model Card Toolkit integrates with the [TensorFlow Extended](https://www.tensorflow.org/tfx) and [ML Metadata](https://www.tensorflow.org/tfx/guide/mlmd) tools. A Metadata Store can be used during Model Card Toolkit initialization to pre-populate many model card fields and generate training and evaluation plots. See [this demonstration](https://github.com/tensorflow/model-card-toolkit/blob/master/model_card_toolkit/documentation/examples/MLMD_Model_Card_Toolkit_Demo.ipynb) for a detailed example.
+The Model Card Toolkit integrates with the
+[TensorFlow Extended](https://www.tensorflow.org/tfx) and
+[ML Metadata](https://www.tensorflow.org/tfx/guide/mlmd) tools. A Metadata Store
+can be used during Model Card Toolkit initialization to pre-populate many model
+card fields and generate training and evaluation plots. See
+[this guide](https://www.tensorflow.org/responsible_ai/model_card_toolkit/guide/tfx)
+for documentation, or
+[this demonstration](https://github.com/tensorflow/model-card-toolkit/blob/master/model_card_toolkit/documentation/examples/MLMD_Model_Card_Toolkit_Demo.ipynb)
+for a detailed example.
 
 [Artifacts](https://github.com/tensorflow/tfx/blob/master/tfx/types/standard_artifacts.py)
 used by MCT:

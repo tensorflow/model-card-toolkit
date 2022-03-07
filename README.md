@@ -27,19 +27,19 @@ The Model Card Toolkit is hosted on [PyPI](https://pypi.org/project/model-card-t
     model_card = mct.scaffold_assets()
     model_card.model_details.name = 'My Model'
 
-    # Write the model card data to a JSON file
-    mct.update_model_card_json(model_card)
+    # Write the model card data to a proto file
+    mct.update_model_card(model_card)
 
     # Return the model card document as an HTML page
     html = mct.export_format()
 
-## Automatic Model Card Generation
+## Model Card Generation on TFX
 
-If your machine learning pipeline uses the [TensorFlow Extended (TFX)](https://www.tensorflow.org/tfx) platform or [ML Metadata](https://www.tensorflow.org/tfx/guide/mlmd), you can automate model card generation. See [this demo notebook](model_card_toolkit/documentation/examples/MLMD_Model_Card_Toolkit_Demo.ipynb) for a demonstration of how to integrate the MCT into your pipeline.
+If you are using [TensorFlow Extended (TFX)](https://www.tensorflow.org/tfx), you can incorporate model card generation into your TFX pipeline via the [`ModelCardGenerator`](https://www.tensorflow.org/responsible_ai/model_card_toolkit/api_docs/python/model_card_toolkit/ModelCardGenerator) component. See our [guide](model_card_toolkit/documentation/guide/templates.md) for more details, [this case study](model_card_toolkit/documentation/examples/MLMD_Model_Card_Toolkit_Demo.ipynb) for a demonstration.
 
 ## Schema
 
-Model cards are stored in JSON as an intermediate format. You can see the model card JSON schema in the `schema` directory. Note that this is not a finalized path and may be hosted elsewhere in the future.
+Model cards are stored in proto as an intermediate format. You can see the model card JSON schema in the `schema` directory.
 
 ## References
 

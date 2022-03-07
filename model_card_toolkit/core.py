@@ -68,14 +68,14 @@ class ModelCardToolkit():
   incrementally via its API.
 
 
-  Example usage:
+  Standard workflow:
 
   ```python
   import model_card_toolkit
 
   # Initialize the Model Card Toolkit with a path to store generate assets
-  model_card_output_path = ...
-  mct = model_card_toolkit.ModelCardToolkit(model_card_output_path)
+  model_card_dir_path = ...
+  mct = model_card_toolkit.ModelCardToolkit(model_card_dir_path)
 
   # Initialize the ModelCard, which can be freely populated
   model_card = mct.scaffold_assets()
