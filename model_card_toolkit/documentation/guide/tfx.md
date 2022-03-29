@@ -67,3 +67,7 @@ mc_gen = ModelCardGenerator(
 More details are available in the
 [ModelCardGenerator](https://www.tensorflow.org/responsible_ai/model_card_toolkit/api_docs/python/model_card_toolkit/ModelCardGenerator)
 API reference.
+
+See our
+[end-to-end demo](https://www.tensorflow.org/responsible_ai/model_card_toolkit/examples/MLMD_Model_Card_Toolkit_Demo)
+for a full working example.
