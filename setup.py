@@ -30,7 +30,6 @@ from setuptools import setup
 # TODO(b/174880612): reduce dependency resolution search space
 REQUIRED_PACKAGES = [
     'absl-py>=0.9,<1.1',
-    'semantic-version>=2.8.0,<3',
     'jinja2>=2.10,<3',
     'matplotlib>=3.2.0,<4',
     'jsonschema>=3.2.0,<4',

@@ -6,6 +6,8 @@
 
 ## Bug fixes and other changes
 
+* Remove `semantic-version` dependency.
+
 ## Breaking changes and Deprecations
 
 # Release 1.3.1
