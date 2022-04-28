@@ -1,12 +1,13 @@
 <!-- mdlint off(HEADERS_TOO_MANY_H1) -->
 
-# Current Version (Still in Development)
+# Release 1.3.2
 
 ## Major Features and Improvements
 
 ## Bug fixes and other changes
 
 * Remove `semantic-version` dependency.
+* Update `jinja2` dependency.
 
 ## Breaking changes and Deprecations
 
