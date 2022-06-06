@@ -200,6 +200,7 @@
               <tr><th>Key</th><th>Value</th></tr>
               {% for kv in model_parameters.output_format_map %}
               <tr><td>{{ kv.key }}</td><td>{{ kv.value }}</td></tr>{% endfor %}</table>{% endif %}
+        </div>
       {% endif %}
       {% if considerations and (considerations.users or considerations.use_cases or considerations.limitations or considerations.tradeoffs or considerations.ethical_considerations) %}
       <div class="col card">
