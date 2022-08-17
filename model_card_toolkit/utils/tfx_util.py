@@ -451,7 +451,7 @@ def annotate_eval_result_metrics(model_card: model_card_module.ModelCard,
       output_names.add(output_name)
   for output_name in sorted(output_names):
     for slice_repr, metrics_for_slice in (
-        eval_result.get_metrics_for_all_slices().items()):
+        eval_result.get_metrics_for_all_slices(output_name=output_name).items()):
       # Parse the slice name
       if not isinstance(slice_repr, tuple):
         raise ValueError(
