@@ -1,0 +1,27 @@
+name: Add wheels to release
+ 
+on:
+  release:
+    types:
+      - published
+
+jobs:
+ dist_linux:
+    runs-on: ubuntu-latest
+    container:
+      image: gcr.io/tfx-oss-public/tfx_base:py37-20200729
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Build wheels
+      run: |
+        bash -x package_build/initialize.sh; \
+        CFLAGS=$(/usr/bin/python-config --cflags) \
+          python package_build/model-card-toolkit/setup.py bdist_wheel; \
+        MCT_WHEEL=$(find dist -name "model_card_toolkit-*.whl"); \
+        
+    - name: Upload
+      uses: shogo82148/actions-upload-release-asset@v1
+      with:
+        upload_url: ${{ github.event.release.upload_url }}
+        asset_path: dist/*.whl
