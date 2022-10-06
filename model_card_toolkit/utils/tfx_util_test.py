@@ -332,7 +332,7 @@ class TfxUtilsTest(absltest.TestCase):
     self.assertIsNone(tfx_util.read_metrics_eval_result('/does/not/exist/'))
 
   def test_annotate_eval_results_metrics(self):
-    eval_result = tfma.EvalResult(
+    eval_result = tfma.EvalResult(  # pytype: disable=wrong-arg-types
         slicing_metrics=_SLICING_METRICS,
         plots=None,
         attributions=None,
@@ -396,7 +396,7 @@ class TfxUtilsTest(absltest.TestCase):
       self.assertEqual(actual_metric.value, expected_metric.value)
 
   def test_filter_metrics(self):
-    eval_result = tfma.EvalResult(
+    eval_result = tfma.EvalResult(  # pytype: disable=wrong-arg-types
         slicing_metrics=_SLICING_METRICS,
         plots=None,
         attributions=None,
