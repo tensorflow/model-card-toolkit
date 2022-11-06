@@ -1,5 +1,17 @@
 <!-- mdlint off(HEADERS_TOO_MANY_H1) -->
 
+# Release 1.4.0
+
+## Major Features and Improvements
+
+## Bug fixes and other changes
+
+* Remove `tfx` dependency.
+
+## Breaking changes and Deprecations
+
+* Remove `model card component` for TFX. The component was moved to the TFX Addons package. This move simplifies the core dependencies of the model card toolkit.
+
 # Release 1.3.2
 
 ## Major Features and Improvements
