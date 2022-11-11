@@ -1,6 +1,13 @@
 name: Release Model Card Toolkit package to PyPI and TestPyPI
 
 on:
+  push:
+    paths:
+      - 'model_card_toolkit/**'
+      - 'setup.py'
+    branches:
+      - master
+      - r*
   release:
     types: [published]
     tags:
@@ -20,7 +27,7 @@ jobs:
         bash -x package_build/initialize.sh; \
         CFLAGS=$(/usr/bin/python-config --cflags) \
           python package_build/model-card-toolkit/setup.py bdist_wheel; \
-        MCT_WHEEL=$(find dist -name "model_card_toolkit-*.whl"); \
+        MCT_WHEEL=$(find dist -name 'model_card_toolkit-*.whl'); \
 
     - name: Publish Model Card Toolkit distribution package to Test PyPI
       uses: pypa/gh-action-pypi-publish@v1.5.0
