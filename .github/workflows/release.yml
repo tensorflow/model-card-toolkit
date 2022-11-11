@@ -1,19 +1,19 @@
 name: Release Model Card Toolkit package to PyPI and TestPyPI
 
-on:
-  push:
-    paths:
-      - 'model_card_toolkit/**'
-      - 'setup.py'
-    branches:
-      - master
-      - r*
-      # TODO (codesue): remove after testing workflow
-      - codesue/staging
-  release:
-    types: [published]
-    tags:
-      - v*
+# TODO (codesue): revert after registering and testing workflow
+on: [pull_request]
+  # push:
+  #   paths:
+  #     - 'model_card_toolkit/**'
+  #     - 'setup.py'
+  #   branches:
+  #     - master
+  #     - r*
+  # release:
+  #   types: [published]
+  #   tags:
+  #     - v*
+  
 
 jobs:
  build-and-publish:
