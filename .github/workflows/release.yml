@@ -8,6 +8,8 @@ on:
     branches:
       - master
       - r*
+      # TODO (codesue): remove after testing workflow
+      - codesue/staging
   release:
     types: [published]
     tags:
