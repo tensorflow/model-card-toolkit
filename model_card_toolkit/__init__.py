@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """A module to streamline and automate generation of Model Cards."""
+from model_card_toolkit.core import ModelCardToolkit
 from model_card_toolkit.model_card import *
-from model_card_toolkit.model_card_toolkit import ModelCardToolkit
+from model_card_toolkit.tfx.component import ModelCardGenerator
+from model_card_toolkit.utils.source import *
 from model_card_toolkit.version import __version__

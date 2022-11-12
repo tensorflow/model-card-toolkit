@@ -1,4 +1,9 @@
 
+
+
+
+
+
 # Model Card for train-only model
 
 ## Model Details
@@ -16,19 +21,15 @@ diff: Updated dataset.
 * bar, bar@xyz.com
 
 
-### License
+### Licenses
 
-Apache 2.0
+* Apache 2.0
 
 ### References
 
 * [https://my_model.xyz.com](https://my_model.xyz.com)
-
 * [https://example.com](https://example.com)
 
-### Citation
-
-https://doi.org/foo/bar
 
 ## Model Parameters
 
@@ -39,6 +40,7 @@ knn
 ### Input Format
 
 32-char-len-text
+
 
 ### Output Format
 

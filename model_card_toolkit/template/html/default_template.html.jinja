@@ -4,11 +4,11 @@
     <div>{{name}}: {{value}}</div>
   {%- endif %}
 {% endmacro %}
-{% macro render_list(list) %}
+{% macro render_considerations(list) %}
   {% if list %}
   <ul>
   {% for item in list %}
-    <li>{{ item }}</li>
+    <li>{{ item.description }}</li>
   {% endfor %}
   </ul>
   {%- endif %}
@@ -22,13 +22,69 @@
   </ul>
   {%- endif %}
 {% endmacro %}
+{% macro render_all_datasets(datasets) %}
+  <div class="col card">
+    <h2>Datasets</h2>
+    {% for dataset in datasets %}
+      <div class="row">
+        <div class="col card">
+          {% if dataset.name %}<h3>{{ dataset.name }}</h3>{% endif %}
+            {% if dataset.description %}<p>{{ dataset.description }}</p>{% endif %}
+            {% if dataset.link %}<a href="{{ dataset.link }}">{{ dataset.link }}</a>{% endif %}
+            {% if dataset.graphics and dataset.graphics.collection %}
+              {{ render_graphics(dataset.graphics.collection) }}
+            {% endif %}
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+{% endmacro %}
 {% macro render_graphics(graphics) %}
   <div class="img-container">
+  {% if graphics.description %}<p>{{ graphics.description }}</p>{% endif %}
   {% for graph in graphics %}
     <div class="img-item">
       <img src='data:image/jpeg;base64,{{ graph.image }}' alt='{{ graph.name }}' />
     </div>
   {% endfor %}
+  </div>
+{% endmacro %}
+{% macro render_license(license) %}
+{% if license.identifier %}
+                <li>{{ license.identifier }}{% endif %}{% if license.custom_text %}{{ license.custom_text }}{% endif %}</li>
+{% endmacro %}
+{% macro metric_name(metric) %}
+{{ metric.type }}{% if metric.threshold %}@{{ metric.threshold }}{% endif %}{% if metric.slice %}, {{ metric.slice }}{% endif %}
+{% endmacro %}
+{% macro metric_value(metric) %}
+{{ metric.value }}{% if metric.confidence_interval %} ({{ metric.confidence_interval.lower_bound }}, {{ metric.confidence_interval.upper_bound }}){% endif %}
+{% endmacro %}
+{% macro render_quantitative_analysis(quantitative_analysis) %}
+<div class="col card">
+  <h2>Quantitative Analysis</h2>
+  {% if quantitative_analysis.performance_metrics %}
+    {{ render_metrics_table(quantitative_analysis.performance_metrics )}}
+  {% endif %}
+  {% if quantitative_analysis.graphics.collection %}
+    {{ render_metrics_graphics(quantitative_analysis.graphics) }}
+  {% endif %}
+</div>
+{% endmacro %}
+{% macro render_metrics_table(metrics) %}
+<table class="center">
+  <caption>Performance Metrics</caption>
+  <tr><th>Name</th><th>Value</th></tr>
+{% for metric in metrics %}
+  <tr><td>{{ metric_name(metric) }}</td><td>{{ metric_value(metric) }}</td></tr>
+{% endfor %}
+</table>
+{% endmacro %}
+{% macro render_metrics_graphics(graphics) %}
+  <div class="row">
+    <div class="col">
+      {{ graphics.description }}
+      {{ render_graphics(graphics.collection) }}
+    </div>
   </div>
 {% endmacro %}
 <html lang="en">
@@ -55,6 +111,24 @@
   .img-item {
     flex: 1;
   }
+  .center {
+    margin-left: auto;
+    margin-right: auto;
+  }
+  table th {
+    background: #eee;
+  }
+  table, th, td {
+    border: 1px solid black;
+    border-collapse: collapse;
+  }
+  th, td {
+    border: 1px solid #ccc;
+    height: 30px;
+    text-align: left;
+    padding: 5px 10px
+  }
+  caption { font-weight: bold; }
 </style>
 <title>
   Model Card for {{ model_details.name }}
@@ -69,52 +143,83 @@
         <h2>Model Details</h2>
           {% if model_details.overview %}<h3>Overview</h3>
               {{  model_details.overview }}{% endif %}
-          {% if model_details.version %}<h3>Version</h3>
+          {% if model_details.version and model_details.version.name %}<h3>Version</h3>
               {{ render_if_exist('name', model_details.version.name) }}
               {{ render_if_exist('date', model_details.version.date) }}
               {{ render_if_exist('diff', model_details.version.diff) }}
           {% endif %}
+          {% if model_details.documentation %}<h3>Documentation</h3>
+              {{ model_details.documentation }}{% endif %}
           {% if model_details.owners %}<h3>Owners</h3>
-              <ul>{% for owner in model_details.owners %}
+            {% if model_details.owners|length > 1 %}
+              {% for owner in model_details.owners %}
                 <li>{{ owner.name }}, {{ owner.contact }}</li>
-              {% endfor %}</ul>{% endif %}
-          {% if model_details.license %}
-            <h3>License</h3>
-              {{  model_details.license }}{% endif %}
+              {% endfor %}
+            {% else %}
+              {{ model_details.owners[0].name }}, {{ model_details.owners[0].contact }}
+            {% endif %}
+          {% endif %}
+          {% if model_details.licenses %}
+            <h3>Licenses</h3>
+              <ul>{% for license in model_details.licenses %}{{ render_license(license) }}{% endfor %}
+              </ul>{% endif %}
           {% if model_details.references %}
             <h3>References</h3>
-              {{ render_uri_list(model_details.references) }}{% endif %}
-          {% if model_details.citation %}
-            <h3>Citation</h3>
-              {{ model_details.citation }}{% endif %}
-          {% if model_parameters.model_architecture %}
-            <h3>Model Architecture</h3>
-              {{ model_parameters.model_architecture }}{% endif %}
-          {% if model_parameters.input_format %}
-            <h3>Input Format</h3>
-              {{ model_parameters.input_format }}{% endif %}
-          {% if model_parameters.output_format %}
-            <h3>Output Format</h3>
-              {{ model_parameters.output_format }}{% endif %}
-      </div>
-      {% if considerations.users or considerations.use_cases or considerations.limitations or considerations.tradeoffs or considerations.ethical_considerations %}
+              <ul>
+              {% for reference in model_details.references %}
+                <li><a href="{{ reference.reference }}">{{ reference.reference }}</a></li>
+              {% endfor %}
+              </ul>{% endif %}
+          {% if model_details.citations %}
+            <h3>Citations</h3>
+              <ul>
+              {% for citation in model_details.citations %}
+                <li>{{ citation.citation }}</li>
+              {% endfor %}
+              </ul>{% endif %}
+        </div>
+      {% if model_parameters.model_architecture or model_parameters.input_format or model_parameters.input_format_map or model_parameters.output_format or model_parameters.output_format_map %}
+        <div class="col card">
+          <h2>Model Parameters</h2>
+            {% if model_parameters.model_architecture %}
+              <h3>Model Architecture</h3>
+                <div style="white-space:pre-wrap;">{{ model_parameters.model_architecture }}</div>{% endif %}
+            {% if model_parameters.input_format %}<h3>Input Format</h3>
+              <div style="white-space:pre-wrap;">{{ model_parameters.input_format }}</div>{% endif %}
+            {% if model_parameters.input_format_map %}
+              <h3>Input Format</h3>
+              <table>
+              <tr><th>Key</th><th>Value</th></tr>
+              {% for kv in model_parameters.input_format_map %}
+              <tr><td>{{ kv.key }}</td><td>{{ kv.value }}</td></tr>{% endfor %}</table>{% endif %}
+            {% if model_parameters.output_format %}<h3>Output Format</h3>
+              <div style="white-space:pre-wrap;">{{ model_parameters.output_format }}</div>{% endif %}
+            {% if model_parameters.output_format_map %}
+              <h3>Output Format</h3>
+              <table>
+              <tr><th>Key</th><th>Value</th></tr>
+              {% for kv in model_parameters.output_format_map %}
+              <tr><td>{{ kv.key }}</td><td>{{ kv.value }}</td></tr>{% endfor %}</table>{% endif %}
+        </div>
+      {% endif %}
+      {% if considerations and (considerations.users or considerations.use_cases or considerations.limitations or considerations.tradeoffs or considerations.ethical_considerations) %}
       <div class="col card">
         <h2>Considerations</h2>
           {% if considerations.users %}
             <h3>Intended Users</h3>
-              {{ render_list(considerations.users) }}
+              {{ render_considerations(considerations.users) }}
           {% endif %}
           {% if considerations.use_cases %}
             <h3>Use Cases</h3>
-              {{ render_list(considerations.use_cases) }}
+              {{ render_considerations(considerations.use_cases) }}
           {% endif %}
           {% if considerations.limitations %}
             <h3>Limitations</h3>
-              {{ render_list(considerations.limitations) }}
+              {{ render_considerations(considerations.limitations) }}
           {% endif %}
           {% if considerations.tradeoffs %}
             <h3>Tradeoffs</h3>
-              {{ render_list(considerations.tradeoffs) }}
+              {{ render_considerations(considerations.tradeoffs) }}
           {% endif %}
           {% if considerations.ethical_considerations %}
             <h3>Ethical Considerations</h3>
@@ -126,32 +231,11 @@
       </div>
       {% endif %}
     </div>
-    {% if model_parameters.data and model_parameters.data.train and model_parameters.data.train.graphics %}
-      <div class="row">
-        <div class="col card">
-          <h2>Train Set</h2>
-            {{ model_parameters.data.train.graphics.description }}
-            {{ render_graphics(model_parameters.data.train.graphics.collection) }}
-        </div>
-      </div>
+    {% if model_parameters.data %}
+      {{ render_all_datasets(model_parameters.data) }}
     {% endif %}
-    {% if model_parameters.data and model_parameters.data.eval and model_parameters.data.eval.graphics %}
-      <div class="row">
-        <div class="col card">
-          <h2>Eval Set</h2>
-            {{ model_parameters.data.eval.graphics.description }}
-            {{ render_graphics(model_parameters.data.eval.graphics.collection) }}
-        </div>
-      </div>
-    {% endif %}
-    {% if quantitative_analysis and quantitative_analysis.graphics %}
-      <div class="row">
-        <div class="col card">
-          <h2>Quantitative Analysis</h2>
-            {{ quantitative_analysis.graphics.description }}
-            {{ render_graphics(quantitative_analysis.graphics.collection) }}
-        </div>
-      </div>
+    {% if quantitative_analysis.performance_metrics or quantitative_analysis.graphics.collection %}
+      {{ render_quantitative_analysis(quantitative_analysis) }}
     {% endif %}
 </body>
 </html>

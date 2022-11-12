@@ -1,0 +1,53 @@
+name: Release Model Card Toolkit package to PyPI and TestPyPI
+
+on:
+  push:
+    paths:
+      - 'model_card_toolkit/**'
+      - 'setup.py'
+    branches:
+      - master
+      - r*
+  release:
+    types: [published]
+    tags:
+      - v*
+
+jobs:
+ build-and-publish:
+    name: Build Model Card Toolkit package and release to PyPI and Test PyPI
+    runs-on: ubuntu-latest
+    container:
+      image: gcr.io/tfx-oss-public/tfx_base:py37-20200729
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Build wheel
+      run: |
+        bash -x package_build/initialize.sh; \
+        CFLAGS=$(/usr/bin/python-config --cflags) \
+          python package_build/model-card-toolkit/setup.py bdist_wheel; \
+        MCT_WHEEL=$(find dist -name 'model_card_toolkit-*.whl'); \
+
+    - name: Publish Model Card Toolkit distribution package to Test PyPI
+      uses: pypa/gh-action-pypi-publish@v1.5.0
+      with:
+        password: ${{ secrets.TEST_PYPI_API_TOKEN }}
+        repository_url: https://test.pypi.org/legacy/
+        skip_existing: true
+
+    - name: Publish Model Card Toolkit distribution package to PyPI
+      if: github.event_name == 'release'
+      uses: pypa/gh-action-pypi-publish@v1.5.0
+      with:
+        password: ${{ secrets.PYPI_API_TOKEN }}
+
+    - name: Upload files to a GitHub release
+      uses: svenstaro/upload-release-action@2.2.1
+      if: github.event_name == 'release'
+      with:
+        repo_token: ${{ secrets.GITHUB_TOKEN }}
+        file: dist/*
+        tag: ${{ github.ref }}
+        overwrite: true
+        file_glob: true

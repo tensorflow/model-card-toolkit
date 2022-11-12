@@ -1,5 +1,5 @@
 {
-  "schema_version": "0.0.1",
+  "schema_version": "0.0.2",
   "model_details": {
     "name": "train and eval model",
     "owners": [
@@ -13,17 +13,17 @@
       "date": "2020-01-01",
       "diff": "Updated dataset."
     },
-    "license": "Apache 2.0",
+    "licenses": [{"identifier": "Apache 2.0"}],
     "references": [
-      "https://my_model.xyz.com",
-      "https://example.com"
+      {"reference": "https://my_model.xyz.com"},
+      {"reference": "https://example.com"}
     ],
-    "citation": "https://doi.org/foo/bar"
+    "citation": {"citation": "https://doi.org/foo/bar"}
   },
   "model_parameters": {
     "model_architecture": "knn",
-    "data": {
-      "train": {
+    "data": [
+      {
         "name": "train_split",
         "link": "path/to/train",
         "graphics": {
@@ -34,7 +34,7 @@
           }]
         }
       },
-      "eval": {
+      {
         "name": "eval_split",
         "link": "path/to/eval",
         "graphics": {
@@ -45,7 +45,7 @@
           }]
         }
       }
-    },
+    ],
     "input_format": "32-char-len-text",
     "output_format": "64-char-len-text"
   },
@@ -59,10 +59,10 @@
     }
   },
   "considerations": {
-    "users": ["Testers"],
-    "use_cases": ["Testing"],
-    "limitations": ["This model has no limitations"],
-    "tradeoffs": ["no tradeoffs"],
+    "users": [{"description": "Testers"}],
+    "use_cases": [{"description": "Testing"}],
+    "limitations": [{"description": "This model has no limitations"}],
+    "tradeoffs": [{"description": "no tradeoffs"}],
     "ethical_considerations": [
       {"name": "Bugs", "mitigation_strategy": "Unit tests"},
       {"name": "Broken edge cases", "mitigation_strategy": "Test coverage"}

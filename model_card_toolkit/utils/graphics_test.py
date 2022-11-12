@@ -38,7 +38,19 @@ class GraphicsTest(parameterized.TestCase):
     self.assertEqual(g.name, h.name)
     self.assertEqual(g.color, h.color)
 
-  def test_generate_graph_from_feature_statistics(self):
+  def test_extract_graph_data_from_dataset_feature_statistics(self):
+    empty_numeric_feature_stats = text_format.Parse(
+        """
+        path {
+          step: "numeric_feature"
+        }
+        type: INT
+        num_stats {
+        }""", statistics_pb2.FeatureNameStatistics())
+    self.assertIsNone(
+        graphics._extract_graph_data_from_dataset_feature_statistics(
+            empty_numeric_feature_stats))
+
     numeric_feature_stats = text_format.Parse(
         """
         path {
@@ -60,7 +72,8 @@ class GraphicsTest(parameterized.TestCase):
           }
         }""", statistics_pb2.FeatureNameStatistics())
     self.assertGraphEqual(
-        graphics._generate_graph_from_feature_statistics(numeric_feature_stats),
+        graphics._extract_graph_data_from_dataset_feature_statistics(
+            numeric_feature_stats),
         graphics._Graph(
             x=[6, 4],
             y=['0.00-50.00', '50.00-100.00'],
@@ -92,7 +105,8 @@ class GraphicsTest(parameterized.TestCase):
           }
         }""", statistics_pb2.FeatureNameStatistics())
     self.assertGraphEqual(
-        graphics._generate_graph_from_feature_statistics(string_feature_stats),
+        graphics._extract_graph_data_from_dataset_feature_statistics(
+            string_feature_stats),
         graphics._Graph(
             x=[1387, 3395, 2395],
             y=['News', 'Tech', 'Sports'],
@@ -109,7 +123,8 @@ class GraphicsTest(parameterized.TestCase):
         type: BYTES
         bytes_stats {}""", statistics_pb2.FeatureNameStatistics())
     self.assertIsNone(
-        graphics._generate_graph_from_feature_statistics(bytes_feature_stats))
+        graphics._extract_graph_data_from_dataset_feature_statistics(
+            bytes_feature_stats))
 
     struct_feature_stats = text_format.Parse(
         """
@@ -119,7 +134,8 @@ class GraphicsTest(parameterized.TestCase):
         type: STRUCT
         struct_stats {}""", statistics_pb2.FeatureNameStatistics())
     self.assertIsNone(
-        graphics._generate_graph_from_feature_statistics(struct_feature_stats))
+        graphics._extract_graph_data_from_dataset_feature_statistics(
+            struct_feature_stats))
 
   def test_annotate_dataset_feature_statistics_plots(self):
     train_stats = text_format.Parse(
@@ -285,8 +301,8 @@ class GraphicsTest(parameterized.TestCase):
     """, statistics_pb2.DatasetFeatureStatisticsList())
 
     model_card = model_card_module.ModelCard()
-    graphics.annotate_dataset_feature_statistics_plots(model_card, train_stats,
-                                                       eval_stats)
+    graphics.annotate_dataset_feature_statistics_plots(
+        model_card, [train_stats, eval_stats])
 
     expected_plot_names_train = {
         'counts | LDA_00', 'counts | LDA_01', 'counts | LDA_02'
@@ -295,88 +311,95 @@ class GraphicsTest(parameterized.TestCase):
         'counts | data_channel', 'counts | date', 'counts | slug'
     }
 
-    self.assertSameElements([
-        g.name
-        for g in model_card.model_parameters.data.train.graphics.collection
-    ], expected_plot_names_train)
-    self.assertSameElements([
-        g.name
-        for g in model_card.model_parameters.data.eval.graphics.collection
-    ], expected_plot_names_eval)
+    self.assertLen(model_card.model_parameters.data, 2)
 
-    graphs = model_card.model_parameters.data.train.graphics.collection + model_card.model_parameters.data.eval.graphics.collection
+    train_data = model_card.model_parameters.data[0]
+    self.assertSameElements([g.name for g in train_data.graphics.collection],
+                            expected_plot_names_train)
+
+    eval_data = model_card.model_parameters.data[1]
+    self.assertSameElements([g.name for g in eval_data.graphics.collection],
+                            expected_plot_names_eval)
+
+    graphs = train_data.graphics.collection + eval_data.graphics.collection
     for graph in graphs:
       logging.info('%s: %s', graph.name, graph.image)
       self.assertNotEmpty(graph.image, f'feature {graph.name} has empty plot')
 
-  def test_generate_graph_from_slicing_metrics(self):
-    slicing_metrics = [((('weekday', 0),), {
-        '': {
+  def test_extract_graph_data_from_slicing_metrics(self):
+    slicing_metrics = [
+        ((('weekday', 0),), {
             '': {
-                'average_loss': {
-                    'doubleValue': 0.07875693589448929
-                },
-                'prediction/mean': {
-                    'boundedValue': {
-                        'value': 0.5100112557411194,
-                        'lowerBound': 0.4100112557411194,
-                        'upperBound': 0.6100112557411194,
+                '': {
+                    'average_loss': {
+                        'doubleValue': 0.07875693589448929
+                    },
+                    'prediction/mean': {
+                        'boundedValue': {
+                            'value': 0.5100112557411194,
+                            'lowerBound': 0.4100112557411194,
+                            'upperBound': 0.6100112557411194,
+                        }
                     }
                 }
             }
-        }
-    }),
-                       ((('weekday', 1),), {
-                           '': {
-                               '': {
-                                   'average_loss': {
-                                       'doubleValue': 4.4887189865112305
-                                   },
-                                   'prediction/mean': {
-                                       'boundedValue': {
-                                           'value': 0.4839990735054016,
-                                           'lowerBound': 0.3839990735054016,
-                                           'upperBound': 0.5839990735054016,
-                                       }
-                                   }
-                               }
-                           }
-                       }),
-                       ((('weekday', 2),), {
-                           '': {
-                               '': {
-                                   'average_loss': {
-                                       'doubleValue': 2.092138290405273
-                                   },
-                                   'prediction/mean': {
-                                       'boundedValue': {
-                                           'value': 0.3767518997192383,
-                                           'lowerBound': 0.1767518997192383,
-                                           'upperBound': 0.5767518997192383,
-                                       }
-                                   }
-                               }
-                           }
-                       }),
-                       ((), {
-                           '': {
-                               '': {
-                                   'average_loss': {
-                                       'doubleValue': 1.092138290405273
-                                   },
-                                   'prediction/mean': {
-                                       'boundedValue': {
-                                           'value': 0.4767518997192383,
-                                           'lowerBound': 0.2767518997192383,
-                                           'upperBound': 0.6767518997192383,
-                                       }
-                                   }
-                               }
-                           }
-                       })]
+        }),
+        ((('weekday', 1),), {
+            '': {
+                '': {
+                    'average_loss': {
+                        'doubleValue': 4.4887189865112305
+                    },
+                    'prediction/mean': {
+                        'boundedValue': {
+                            'value': 0.4839990735054016,
+                            'lowerBound': 0.3839990735054016,
+                            'upperBound': 0.5839990735054016,
+                        }
+                    }
+                }
+            }
+        }),
+        (
+            (('weekday', 2),),
+            {
+                '': {
+                    '': {
+                        'average_loss': {
+                            'doubleValue': 2.092138290405273
+                        },
+                        'prediction/mean': {
+                            'doubleValue': 0.3767518997192383
+                        },
+                        '__ERROR__': {
+                            # CI not computed because only 16 samples
+                            # were non-empty. Expected 20.
+                            'bytesValue':
+                                'Q0kgbm90IGNvbXB1dGVkIGJlY2F1c2Ugb25seSAxNiBzYW1wbGVzIHdlcmUgbm9uLWVtcHR5LiBFeHBlY3RlZCAyMC4='
+                        }
+                    }
+                }
+            }),
+        ((), {
+            '': {
+                '': {
+                    'average_loss': {
+                        'doubleValue': 1.092138290405273
+                    },
+                    'prediction/mean': {
+                        'boundedValue': {
+                            'value': 0.4767518997192383,
+                            'lowerBound': 0.2767518997192383,
+                            'upperBound': 0.6767518997192383,
+                        }
+                    }
+                }
+            }
+        })
+    ]
     self.assertGraphEqual(
-        graphics._generate_graph_from_slicing_metrics(slicing_metrics,
-                                                      'average_loss'),
+        graphics._extract_graph_data_from_slicing_metrics(
+            slicing_metrics, 'average_loss'),
         graphics._Graph(
             x=[
                 0.07875693589448929, 4.4887189865112305, 2.092138290405273,
@@ -389,9 +412,8 @@ class GraphicsTest(parameterized.TestCase):
             name='average_loss',
             color='#A142F4'))
     self.assertGraphEqual(
-        graphics._generate_graph_from_slicing_metrics(slicing_metrics,
-                                                      'average_loss',
-                                                      'weekday'),
+        graphics._extract_graph_data_from_slicing_metrics(
+            slicing_metrics, 'average_loss', 'weekday'),
         graphics._Graph(
             x=[
                 0.07875693589448929, 4.4887189865112305, 2.092138290405273,
@@ -404,22 +426,16 @@ class GraphicsTest(parameterized.TestCase):
             name='average_loss | weekday',
             color='#A142F4'))
     self.assertGraphEqual(
-        graphics._generate_graph_from_slicing_metrics(slicing_metrics,
-                                                      'prediction/mean'),
+        graphics._extract_graph_data_from_slicing_metrics(
+            slicing_metrics, 'prediction/mean'),
         graphics._Graph(
             x=[
                 0.5100112557411194, 0.4839990735054016, 0.3767518997192383,
                 0.4767518997192383
             ],
             y=['0', '1', '2', 'Overall'],
-            xerr=[[
-                0.09999999999999998, 0.10000000000000003, 0.19999999999999998,
-                0.2
-            ],
-                  [
-                      0.09999999999999998, 0.09999999999999998,
-                      0.20000000000000007, 0.2
-                  ]],
+            xerr=[[0.09999999999999998, 0.10000000000000003, 0, 0.2],
+                  [0.09999999999999998, 0.09999999999999998, 0, 0.2]],
             xlabel='prediction/mean',
             ylabel='slices',
             title='prediction/mean',
@@ -427,23 +443,16 @@ class GraphicsTest(parameterized.TestCase):
             color='#A142F4'))
 
     self.assertGraphEqual(
-        graphics._generate_graph_from_slicing_metrics(slicing_metrics,
-                                                      'prediction/mean',
-                                                      'weekday'),
+        graphics._extract_graph_data_from_slicing_metrics(
+            slicing_metrics, 'prediction/mean', 'weekday'),
         graphics._Graph(
             x=[
                 0.5100112557411194, 0.4839990735054016, 0.3767518997192383,
                 0.4767518997192383
             ],
             y=['0', '1', '2', 'Overall'],
-            xerr=[[
-                0.09999999999999998, 0.10000000000000003, 0.19999999999999998,
-                0.2
-            ],
-                  [
-                      0.09999999999999998, 0.09999999999999998,
-                      0.20000000000000007, 0.2
-                  ]],
+            xerr=[[0.09999999999999998, 0.10000000000000003, 0, 0.2],
+                  [0.09999999999999998, 0.09999999999999998, 0, 0.2]],
             xlabel='prediction/mean',
             ylabel='slices',
             title='prediction/mean | weekday',
@@ -451,108 +460,114 @@ class GraphicsTest(parameterized.TestCase):
             color='#A142F4'))
 
   def test_annotate_eval_results_plots(self):
-    slicing_metrics = [((('weekday', 0),), {
-        '': {
+    slicing_metrics = [
+        ((('weekday', 0),), {
             '': {
-                'average_loss': {
-                    'doubleValue': 0.07875693589448929
-                },
-                'prediction/mean': {
-                    'boundedValue': {
-                        'value': 0.5100112557411194,
-                        'lowerBound': 0.4100112557411194,
-                        'upperBound': 0.6100112557411194,
-                    }
-                },
-                'average_loss_diff': {}
+                '': {
+                    'average_loss': {
+                        'doubleValue': 0.07875693589448929
+                    },
+                    'prediction/mean': {
+                        'boundedValue': {
+                            'value': 0.5100112557411194,
+                            'lowerBound': 0.4100112557411194,
+                            'upperBound': 0.6100112557411194,
+                        }
+                    },
+                    'average_loss_diff': {}
+                }
             }
-        }
-    }),
-                       ((('weekday', 1),), {
-                           '': {
-                               '': {
-                                   'average_loss': {
-                                       'doubleValue': 4.4887189865112305
-                                   },
-                                   'prediction/mean': {
-                                       'boundedValue': {
-                                           'value': 0.4839990735054016,
-                                           'lowerBound': 0.3839990735054016,
-                                           'upperBound': 0.5839990735054016,
-                                       }
-                                   },
-                                   'average_loss_diff': {}
-                               }
-                           }
-                       }),
-                       ((('weekday', 2),), {
-                           '': {
-                               '': {
-                                   'average_loss': {
-                                       'doubleValue': 2.092138290405273
-                                   },
-                                   'prediction/mean': {
-                                       'boundedValue': {
-                                           'value': 0.3767518997192383,
-                                           'lowerBound': 0.1767518997192383,
-                                           'upperBound': 0.5767518997192383,
-                                       }
-                                   },
-                                   'average_loss_diff': {}
-                               }
-                           }
-                       }),
-                       ((('gender', 'male'), ('age', 10)), {
-                           '': {
-                               '': {
-                                   'average_loss': {
-                                       'doubleValue': 2.092138290405273
-                                   },
-                                   'prediction/mean': {
-                                       'boundedValue': {
-                                           'value': 0.3767518997192383,
-                                           'lowerBound': 0.1767518997192383,
-                                           'upperBound': 0.5767518997192383,
-                                       }
-                                   },
-                                   'average_loss_diff': {}
-                               }
-                           }
-                       }),
-                       ((('gender', 'female'), ('age', 20)), {
-                           '': {
-                               '': {
-                                   'average_loss': {
-                                       'doubleValue': 2.092138290405273
-                                   },
-                                   'prediction/mean': {
-                                       'boundedValue': {
-                                           'value': 0.3767518997192383,
-                                           'lowerBound': 0.1767518997192383,
-                                           'upperBound': 0.5767518997192383,
-                                       }
-                                   },
-                                   'average_loss_diff': {}
-                               }
-                           }
-                       }),
-                       ((), {
-                           '': {
-                               '': {
-                                   'average_loss': {
-                                       'doubleValue': 1.092138290405273
-                                   },
-                                   'prediction/mean': {
-                                       'boundedValue': {
-                                           'value': 0.4767518997192383,
-                                           'lowerBound': 0.2767518997192383,
-                                           'upperBound': 0.6767518997192383,
-                                       }
-                                   },
-                                   'average_loss_diff': {}
-                               }
-                           }
-                       })]
+        }),
+        ((('weekday', 1),), {
+            '': {
+                '': {
+                    'average_loss': {
+                        'doubleValue': 4.4887189865112305
+                    },
+                    'prediction/mean': {
+                        'boundedValue': {
+                            'value': 0.4839990735054016,
+                            'lowerBound': 0.3839990735054016,
+                            'upperBound': 0.5839990735054016,
+                        }
+                    },
+                    'average_loss_diff': {}
+                }
+            }
+        }),
+        ((('weekday', 2),), {
+            '': {
+                '': {
+                    'average_loss': {
+                        'doubleValue': 2.092138290405273
+                    },
+                    'prediction/mean': {
+                        'boundedValue': {
+                            'value': 0.3767518997192383,
+                            'lowerBound': 0.1767518997192383,
+                            'upperBound': 0.5767518997192383,
+                        }
+                    },
+                    'average_loss_diff': {}
+                }
+            }
+        }),
+        ((('gender', 'male'), ('age', 10)), {
+            '': {
+                '': {
+                    'average_loss': {
+                        'doubleValue': 2.092138290405273
+                    },
+                    'prediction/mean': {
+                        'boundedValue': {
+                            'value': 0.3767518997192383,
+                            'lowerBound': 0.1767518997192383,
+                            'upperBound': 0.5767518997192383,
+                        }
+                    },
+                    'average_loss_diff': {}
+                }
+            }
+        }),
+        (
+            (('gender', 'female'), ('age', 20)),
+            {
+                '': {
+                    '': {
+                        'average_loss': {
+                            'doubleValue': 2.092138290405273
+                        },
+                        'prediction/mean': {
+                            'doubleValue': 0.3767518997192383
+                        },
+                        'average_loss_diff': {},
+                        '__ERROR__': {
+                            # CI not computed because only 16 samples
+                            # were non-empty. Expected 20.
+                            'bytesValue':
+                                'Q0kgbm90IGNvbXB1dGVkIGJlY2F1c2Ugb25seSAxNiBzYW1wbGVzIHdlcmUgbm9uLWVtcHR5LiBFeHBlY3RlZCAyMC4='
+                        }
+                    }
+                }
+            }),
+        ((), {
+            '': {
+                '': {
+                    'average_loss': {
+                        'doubleValue': 1.092138290405273
+                    },
+                    'prediction/mean': {
+                        'boundedValue': {
+                            'value': 0.4767518997192383,
+                            'lowerBound': 0.2767518997192383,
+                            'upperBound': 0.6767518997192383,
+                        }
+                    },
+                    'average_loss_diff': {}
+                }
+            }
+        })
+    ]
     eval_result = tfma.EvalResult(
         slicing_metrics=slicing_metrics,
         plots=None,
