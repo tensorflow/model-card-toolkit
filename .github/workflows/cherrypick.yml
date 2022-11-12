@@ -1,0 +1,24 @@
+name: Cherry pick
+on:
+  issue_comment:
+    types: [created]
+jobs:
+  cherry-pick:
+    name: Cherry Pick
+    # Only cherry pick if user is a release manager
+    # NB(gcasassaez): We unfortunately have to use fromJSON as GitHub doesn't have a way to specify constant arrays 
+    # See:  https://github.community/t/passing-an-array-literal-to-contains-function-causes-syntax-error/17213/3
+    if: github.event.issue.pull_request != '' && contains(github.event.comment.body, '/cherry-pick') && contains(fromJson('["casassg", "hanneshapke", "codesue"]'), github.event.sender.login)
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Checkout the latest code
+        uses: actions/checkout@v2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0 # otherwise, you will fail to push refs to the dest repo
+
+      - name: Automatic cherry pick
+        uses: vendoo/gha-cherry-pick@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
