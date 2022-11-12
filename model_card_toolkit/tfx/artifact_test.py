@@ -1,13 +1,13 @@
 """Tests for artifact."""
 
-from absl.testing import absltest
-from model_card_toolkit.tfx import artifact
 import ml_metadata as mlmd
+from absl.testing import absltest
 from ml_metadata.proto import metadata_store_pb2
+
+from model_card_toolkit.tfx import artifact
 
 
 class ArtifactTest(absltest.TestCase):
-
   def setUp(self):
     super(ArtifactTest, self).setUp()
     connection_config = metadata_store_pb2.ConnectionConfig()

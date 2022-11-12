@@ -17,19 +17,18 @@ import os
 from typing import Any, Callable, List, Optional
 
 import apache_beam as beam
-import tensorflow_model_analysis as tfma
-from tensorflow_model_analysis.eval_saved_model.example_trainers import fixed_prediction_estimator
-from tfx.types import standard_artifacts
-from tfx_bsl.tfxio import raw_tf_record
-
 import ml_metadata as mlmd
+import tensorflow_model_analysis as tfma
 from ml_metadata.proto import metadata_store_pb2
 from tensorflow_metadata.proto.v0 import statistics_pb2
+from tensorflow_model_analysis.eval_saved_model.example_trainers import \
+    fixed_prediction_estimator
+from tfx.types import standard_artifacts
+from tfx_bsl.tfxio import raw_tf_record
 
 
 class TfxTest(tfma.eval_saved_model.testutil.TensorflowModelAnalysisTest):
   """A helper class for testing interop with TFX pipelines."""
-
   def setUp(self):
     super(TfxTest, self).setUp()
     self.tmp_db_path = os.path.join(self.create_tempdir(), 'test_mlmd.db')
@@ -85,8 +84,8 @@ class TfxTest(tfma.eval_saved_model.testutil.TensorflowModelAnalysisTest):
         tfma.extractors.slice_key_extractor.SliceKeyExtractor(),
     ]
     evaluators = [
-        tfma.evaluators.legacy_metrics_and_plots_evaluator
-        .MetricsAndPlotsEvaluator(eval_shared_model)
+        tfma.evaluators.legacy_metrics_and_plots_evaluator.
+        MetricsAndPlotsEvaluator(eval_shared_model)
     ]
     writers = [
         tfma.writers.MetricsPlotsAndValidationsWriter(
@@ -106,20 +105,19 @@ class TfxTest(tfma.eval_saved_model.testutil.TensorflowModelAnalysisTest):
     with beam.Pipeline() as pipeline:
       example1 = self._makeExample(prediction=0.0, label=1.0)
       example2 = self._makeExample(prediction=1.0, label=1.0)
-      _ = (
-          pipeline
-          | 'Create' >> beam.Create([
-              example1.SerializeToString(),
-              example2.SerializeToString(),
-          ])
-          | 'BatchExamples' >> tfx_io.BeamSource()
-          | 'ExtractEvaluateAndWriteResults' >>
-          tfma.ExtractEvaluateAndWriteResults(
-              eval_config=eval_config,
-              eval_shared_model=eval_shared_model,
-              extractors=extractors,
-              evaluators=evaluators,
-              writers=writers))
+      _ = (pipeline
+           | 'Create' >> beam.Create([
+               example1.SerializeToString(),
+               example2.SerializeToString(),
+           ])
+           | 'BatchExamples' >> tfx_io.BeamSource()
+           | 'ExtractEvaluateAndWriteResults' >>
+           tfma.ExtractEvaluateAndWriteResults(
+               eval_config=eval_config,
+               eval_shared_model=eval_shared_model,
+               extractors=extractors,
+               evaluators=evaluators,
+               writers=writers))
 
     if store:
       self._put_artifact(store, standard_artifacts.ModelEvaluation.TYPE_NAME,
@@ -148,7 +146,6 @@ class TfxTest(tfma.eval_saved_model.testutil.TensorflowModelAnalysisTest):
       eval_features: The names of the features in the evaluation dataset.
       store: The MLMD store to save the TFDV output artifact.
     """
-
     def _write(dataset_name: str, features: List[str], split_name: str):
       stats = statistics_pb2.DatasetFeatureStatistics()
       stats.name = dataset_name
@@ -156,14 +153,21 @@ class TfxTest(tfma.eval_saved_model.testutil.TensorflowModelAnalysisTest):
         stat_feature = stats.features.add()
         stat_feature.name = feature
         stat_feature.string_stats.rank_histogram.buckets.extend([
-            statistics_pb2.RankHistogram.Bucket(
-                low_rank=0, high_rank=0, label='a', sample_count=4.0),
-            statistics_pb2.RankHistogram.Bucket(
-                low_rank=1, high_rank=1, label='b', sample_count=3.0),
-            statistics_pb2.RankHistogram.Bucket(
-                low_rank=2, high_rank=2, label='c', sample_count=2.0)
+            statistics_pb2.RankHistogram.Bucket(low_rank=0,
+                                                high_rank=0,
+                                                label='a',
+                                                sample_count=4.0),
+            statistics_pb2.RankHistogram.Bucket(low_rank=1,
+                                                high_rank=1,
+                                                label='b',
+                                                sample_count=3.0),
+            statistics_pb2.RankHistogram.Bucket(low_rank=2,
+                                                high_rank=2,
+                                                label='c',
+                                                sample_count=2.0)
         ])
-      stats_list = statistics_pb2.DatasetFeatureStatisticsList(datasets=[stats])
+      stats_list = statistics_pb2.DatasetFeatureStatisticsList(
+          datasets=[stats])
       stats_file = os.path.join(tfdv_path, split_name, 'FeatureStats.pb')
       os.makedirs(os.path.dirname(stats_file), exist_ok=True)
       with open(stats_file, mode='wb') as f:

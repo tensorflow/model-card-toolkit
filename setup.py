@@ -17,15 +17,13 @@
 Run with `python3 setup.py sdist bdist_wheel`.
 """
 
-# TODO(b/188859752): deprecate distutils
-from distutils.command import build
-
 import platform
 import shutil
 import subprocess
+# TODO(b/188859752): deprecate distutils
+from distutils.command import build
 
-from setuptools import Command
-from setuptools import setup
+from setuptools import Command, setup
 
 # TODO(b/174880612): reduce dependency resolution search space
 REQUIRED_PACKAGES = [
@@ -74,11 +72,11 @@ class _BuildCommand(build.build):
 
 class _BazelBuildCommand(Command):
   """Build Bazel artifacts and move generated files."""
-
   def initialize_options(self):
     pass
 
   def finalize_options(self):
+    """Set bazel options."""
     # verified with bazel 2.0.0, 3.0.0, and 4.0.0 via bazelisk
     self._bazel_cmd = shutil.which('bazel')
     if not self._bazel_cmd:
@@ -111,8 +109,9 @@ setup(
     author_email='tensorflow-extended-dev@googlegroups.com',
     packages=[
         'model_card_toolkit', 'model_card_toolkit.documentation',
-        'model_card_toolkit.documentation.examples', 'model_card_toolkit.proto',
-        'model_card_toolkit.tfx', 'model_card_toolkit.utils'
+        'model_card_toolkit.documentation.examples',
+        'model_card_toolkit.proto', 'model_card_toolkit.tfx',
+        'model_card_toolkit.utils'
     ],
     package_data={
         'model_card_toolkit': ['schema/**/*.json', 'template/**/*.jinja']

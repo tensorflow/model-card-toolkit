@@ -5,13 +5,14 @@ MLMD_Model_Card_Toolkit_Demo.ipynb.
 """
 
 import os
-from typing import List, Text, Optional
+from typing import List, Optional, Text
 
-from absl import logging
-from model_card_toolkit.documentation.examples import census_income_constants
 import tensorflow as tf
 import tensorflow_transform as tft
+from absl import logging
 from tfx.components.trainer.executor import TrainerFnArgs
+
+from model_card_toolkit.documentation.examples import census_income_constants
 
 _DENSE_FLOAT_FEATURE_KEYS = census_income_constants.DENSE_FLOAT_FEATURE_KEYS
 _VOCAB_FEATURE_KEYS = census_income_constants.VOCAB_FEATURE_KEYS
@@ -167,15 +168,13 @@ def _wide_and_deep_classifier(wide_columns, deep_columns, dnn_hidden_units):
     deep = tf.keras.layers.Dense(numnodes)(deep)
   wide = tf.keras.layers.DenseFeatures(wide_columns)(input_layers)
 
-  output = tf.keras.layers.Dense(
-      1, activation='sigmoid')(
-          tf.keras.layers.concatenate([deep, wide]))
+  output = tf.keras.layers.Dense(1, activation='sigmoid')(
+      tf.keras.layers.concatenate([deep, wide]))
 
   model = tf.keras.Model(input_layers, output)
-  model.compile(
-      loss='binary_crossentropy',
-      optimizer=tf.keras.optimizers.Adam(lr=0.001),
-      metrics=[tf.keras.metrics.BinaryAccuracy()])
+  model.compile(loss='binary_crossentropy',
+                optimizer=tf.keras.optimizers.Adam(lr=0.001),
+                metrics=[tf.keras.metrics.BinaryAccuracy()])
   model.summary(print_fn=logging.info)
   return model
 
@@ -206,22 +205,22 @@ def run_fn(fn_args: TrainerFnArgs):
 
   # This log path might change in the future.
   log_dir = os.path.join(os.path.dirname(fn_args.serving_model_dir), 'logs')
-  tensorboard_callback = tf.keras.callbacks.TensorBoard(
-      log_dir=log_dir, update_freq='batch')
-  model.fit(
-      train_dataset,
-      steps_per_epoch=fn_args.train_steps,
-      validation_data=eval_dataset,
-      validation_steps=fn_args.eval_steps,
-      callbacks=[tensorboard_callback])
+  tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir=log_dir,
+                                                        update_freq='batch')
+  model.fit(train_dataset,
+            steps_per_epoch=fn_args.train_steps,
+            validation_data=eval_dataset,
+            validation_steps=fn_args.eval_steps,
+            callbacks=[tensorboard_callback])
 
   signatures = {
       'serving_default':
-          _get_serve_tf_examples_fn(model,
-                                    tf_transform_output).get_concrete_function(
-                                        tf.TensorSpec(
-                                            shape=[None],
-                                            dtype=tf.string,
-                                            name='examples')),
+      _get_serve_tf_examples_fn(model,
+                                tf_transform_output).get_concrete_function(
+                                    tf.TensorSpec(shape=[None],
+                                                  dtype=tf.string,
+                                                  name='examples')),
   }
-  model.save(fn_args.serving_model_dir, save_format='tf', signatures=signatures)
+  model.save(fn_args.serving_model_dir,
+             save_format='tf',
+             signatures=signatures)

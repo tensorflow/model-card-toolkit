@@ -2,30 +2,26 @@
 
 import os
 
-from absl import app
-from absl import flags
+from absl import app, flags
+from tensorflow_docs.api_generator import generate_lib, public_api
 
 import model_card_toolkit
 
-from tensorflow_docs.api_generator import generate_lib
-from tensorflow_docs.api_generator import public_api
-
 FLAGS = flags.FLAGS
 
-flags.DEFINE_string(
-    "output_dir",
-    default="/tmp/model_card_toolkit",
-    help="Where to output the docs")
+flags.DEFINE_string("output_dir",
+                    default="/tmp/model_card_toolkit",
+                    help="Where to output the docs")
 
 flags.DEFINE_string(
     "code_url_prefix",
-    default="https://github.com/tensorflow/model-card-toolkit/tree/master/model-card-toolkit",
+    default=
+    "https://github.com/tensorflow/model-card-toolkit/tree/master/model-card-toolkit",
     help="The URL prefix for links to code.")
 
-flags.DEFINE_bool(
-    "search_hints",
-    default=True,
-    help="Include metadata search hints in the generated files")
+flags.DEFINE_bool("search_hints",
+                  default=True,
+                  help="Include metadata search hints in the generated files")
 
 flags.DEFINE_string(
     "site_path",

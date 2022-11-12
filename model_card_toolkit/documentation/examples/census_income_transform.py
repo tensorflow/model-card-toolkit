@@ -4,9 +4,10 @@ A collection of helper functions for the Census Income classifier used in
 MLMD_Model_Card_Toolkit_Demo.ipynb.
 """
 
-from model_card_toolkit.documentation.examples import census_income_constants
 import tensorflow as tf
 import tensorflow_transform as tft
+
+from model_card_toolkit.documentation.examples import census_income_constants
 
 _DENSE_FLOAT_FEATURE_KEYS = census_income_constants.DENSE_FLOAT_FEATURE_KEYS
 _VOCAB_FEATURE_KEYS = census_income_constants.VOCAB_FEATURE_KEYS
@@ -64,8 +65,7 @@ def _fill_in_missing(x):
     A rank 1 tensor where missing values of `x` have been filled in.
   """
   default_value = '' if x.dtype == tf.string else 0
-  return tf.squeeze(
-      tf.sparse.to_dense(
-          tf.SparseTensor(x.indices, x.values, [x.dense_shape[0], 1]),
-          default_value),
-      axis=1)
+  return tf.squeeze(tf.sparse.to_dense(
+      tf.SparseTensor(x.indices, x.values, [x.dense_shape[0], 1]),
+      default_value),
+                    axis=1)

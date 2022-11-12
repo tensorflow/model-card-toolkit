@@ -15,7 +15,9 @@
 
 import logging
 from typing import Any, Dict, Optional, Text
+
 import jsonschema
+
 from model_card_toolkit.utils import validation
 
 
@@ -74,7 +76,8 @@ def _update_from_v1_to_v2(json_dict: Dict[Text, Any]) -> Dict[Text, Any]:
   # Update model_details
   if json_dict["model_details"]["license"]:
     json_dict["model_details"]["licenses"] = [{
-        "custom_text": json_dict["model_details"].pop("license")
+        "custom_text":
+        json_dict["model_details"].pop("license")
     }]
   if json_dict["model_details"]["references"]:
     json_dict["model_details"]["references"] = [{
@@ -82,11 +85,13 @@ def _update_from_v1_to_v2(json_dict: Dict[Text, Any]) -> Dict[Text, Any]:
     } for reference in json_dict["model_details"]["references"]]
   if json_dict["model_details"]["citation"]:
     json_dict["model_details"]["citations"] = [{
-        "citation": json_dict["model_details"].pop("citation")
+        "citation":
+        json_dict["model_details"].pop("citation")
     }]
 
   # Update model_parameters
-  if "model_parameters" in json_dict and "data" in json_dict["model_parameters"]:
+  if "model_parameters" in json_dict and "data" in json_dict[
+      "model_parameters"]:
     new_data = []
     if "train" in json_dict["model_parameters"]["data"]:
       old_train_data = json_dict["model_parameters"]["data"]["train"]

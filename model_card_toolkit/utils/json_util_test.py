@@ -3,8 +3,10 @@
 import json
 import os
 import pkgutil
-from absl.testing import absltest
+
 import jsonschema
+from absl.testing import absltest
+
 from model_card_toolkit.utils import json_util
 
 _CATS_VS_DOGS_V1_PATH = os.path.join("utils", "testdata", "cats_vs_dogs.json")
@@ -23,7 +25,6 @@ _CONFIDENCE_INTERVAL = "confidence_interval"
 
 
 class JsonUtilTest(absltest.TestCase):
-
   def test_json_update_succeeds(self):
 
     updated_cats_vs_dogs_dict = json_util.update(
@@ -31,9 +32,8 @@ class JsonUtilTest(absltest.TestCase):
 
     for section in _MODEL_CARD_SECTIONS:
       with self.subTest(name=section):
-        self.assertDictEqual(
-            updated_cats_vs_dogs_dict.get(section),
-            _CATS_VS_DOGS_V2_DICT.get(section))
+        self.assertDictEqual(updated_cats_vs_dogs_dict.get(section),
+                             _CATS_VS_DOGS_V2_DICT.get(section))
 
     with self.subTest(name=_QUANTITATIVE_ANALYSIS):
 
@@ -56,12 +56,10 @@ class JsonUtilTest(absltest.TestCase):
         self.assertSameElements(v1m.keys(), v2m.keys())
         for field in v1m.keys():
           if field == _CONFIDENCE_INTERVAL:
-            self.assertEqual(
-                str(v1m[_CONFIDENCE_INTERVAL]["lower_bound"]),
-                str(v2m[_CONFIDENCE_INTERVAL]["lower_bound"]))
-            self.assertEqual(
-                str(v1m[_CONFIDENCE_INTERVAL]["upper_bound"]),
-                str(v2m[_CONFIDENCE_INTERVAL]["upper_bound"]))
+            self.assertEqual(str(v1m[_CONFIDENCE_INTERVAL]["lower_bound"]),
+                             str(v2m[_CONFIDENCE_INTERVAL]["lower_bound"]))
+            self.assertEqual(str(v1m[_CONFIDENCE_INTERVAL]["upper_bound"]),
+                             str(v2m[_CONFIDENCE_INTERVAL]["upper_bound"]))
           else:
             self.assertEqual(str(v1m[field]), str(v2m[field]))
 
@@ -70,9 +68,8 @@ class JsonUtilTest(absltest.TestCase):
         json_dict=_CATS_VS_DOGS_V2_DICT)
     for section in _MODEL_CARD_SECTIONS:
       with self.subTest(name=section):
-        self.assertDictEqual(
-            updated_cats_vs_dogs_dict.get(section),
-            _CATS_VS_DOGS_V2_DICT.get(section))
+        self.assertDictEqual(updated_cats_vs_dogs_dict.get(section),
+                             _CATS_VS_DOGS_V2_DICT.get(section))
 
   def test_json_update_validation_error(self):
     with self.assertRaises(jsonschema.ValidationError):

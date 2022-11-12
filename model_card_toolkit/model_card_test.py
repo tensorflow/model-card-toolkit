@@ -16,26 +16,23 @@
 import json
 import os
 import pkgutil
-from absl.testing import absltest
+
 import jsonschema
+from absl.testing import absltest
+from google.protobuf import text_format
 
 from model_card_toolkit import model_card
 from model_card_toolkit.proto import model_card_pb2
 
-from google.protobuf import text_format
-
 _FULL_PROTO_FILE_NAME = "full.pbtxt"
 _FULL_PROTO = pkgutil.get_data(
-    "model_card_toolkit",
-    os.path.join("template/test", _FULL_PROTO_FILE_NAME))
+    "model_card_toolkit", os.path.join("template/test", _FULL_PROTO_FILE_NAME))
 _FULL_JSON_FILE_PATH = "full.json"
 _FULL_JSON = model_card_json_bytestring = pkgutil.get_data(
-    "model_card_toolkit",
-    os.path.join("template/test", _FULL_JSON_FILE_PATH))
+    "model_card_toolkit", os.path.join("template/test", _FULL_JSON_FILE_PATH))
 
 
 class ModelCardTest(absltest.TestCase):
-
   def test_copy_from_proto_and_to_proto_with_all_fields(self):
     want_proto = text_format.Parse(_FULL_PROTO, model_card_pb2.ModelCard())
     model_card_py = model_card.ModelCard()
@@ -105,8 +102,8 @@ class ModelCardTest(absltest.TestCase):
   def test_merge_from_proto_with_invalid_proto(self):
     owner = model_card.Owner()
     wrong_proto = model_card_pb2.Version()
-    with self.assertRaisesRegex(
-        TypeError, ".*expected .*Owner got .*Version.*"):
+    with self.assertRaisesRegex(TypeError,
+                                ".*expected .*Owner got .*Version.*"):
       owner.merge_from_proto(wrong_proto)
 
   def test_to_proto_sucess(self):
@@ -116,17 +113,19 @@ class ModelCardTest(absltest.TestCase):
     owner.name = "my_name"
     self.assertEqual(owner.to_proto(), model_card_pb2.Owner(name="my_name"))
     owner.contact = "my_contact"
-    self.assertEqual(owner.to_proto(),
-                     model_card_pb2.Owner(name="my_name", contact="my_contact"))
+    self.assertEqual(
+        owner.to_proto(),
+        model_card_pb2.Owner(name="my_name", contact="my_contact"))
 
     # Test message convert.
     model_details = model_card.ModelDetails(
         owners=[model_card.Owner(name="my_name", contact="my_contact")])
     self.assertEqual(
         model_details.to_proto(),
-        model_card_pb2.ModelDetails(
-            owners=[model_card_pb2.Owner(name="my_name", contact="my_contact")],
-            version=model_card_pb2.Version()))
+        model_card_pb2.ModelDetails(owners=[
+            model_card_pb2.Owner(name="my_name", contact="my_contact")
+        ],
+                                    version=model_card_pb2.Version()))
 
   def test_to_proto_with_invalid_field(self):
     owner = model_card.Owner()
@@ -144,7 +143,8 @@ class ModelCardTest(absltest.TestCase):
 
   def test_from_json_overwrites_previous_fields(self):
     overwritten_limitation = model_card.Limitation(
-        description="This model can only be used on text up to 140 characters.")
+        description="This model can only be used on text up to 140 characters."
+    )
     overwritten_user = model_card.User(description="language researchers")
     model_card_py = model_card.ModelCard(
         considerations=model_card.Considerations(
@@ -160,11 +160,13 @@ class ModelCardTest(absltest.TestCase):
 
     # Initially, the ModelCard's "Limitations" and "Users" are specified.
     overwritten_limitation = model_card.Limitation(
-        description="This model can only be used on text up to 140 characters.")
+        description="This model can only be used on text up to 140 characters."
+    )
     not_overwritten_user = model_card.User(description="language researchers")
     model_card_py = model_card.ModelCard(
         considerations=model_card.Considerations(
-            limitations=[overwritten_limitation], users=[not_overwritten_user]))
+            limitations=[overwritten_limitation], users=[not_overwritten_user
+                                                         ]))
 
     # We create a JSON that specifies "Limitations" but not "Users".
     model_card_json = json.loads(_FULL_JSON)
@@ -176,8 +178,7 @@ class ModelCardTest(absltest.TestCase):
     model_card_py.merge_from_json(model_card_json)
     self.assertNotIn(overwritten_limitation,
                      model_card_py.considerations.limitations)
-    self.assertIn(not_overwritten_user,
-                  model_card_py.considerations.users)
+    self.assertIn(not_overwritten_user, model_card_py.considerations.users)
 
   def test_merge_from_json_dict_and_str(self):
     json_dict = json.loads(_FULL_JSON)
@@ -204,9 +205,10 @@ class ModelCardTest(absltest.TestCase):
         "considerations": {},
         "schema_version": "0.0.3"
     }
-    with self.assertRaisesRegex(ValueError, (
-        "^Cannot find schema version that matches the version of the given "
-        "model card.")):
+    with self.assertRaisesRegex(
+        ValueError,
+        ("^Cannot find schema version that matches the version of the given "
+         "model card.")):
       model_card.ModelCard().from_json(model_card_dict)
 
   def test_from_proto_to_json(self):

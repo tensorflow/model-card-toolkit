@@ -21,10 +21,14 @@ import json
 import os
 import pkgutil
 from typing import Any, Dict, Optional
+
 import jsonschema
 
 _SCHEMA_FILE_NAME = 'model_card.schema.json'
-_SCHEMA_VERSIONS = frozenset(('0.0.1', '0.0.2',))
+_SCHEMA_VERSIONS = frozenset((
+    '0.0.1',
+    '0.0.2',
+))
 _LATEST_SCHEMA_VERSION = '0.0.2'
 
 SCHEMA_VERSION_STRING = 'schema_version'
@@ -52,9 +56,8 @@ def validate_json_schema(
       version.
     ValidationError: If `model_card_json` does not follow the model card schema.
   """
-  schema = _find_json_schema(
-      schema_version or json_dict.get('schema_version') or
-      _LATEST_SCHEMA_VERSION)
+  schema = _find_json_schema(schema_version or json_dict.get('schema_version')
+                             or _LATEST_SCHEMA_VERSION)
   jsonschema.validate(json_dict, schema)
   return schema
 

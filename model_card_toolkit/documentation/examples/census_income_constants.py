@@ -8,7 +8,6 @@ MAX_CATEGORICAL_FEATURE_VALUES = [20]
 
 CATEGORICAL_FEATURE_KEYS = ["Education-Num"]
 
-
 DENSE_FLOAT_FEATURE_KEYS = ["Capital-Gain", "Hours-per-week", "Capital-Loss"]
 
 # Number of buckets used by tf.transform for encoding each feature.
@@ -22,8 +21,10 @@ VOCAB_SIZE = 200
 # Count of out-of-vocab buckets in which unrecognized VOCAB_FEATURES are hashed.
 OOV_SIZE = 10
 
-VOCAB_FEATURE_KEYS = ["Workclass", "Education", "Marital-Status", "Occupation",
-                      "Relationship", "Race", "Sex", "Country"]
+VOCAB_FEATURE_KEYS = [
+    "Workclass", "Education", "Marital-Status", "Occupation", "Relationship",
+    "Race", "Sex", "Country"
+]
 
 # Keys
 LABEL_KEY = "Over-50K"

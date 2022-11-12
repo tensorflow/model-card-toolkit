@@ -51,8 +51,8 @@ def get_tfx_pipeline_metadata_store(tmp_db_path: str) -> mlmd.MetadataStore:
   connection_config = metadata_store_pb2.ConnectionConfig(
       sqlite=metadata_store_pb2.SqliteMetadataSourceConfig(
           filename_uri=tmp_db_path,
-          connection_mode=metadata_store_pb2.SqliteMetadataSourceConfig
-          .READWRITE,
+          connection_mode=metadata_store_pb2.SqliteMetadataSourceConfig.
+          READWRITE,
       ))
   # The pipeline db is created with mlmd 0.21, the test run from the head
   # may include newer mlmd schema versions. We migrate the db to newer

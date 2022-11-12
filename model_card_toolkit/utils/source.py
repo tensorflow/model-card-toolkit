@@ -54,14 +54,11 @@ class TfmaSource:
       pass
     elif self.model_evaluation_artifacts and not self.eval_result_paths:
       self.eval_result_paths = [
-          artifact.uri
-          for artifact in self.model_evaluation_artifacts
+          artifact.uri for artifact in self.model_evaluation_artifacts
       ]
     else:
-      raise ValueError(
-          'TfmaSource needs exactly one of eval_result_paths or '
-          'model_evaluation_artifact'
-      )
+      raise ValueError('TfmaSource needs exactly one of eval_result_paths or '
+                       'model_evaluation_artifact')
 
     if self.metrics_include and self.metrics_exclude:
       raise ValueError('Only one of TfmaSource.metrics_include and '
@@ -98,14 +95,12 @@ class TfdvSource:
       pass
     elif self.example_statistics_artifacts and not self.dataset_statistics_paths:
       self.dataset_statistics_paths = [
-          artifact.uri
-          for artifact in self.example_statistics_artifacts
+          artifact.uri for artifact in self.example_statistics_artifacts
       ]
     else:
       raise ValueError(
           'TfdvSource needs exactly one of dataset_statistics_paths or '
-          'example_statistics_artifacts'
-      )
+          'example_statistics_artifacts')
 
     if self.features_include and self.features_exclude:
       raise ValueError('Only one of TfdvSource.features_include and '
@@ -131,10 +126,8 @@ class ModelSource:
     elif self.pushed_model_artifact and not self.pushed_model_path:
       self.pushed_model_path = self.pushed_model_artifact.uri
     else:
-      raise ValueError(
-          'ModelSource needs exactly one of pushed_model_path or '
-          'pushed_model_artifact.'
-      )
+      raise ValueError('ModelSource needs exactly one of pushed_model_path or '
+                       'pushed_model_artifact.')
 
 
 @dataclasses.dataclass

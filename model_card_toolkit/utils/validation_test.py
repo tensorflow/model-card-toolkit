@@ -16,13 +16,15 @@
 import json
 import os
 import pkgutil
-from absl.testing import absltest
-from absl.testing import parameterized
+
 import jsonschema
+from absl.testing import absltest, parameterized
+
 from model_card_toolkit.utils import validation
 
 _MODEL_DETAILS_V1_DICT = {
-    "name": "my model",
+    "name":
+    "my model",
     "owners": [{
         "name": "foo",
         "contact": "foo@xyz.com"
@@ -34,9 +36,11 @@ _MODEL_DETAILS_V1_DICT = {
         "name": "0.01",
         "date": "2020-01-01"
     },
-    "license": "Apache 2.0",
+    "license":
+    "Apache 2.0",
     "references": ["https://my_model.xyz.com"],
-    "citation": "https://doi.org/foo/bar"
+    "citation":
+    "https://doi.org/foo/bar"
 }
 _MODEL_PARAMETERS_V1_DICT = {
     "model_architecture": "knn",
@@ -88,7 +92,8 @@ _MODEL_CARD_V1_DICT = {
 }
 
 _MODEL_DETAILS_V2_DICT = {
-    "name": "my model",
+    "name":
+    "my model",
     "owners": [{
         "name": "foo",
         "contact": "foo@xyz.com"
@@ -112,14 +117,13 @@ _MODEL_DETAILS_V2_DICT = {
 }
 _MODEL_PARAMETERS_V2_DICT = {
     "model_architecture":
-        "knn",
+    "knn",
     "data": [{
         "name": "train_split",
         "link": "path/to/train",
         "sensitive": {
-            "sensitive_data": [
-                "this dataset contains PII", "this dataset contains geo data"
-            ]
+            "sensitive_data":
+            ["this dataset contains PII", "this dataset contains geo data"]
         },
         "graphics": {
             "collection": [{
@@ -173,11 +177,11 @@ _MODEL_CARD_V2_DICT = {
 
 
 class ValidationTest(parameterized.TestCase):
-
   def test_validate_json_schema(self):
     validation.validate_json_schema(_MODEL_CARD_V1_DICT,
                                     schema_version="0.0.1")
-    validation.validate_json_schema(_MODEL_CARD_V2_DICT, schema_version="0.0.2")
+    validation.validate_json_schema(_MODEL_CARD_V2_DICT,
+                                    schema_version="0.0.2")
 
   def test_validate_json_schema_invalid_dict(self):
     invalid_json_dict = {"model_name": "the_greatest_model"}
@@ -187,8 +191,8 @@ class ValidationTest(parameterized.TestCase):
   def test_validate_json_schema_invalid_version(self):
     invalid_schema_version = "0.0.3"
     with self.assertRaises(ValueError):
-      validation.validate_json_schema(
-          _MODEL_CARD_V1_DICT, schema_version=invalid_schema_version)
+      validation.validate_json_schema(_MODEL_CARD_V1_DICT,
+                                      schema_version=invalid_schema_version)
 
   @parameterized.named_parameters(("train_data", "train_data.json"),
                                   ("considerations", "considerations.json"),

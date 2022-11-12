@@ -22,16 +22,15 @@ import pkgutil
 import tempfile
 from typing import Any, Dict, Optional, Union
 
-from absl import logging
 import jinja2
+import tensorflow_model_analysis as tfma
+from absl import logging
 
 from model_card_toolkit.model_card import ModelCard
 from model_card_toolkit.proto import model_card_pb2
 from model_card_toolkit.utils import graphics
 from model_card_toolkit.utils import source as src
 from model_card_toolkit.utils import tfx_util
-
-import tensorflow_model_analysis as tfma
 
 # Constants about provided UI templates.
 _UI_TEMPLATES = (
@@ -88,7 +87,6 @@ class ModelCardToolkit():
   html = mct.export_format()
   ```
   """
-
   def __init__(
       self,
       output_dir: Optional[str] = None,
@@ -342,8 +340,8 @@ class ModelCardToolkit():
       if template_content is None:
         raise FileNotFoundError(f"Cannot find file: '{template_path}'")
       template_content = template_content.decode('utf8')
-      self._write_file(
-          os.path.join(self.output_dir, template_path), template_content)
+      self._write_file(os.path.join(self.output_dir, template_path),
+                       template_content)
 
     return model_card
 
@@ -404,11 +402,10 @@ class ModelCardToolkit():
                          'Call scaffold_assets() to generate model_card.')
 
     # Generate Model Card.
-    jinja_env = jinja2.Environment(
-        loader=self._jinja_loader(template_dir),
-        autoescape=True,
-        auto_reload=True,
-        cache_size=0)
+    jinja_env = jinja2.Environment(loader=self._jinja_loader(template_dir),
+                                   autoescape=True,
+                                   auto_reload=True,
+                                   cache_size=0)
     template = jinja_env.get_template(template_file)
     model_card_file_content = template.render(
         model_details=model_card.model_details,

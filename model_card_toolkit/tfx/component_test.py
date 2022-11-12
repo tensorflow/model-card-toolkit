@@ -3,16 +3,13 @@
 import json as json_lib
 
 from absl.testing import absltest
+from tfx.types import channel_utils, standard_artifacts
 
 from model_card_toolkit.tfx import artifact
 from model_card_toolkit.tfx.component import ModelCardGenerator
 
-from tfx.types import channel_utils
-from tfx.types import standard_artifacts
-
 
 class ComponentTest(absltest.TestCase):
-
   def test_component_construction(self):
     this_component = ModelCardGenerator(
         statistics=channel_utils.as_channel(
@@ -38,7 +35,8 @@ class ComponentTest(absltest.TestCase):
     with self.subTest('exec_properties'):
       self.assertDictEqual(
           {
-              'json': json_lib.dumps({
+              'json':
+              json_lib.dumps({
                   'model_details': {
                       'name': 'my model',
                       'version': {

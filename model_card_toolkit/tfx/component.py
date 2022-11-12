@@ -3,17 +3,15 @@
 The ModelCardGenerator is used to generate model cards in a TFX pipeline.
 """
 
-from typing import Any, List, Tuple, Optional
-
-from model_card_toolkit.tfx import artifact
-from model_card_toolkit.tfx import executor
+from typing import Any, List, Optional, Tuple
 
 from tfx import types
 from tfx.dsl.components.base import executor_spec
 from tfx.dsl.components.base.base_component import BaseComponent
-from tfx.types import component_spec
-from tfx.types import standard_artifacts
-from tfx.types import standard_component_specs
+from tfx.types import (component_spec, standard_artifacts,
+                       standard_component_specs)
+
+from model_card_toolkit.tfx import artifact, executor
 
 MODEL_CARD_KEY = 'model_card'
 
@@ -22,29 +20,27 @@ class ModelCardGeneratorSpec(component_spec.ComponentSpec):
   """Component spec for the ModelCardGenerator."""
   PARAMETERS = {
       'json':
-          component_spec.ExecutionParameter(type=str, optional=True),
+      component_spec.ExecutionParameter(type=str, optional=True),
       # template_io's type is List[Tuple[str, str]],
       # but we need List[Any] to pass ExecutionParameter.type_check().
       # See below link for details.
       # https://github.com/tensorflow/tfx/blob/4ff5e97b09540ff8a858076a163ecdf209716324/tfx/types/component_spec.py#L308
       'template_io':
-          component_spec.ExecutionParameter(
-              type=List[Any], optional=True)
+      component_spec.ExecutionParameter(type=List[Any], optional=True)
   }
   INPUTS = {
       standard_component_specs.STATISTICS_KEY:
-          component_spec.ChannelParameter(
-              type=standard_artifacts.ExampleStatistics, optional=True),
+      component_spec.ChannelParameter(
+          type=standard_artifacts.ExampleStatistics, optional=True),
       standard_component_specs.EVALUATION_KEY:
-          component_spec.ChannelParameter(
-              type=standard_artifacts.ModelEvaluation, optional=True),
+      component_spec.ChannelParameter(type=standard_artifacts.ModelEvaluation,
+                                      optional=True),
       standard_component_specs.PUSHED_MODEL_KEY:
-          component_spec.ChannelParameter(
-              type=standard_artifacts.PushedModel, optional=True),
+      component_spec.ChannelParameter(type=standard_artifacts.PushedModel,
+                                      optional=True),
   }
   OUTPUTS = {
-      MODEL_CARD_KEY:
-          component_spec.ChannelParameter(type=artifact.ModelCard),
+      MODEL_CARD_KEY: component_spec.ChannelParameter(type=artifact.ModelCard),
   }
 
 
@@ -89,8 +85,7 @@ class ModelCardGenerator(BaseComponent):
                statistics: Optional[types.Channel] = None,
                pushed_model: Optional[types.Channel] = None,
                json: Optional[str] = None,
-               template_io: Optional[List[Tuple[str, str]]] = None
-              ):
+               template_io: Optional[List[Tuple[str, str]]] = None):
     """Generate a model card for a TFX pipeline.
 
     This executes a Model Card Toolkit workflow, producing a `ModelCard`
@@ -118,7 +113,7 @@ class ModelCardGenerator(BaseComponent):
         useful for fields that cannot be auto-populated from earlier TFX
         components. If a field is populated both by TFX and JSON, the JSON value
         will overwrite the TFX value. Use the [Model Card JSON
-        schema](https://github.com/tensorflow/model-card-toolkit/blob/master/model_card_toolkit/schema/v0.0.2/model_card.schema.json).
+        schema](https://github.com/tensorflow/model-card-toolkit/blob/master/model_card_toolkit/schema/v0.0.2/model_card.schema.json).  # pylint: disable=line-too-long
       template_io: A list of input/output pairs. The input is the path to a
         [Jinja](https://jinja.palletsprojects.com/) template. Using data
         extracted from TFX components and `json`, this template is populated and

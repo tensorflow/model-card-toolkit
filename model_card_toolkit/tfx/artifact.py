@@ -1,12 +1,13 @@
 """The ModelCard TFX/MLMD artifact."""
 
 import datetime
-from absl import logging
-from tfx.types.artifact import Artifact
-from tfx.types.system_artifacts import Metrics
+
 import ml_metadata as mlmd
+from absl import logging
 from ml_metadata import errors
 from ml_metadata.proto import metadata_store_pb2
+from tfx.types.artifact import Artifact
+from tfx.types.system_artifacts import Metrics
 
 
 class ModelCard(Artifact):
@@ -47,11 +48,12 @@ def create_and_save_artifact(
        datetime.datetime.now().strftime('%H:%M:%S')])
 
   # Save artifact to store. Also populates the artifact's id.
-  artifact_id = store.put_artifacts([metadata_store_pb2.Artifact(
-      type=ModelCard.TYPE_NAME,
-      type_id=type_id,
-      uri=artifact_uri,
-      name=name)])[0]
+  artifact_id = store.put_artifacts([
+      metadata_store_pb2.Artifact(type=ModelCard.TYPE_NAME,
+                                  type_id=type_id,
+                                  uri=artifact_uri,
+                                  name=name)
+  ])[0]
   artifact = store.get_artifacts_by_id([artifact_id])[0]
   logging.info(
       'Successfully saved ModelCard artifact %s with uri=%s and id=%s.',
