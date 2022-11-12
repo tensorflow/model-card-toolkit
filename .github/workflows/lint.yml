@@ -7,17 +7,17 @@ on:
       - '.github/ci/**'
       - '.github/workflows/lint.yml'
     branches:
-      - main
+      - '**'
+  pull_request:
+    paths:
+      - '**.py'
+      - '.github/ci/**'
+      - '.github/workflows/lint.yml'
+    branches:
+      - master
       - r*
-      - '**'  # TODO: remove
-  # pull_request:
-  #   paths:
-  #     - '**.py'
-  #     - '.github/ci/**'
-  #     - '.github/workflows/lint.yml'
-  #   branches:
-  #     - main
-  #     - r*
+    tags:
+      - v*
 
 jobs:
   pre-commit-checks:
