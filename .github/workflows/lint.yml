@@ -1,0 +1,33 @@
+name: Lint
+
+on:
+  push:
+    paths:
+      - '**.py'
+      - '.github/ci/**'
+      - '.github/workflows/lint.yml'
+    branches:
+      - main
+      - r*
+      - '**'  # TODO: remove
+  pull_request:
+    paths:
+      - '**.py'
+      - '.github/ci/**'
+      - '.github/workflows/lint.yml'
+    branches:
+      - main
+      - r*
+
+jobs:
+  pre-commit-checks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+    - uses: actions/checkout@v2
+    - uses: pre-commit/action@v2.0.3
+      name: Run pre-commit checks (pylint/yapf/isort)
+      env:
+        SKIP: insert-license
+      with:
+        extra_args: --hook-stage push --all-files
