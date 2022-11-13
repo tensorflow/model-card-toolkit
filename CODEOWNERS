@@ -1,0 +1,21 @@
+# Global owners for the Model Card Toolkit
+* @codesue @casassg @ahmed-bd @hanneshapke
+
+# Core members
+/CONTRIBUTING.md @rcrowe-google @casassg @hanneshapke @codesue @wihanbooyse @ahmed-bd
+/README.md @rcrowe-google @casassg @hanneshapke @codesue @wihanbooyse @ahmed-bd
+/CODE_OF_CONDUCT.md @rcrowe-google @casassg @hanneshapke @codesue @wihanbooyse @ahmed-bd
+
+# PyPi distribution files
+/tfx_addons/__init__.py @rcrowe-google @casassg @hanneshapke @codesue @wihanbooyse @ahmed-bd
+/tfx_addons/version.py @rcrowe-google @casassg @hanneshapke @codesue @wihanbooyse @ahmed-bd
+/setup.py @rcrowe-google @casassg @hanneshapke @codesue @wihanbooyse @ahmed-bd
+/WORKSPACE @rcrowe-google @casassg @hanneshapke @codesue @wihanbooyse @ahmed-bd
+/RELEASE.md @rcrowe-google @casassg @hanneshapke @codesue @wihanbooyse @ahmed-bd
+
+# CI/CD configuration (Release team)
+/.github/workflows/ @casassg @codesue @hanneshapke
+/.github/ci  @casassg @codesue @hanneshapke
+
+# TFX component
+/model_card_toolkit/tfx @shuklak13
