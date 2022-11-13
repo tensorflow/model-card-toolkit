@@ -180,3 +180,13 @@ Use the following command to run all unit tests:
 ```sh
 pytest model_card_toolkit
 ```
+
+## Being a Code Owner
+
+Code owners are automatically requested for review when someone opens a pull
+request that modifies code that they own. Code ownership is tracked through the
+[CODEOWNERS](CODEOWNERS) file.
+
+You may request to become a code owner if you have made substantial contributions
+to the project such as guiding project meetings, contributing a major feature,
+or maintaining code.
