@@ -40,6 +40,9 @@ REQUIRED_PACKAGES = [
     'dataclasses;python_version<"3.7"',
 ]
 
+TESTS_REQUIRE = ['tensorflow-datasets']
+EXTRAS_REQUIRE = {'test':  TESTS_REQUIRE}
+
 # Get version from version module.
 with open('model_card_toolkit/version.py') as fp:
   globals_dict = {}
@@ -119,7 +122,8 @@ setup(
     },
     python_requires='>=3.6,<4',
     install_requires=REQUIRED_PACKAGES,
-    tests_require=REQUIRED_PACKAGES,
+    tests_require=TESTS_REQUIRE,
+    extras_require=EXTRAS_REQUIRE,
     # PyPI package information.
     classifiers=[
         'Development Status :: 4 - Beta',
