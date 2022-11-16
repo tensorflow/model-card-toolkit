@@ -27,7 +27,8 @@ import ml_metadata as mlmd
 from ml_metadata.proto import metadata_store_pb2
 from tensorflow_metadata.proto.v0 import statistics_pb2
 
-# A list of artifact type names used by TFX 0.21 and later versions.
+# A list of artifact type names used by TFX 0.21 and later versions. This lets
+# us avoid introducing tfx as a dependency.
 _TFX_DATASET_TYPE = 'Examples'
 _TFX_STATS_TYPE = 'ExampleStatistics'
 _TFX_MODEL_TYPE = 'Model'

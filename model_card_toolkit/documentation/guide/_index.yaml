@@ -70,12 +70,6 @@ landing_page:
 
   - classname: devsite-landing-row-cards
     items:
-    - heading: "Use MLMD with Model Card Toolkit"
-      path: "/responsible_ai/model_card_toolkit/examples/MLMD_Model_Card_Toolkit_Demo"
-      buttons:
-      - label: "Try the notebook tutorial"
-        path: "/responsible_ai/model_card_toolkit/examples/MLMD_Model_Card_Toolkit_Demo"
-
     - heading: "Use Model Card Toolkit with Scikit-Learn"
       path: "/responsible_ai/model_card_toolkit/examples/Scikit_Learn_Model_Card_Toolkit_Demo"
       buttons:

@@ -76,11 +76,7 @@ The Model Card Toolkit integrates with the
 [TensorFlow Extended](https://www.tensorflow.org/tfx) and
 [ML Metadata](https://www.tensorflow.org/tfx/guide/mlmd) tools. A Metadata Store
 can be used during Model Card Toolkit initialization to pre-populate many model
-card fields and generate training and evaluation plots. See
-[this guide](https://www.tensorflow.org/responsible_ai/model_card_toolkit/guide/tfx)
-for documentation, or
-[this demonstration](https://github.com/tensorflow/model-card-toolkit/blob/master/model_card_toolkit/documentation/examples/MLMD_Model_Card_Toolkit_Demo.ipynb)
-for a detailed example.
+card fields and generate training and evaluation plots.
 
 [Artifacts](https://github.com/tensorflow/tfx/blob/master/tfx/types/standard_artifacts.py)
 used by MCT:
@@ -102,3 +98,8 @@ used by MCT:
 
 *   [Trainer](https://www.tensorflow.org/tfx/api_docs/python/tfx/v1/components/Trainer):
     used to populate model name and version
+
+The `ModelCardGenerator` component introduced in Model Card Toolkit 1.3.0 is
+moving to the [TFX Addons](https://github.com/tensorflow/tfx-addons) library.
+This page will be updated to include the new links for the Model Cards in TFX
+guide and the end-to-end demo when that migration is completed.

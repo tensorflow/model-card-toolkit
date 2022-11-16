@@ -27,16 +27,16 @@ import subprocess
 from setuptools import Command
 from setuptools import setup
 
-# TODO(b/174880612): reduce dependency resolution search space
+
 REQUIRED_PACKAGES = [
     'absl-py>=0.9,<1.1',
     'jinja2>=3.1,<3.2',
     'matplotlib>=3.2.0,<4',
     'jsonschema>=3.2.0,<4',
-    'tensorflow-model-analysis>=0.36.0,<0.37.0',
-    'tensorflow-metadata>=1.5.0,<1.6.0',
-    'tfx>=1.5.0,<1.6.0',
-    'ml-metadata>=1.5.0,<1.6.0',
+    'tensorflow-data-validation>=1.5.0,<2.0.0',
+    'tensorflow-model-analysis>=0.36.0,<0.42.0',
+    'tensorflow-metadata>=1.5.0,<2.0.0',
+    'ml-metadata>=1.5.0,<2.0.0',
     'dataclasses;python_version<"3.7"',
 ]
 
@@ -113,9 +113,12 @@ setup(
     author='Google LLC',
     author_email='tensorflow-extended-dev@googlegroups.com',
     packages=[
-        'model_card_toolkit', 'model_card_toolkit.documentation',
-        'model_card_toolkit.documentation.examples', 'model_card_toolkit.proto',
-        'model_card_toolkit.tfx', 'model_card_toolkit.utils'
+        'model_card_toolkit',
+        'model_card_toolkit.documentation',
+        'model_card_toolkit.documentation.examples',
+        'model_card_toolkit.proto',
+        'model_card_toolkit.tfx',
+        'model_card_toolkit.utils',
     ],
     package_data={
         'model_card_toolkit': ['schema/**/*.json', 'template/**/*.jinja']
