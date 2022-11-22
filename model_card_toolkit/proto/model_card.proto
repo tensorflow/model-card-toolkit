@@ -264,6 +264,19 @@ message Considerations {
   repeated Risk ethical_considerations = 5;
 }
 
+// CUSTOM FIELDS
+// How the model affects humans.
+message Intervention {
+  // Assistance or Assessment
+  optional string description = 1;
+}
+message Thingstoknow {
+  // Things you should know
+  repeated Intervention intervention = 1;
+
+}
+
+
 // Fields used to generate the Model Card.
 // The next tag number is 5.
 message ModelCard {
@@ -278,4 +291,7 @@ message ModelCard {
 
   // Any considerations related to model construction, training, and application
   optional Considerations considerations = 4;
+
+  // CUSTOM FIELDS
+  optional Thingstoknow thingstoknow = 5;
 }
