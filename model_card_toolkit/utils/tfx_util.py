@@ -442,7 +442,7 @@ def annotate_eval_result_metrics(model_card: model_card_module.ModelCard,
       logging.warning('Received unexpected array %s', str(array))
       return ''
 
-  # NB(gcasassaez): When multiple outputs are passed, each will be in it's own output_name key
+  # NOTE: When multiple outputs are passed, each will be in it's own output_name key
   # If that's the case add each output_name + metric to the quantitative_analysis by namespacing by
   # output_name.metric to distinguish them
   output_names = set()
