@@ -37,6 +37,13 @@ class BaseModelCardField(abc.ABC):
   need to override this unless it needs some special process.
   """
 
+  def __len__(self) -> int:
+    """Returns the number of items in a field. Ignores None values recursively,
+    so the length of a field that only contains another field that has all None
+    values would be 0.
+    """
+    return len(self.to_dict())
+
   @property
   @abc.abstractmethod
   def _proto_type(self):
