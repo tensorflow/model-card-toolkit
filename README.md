@@ -41,7 +41,7 @@ component.
 
 The `ModelCardGenerator` component is moving to the
 [TFX Addons](https://github.com/tensorflow/tfx-addons) library and will no longer
-be packaged in Model Card Toolkit from version 1.4.0. Before you can use the
+be packaged in Model Card Toolkit from version 2.0.0. Before you can use the
 component, you will need to install the `tfx-addons` package:
 
 ```sh
