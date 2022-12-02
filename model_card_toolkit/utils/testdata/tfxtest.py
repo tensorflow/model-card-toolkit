@@ -16,6 +16,7 @@
 import os
 from typing import Any, Callable, List, Optional
 
+from absl import flags
 import apache_beam as beam
 import tensorflow_model_analysis as tfma
 from tensorflow_model_analysis.eval_saved_model.example_trainers import fixed_prediction_estimator
@@ -175,3 +176,8 @@ class TfxTest(tfma.eval_saved_model.testutil.TensorflowModelAnalysisTest):
     if store:
       self._put_artifact(store, standard_artifacts.ExampleStatistics.TYPE_NAME,
                          tfdv_path)
+
+if not __name__ == '__main__':
+  # Manually parse flags to prevent UnparsedFlagAccessError when using pytest or
+  # unittest as a runner.
+  flags.FLAGS(['--test_tmpdir'])
