@@ -35,7 +35,21 @@ The Model Card Toolkit is hosted on [PyPI](https://pypi.org/project/model-card-t
 
 ## Model Card Generation on TFX
 
-If you are using [TensorFlow Extended (TFX)](https://www.tensorflow.org/tfx), you can incorporate model card generation into your TFX pipeline via the [`ModelCardGenerator`](https://www.tensorflow.org/responsible_ai/model_card_toolkit/api_docs/python/model_card_toolkit/ModelCardGenerator) component. See our [guide](model_card_toolkit/documentation/guide/templates.md) for more details, [this case study](model_card_toolkit/documentation/examples/MLMD_Model_Card_Toolkit_Demo.ipynb) for a demonstration.
+If you are using [TensorFlow Extended (TFX)](https://www.tensorflow.org/tfx), you can
+incorporate model card generation into your TFX pipeline via the `ModelCardGenerator`
+component.
+
+The `ModelCardGenerator` component is moving to the
+[TFX Addons](https://github.com/tensorflow/tfx-addons) library and will no longer
+be packaged in Model Card Toolkit from version 2.0.0. Before you can use the
+component, you will need to install the `tfx-addons` package:
+
+```sh
+pip install tfx-addons[model_card_generator]
+```
+
+This page will be updated to include the new links for the Model Cards in TFX
+guide and the end-to-end demo when the migration is completed.
 
 ## Schema
 

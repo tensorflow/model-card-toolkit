@@ -12,24 +12,3 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ==============================================================================
-"""
-Optionally imports the ModelCardGenerator TFX component.
-"""
-import logging
-
-try:
-  from tfx_addons.model_card_generator.component import ModelCardGenerator
-except ImportError:
-  ModelCardGenerator = None
-  logging.info(
-      """
-      The ModelCardGenerator component and its dependencies have been moved to
-      the TFX Addons project (https://github.com/tensorflow/tfx-addons).
-
-      If you'd like to use the component, you need to install the tfx-addons package:
-
-      ```
-      $ pip install tfx-addons[model_card_generator]
-      ```
-      """
-  )
