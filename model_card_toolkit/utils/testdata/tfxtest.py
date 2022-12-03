@@ -16,6 +16,7 @@
 import os
 from typing import Any, Callable, List, Optional
 
+from absl import flags
 import apache_beam as beam
 from model_card_toolkit.utils.tfx_util import _TFX_METRICS_TYPE
 from model_card_toolkit.utils.tfx_util import _TFX_STATS_TYPE
@@ -174,3 +175,9 @@ class TfxTest(tfma.eval_saved_model.testutil.TensorflowModelAnalysisTest):
 
     if store:
       self._put_artifact(store, _TFX_STATS_TYPE, tfdv_path)
+
+
+if not __name__ == '__main__':
+  # Manually pass and parse flags to prevent UnparsedFlagAccessError when using
+  # pytest or unittest as a runner.
+  flags.FLAGS(['--test_tmpdir'])

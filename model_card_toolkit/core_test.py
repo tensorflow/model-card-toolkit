@@ -16,6 +16,7 @@
 import os
 from unittest import mock
 
+from absl import flags
 from absl.testing import absltest
 from absl.testing import parameterized
 
@@ -289,3 +290,7 @@ class CoreTest(parameterized.TestCase, TfxTest):
 
 if __name__ == '__main__':
   absltest.main()
+else:
+  # Manually pass and parse flags to prevent UnparsedFlagAccessError when using
+  # pytest or unittest as a runner.
+  flags.FLAGS(['--test_tmpdir'])
