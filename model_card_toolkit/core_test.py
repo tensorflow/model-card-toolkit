@@ -26,8 +26,11 @@ from model_card_toolkit.utils import graphics
 from model_card_toolkit.utils import source as src
 from model_card_toolkit.utils.testdata import testdata_utils
 from model_card_toolkit.utils.testdata.tfxtest import TfxTest
+from model_card_toolkit.utils.tfx_util import _TFX_METRICS_TYPE
+from model_card_toolkit.utils.tfx_util import _TFX_STATS_TYPE
 import tensorflow_model_analysis as tfma
-from tfx.types import standard_artifacts
+
+from ml_metadata.proto import metadata_store_pb2
 
 
 class CoreTest(parameterized.TestCase, TfxTest):
@@ -115,11 +118,11 @@ class CoreTest(parameterized.TestCase, TfxTest):
       self._write_tfdv(tfdv_path, train_dataset_name, train_features,
                        eval_dataset_name, eval_features, mlmd_store)
       model_evaluation_artifacts = mlmd_store.get_artifacts_by_type(
-          standard_artifacts.ModelEvaluation.TYPE_NAME)
+          _TFX_METRICS_TYPE)
       example_statistics_artifacts = mlmd_store.get_artifacts_by_type(
-          standard_artifacts.ExampleStatistics.TYPE_NAME)
-      pushed_model_artifact = standard_artifacts.PushedModel()
-      pushed_model_artifact.uri = pushed_model_path
+          _TFX_STATS_TYPE)
+      # Use placeholder artifact to avoid introducing tfx as a dependency
+      pushed_model_artifact = metadata_store_pb2.Artifact(uri=pushed_model_path)
       tfma_src = src.TfmaSource(
           model_evaluation_artifacts=model_evaluation_artifacts,
           metrics_exclude=['average_loss'])

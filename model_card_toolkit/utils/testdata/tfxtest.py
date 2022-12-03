@@ -17,9 +17,10 @@ import os
 from typing import Any, Callable, List, Optional
 
 import apache_beam as beam
+from model_card_toolkit.utils.tfx_util import _TFX_METRICS_TYPE
+from model_card_toolkit.utils.tfx_util import _TFX_STATS_TYPE
 import tensorflow_model_analysis as tfma
 from tensorflow_model_analysis.eval_saved_model.example_trainers import fixed_prediction_estimator
-from tfx.types import standard_artifacts
 from tfx_bsl.tfxio import raw_tf_record
 
 import ml_metadata as mlmd
@@ -122,8 +123,7 @@ class TfxTest(tfma.eval_saved_model.testutil.TensorflowModelAnalysisTest):
               writers=writers))
 
     if store:
-      self._put_artifact(store, standard_artifacts.ModelEvaluation.TYPE_NAME,
-                         tfma_path)
+      self._put_artifact(store, _TFX_METRICS_TYPE, tfma_path)
 
   def _write_tfdv(self,
                   tfdv_path: str,
@@ -173,5 +173,4 @@ class TfxTest(tfma.eval_saved_model.testutil.TensorflowModelAnalysisTest):
     _write(eval_dataset_name, eval_features, 'Split-eval')
 
     if store:
-      self._put_artifact(store, standard_artifacts.ExampleStatistics.TYPE_NAME,
-                         tfdv_path)
+      self._put_artifact(store, _TFX_STATS_TYPE, tfdv_path)

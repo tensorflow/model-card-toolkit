@@ -27,7 +27,8 @@ import ml_metadata as mlmd
 from ml_metadata.proto import metadata_store_pb2
 from tensorflow_metadata.proto.v0 import statistics_pb2
 
-# A list of artifact type names used by TFX 0.21 and later versions.
+# A list of artifact type names used by TFX 0.21 and later versions. This lets
+# us avoid introducing tfx as a dependency.
 _TFX_DATASET_TYPE = 'Examples'
 _TFX_STATS_TYPE = 'ExampleStatistics'
 _TFX_MODEL_TYPE = 'Model'
@@ -442,31 +443,42 @@ def annotate_eval_result_metrics(model_card: model_card_module.ModelCard,
       logging.warning('Received unexpected array %s', str(array))
       return ''
 
-  for slice_repr, metrics_for_slice in (
-      eval_result.get_metrics_for_all_slices().items()):
-    # Parse the slice name
-    if not isinstance(slice_repr, tuple):
-      raise ValueError(
-          f'Expected EvalResult slices to be tuples; found {type(slice_repr)}')
-    slice_name = '_X_'.join(f'{a}_{b}' for a, b in slice_repr)
-    for metric_name, metric_value in metrics_for_slice.items():
-      # Parse the metric value
-      parsed_value = ''
-      if 'doubleValue' in metric_value:
-        parsed_value = metric_value['doubleValue']
-      elif 'boundedValue' in metric_value:
-        parsed_value = metric_value['boundedValue']['value']
-      elif 'arrayValue' in metric_value:
-        parsed_value = _parse_array_value(metric_value['arrayValue'])
-      else:
-        logging.warning(
-            'Expected doubleValue, boundedValue, or arrayValue; found %s',
-            metric_value.keys())
-      if parsed_value:
-        # Create the PerformanceMetric and append to the ModelCard
-        metric = model_card_module.PerformanceMetric(
-            type=metric_name, value=str(parsed_value), slice=slice_name)
-        model_card.quantitative_analysis.performance_metrics.append(metric)
+  # NOTE: When multiple outputs are passed, each will be in it's own output_name key
+  # If that's the case add each output_name + metric to the quantitative_analysis by namespacing by
+  # output_name.metric to distinguish them
+  output_names = set()
+  for slicing_metric in eval_result.slicing_metrics:
+    for output_name in slicing_metric[1]:
+      output_names.add(output_name)
+  for output_name in sorted(output_names):
+    for slice_repr, metrics_for_slice in (
+        eval_result.get_metrics_for_all_slices(output_name=output_name).items()):
+      # Parse the slice name
+      if not isinstance(slice_repr, tuple):
+        raise ValueError(
+            f'Expected EvalResult slices to be tuples; found {type(slice_repr)}')
+      slice_name = '_X_'.join(f'{a}_{b}' for a, b in slice_repr)
+      for metric_name, metric_value in metrics_for_slice.items():
+        # Parse the metric value
+        parsed_value = ''
+        if 'doubleValue' in metric_value:
+          parsed_value = metric_value['doubleValue']
+        elif 'boundedValue' in metric_value:
+          parsed_value = metric_value['boundedValue']['value']
+        elif 'arrayValue' in metric_value:
+          parsed_value = _parse_array_value(metric_value['arrayValue'])
+        else:
+          logging.warning(
+              'Expected doubleValue, boundedValue, or arrayValue; found %s',
+              metric_value.keys())
+        if parsed_value:
+          metric_type = metric_name
+          if output_name:
+            metric_type = f"{output_name}.{metric_name}"
+          # Create the PerformanceMetric and append to the ModelCard
+          metric = model_card_module.PerformanceMetric(
+              type=metric_type, value=str(parsed_value), slice=slice_name)
+          model_card.quantitative_analysis.performance_metrics.append(metric)
 
 
 def filter_metrics(
