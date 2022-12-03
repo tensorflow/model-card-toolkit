@@ -140,10 +140,12 @@ class ExecutorTest(parameterized.TestCase, TfxTest):
             model_card_proto.quantitative_analysis.performance_metrics, [
                 model_card_pb2.PerformanceMetric(
                     type='post_export_metrics/example_count',
-                    value='2.0'),
+                    value='2.0',
+                    confidence_interval=model_card_pb2.ConfidenceInterval()),
                 model_card_pb2.PerformanceMetric(
                     type='average_loss',
-                    value='0.5')
+                    value='0.5',
+                    confidence_interval=model_card_pb2.ConfidenceInterval())
             ])
         self.assertLen(
             model_card_proto.quantitative_analysis.graphics.collection, 2)
@@ -165,7 +167,8 @@ class ExecutorTest(parameterized.TestCase, TfxTest):
                 graphics=model_card_pb2.GraphicsCollection(collection=[
                     model_card_pb2.Graphic(
                         name='counts | feature_name1', image='')
-                ])),
+                ]),
+                sensitive=model_card_pb2.SensitiveData()),
             model_card_proto.model_parameters.data)
         self.assertIn(
             model_card_pb2.Dataset(
@@ -173,7 +176,8 @@ class ExecutorTest(parameterized.TestCase, TfxTest):
                 graphics=model_card_pb2.GraphicsCollection(collection=[
                     model_card_pb2.Graphic(
                         name='counts | feature_name2', image='')
-                ])),
+                ]),
+                sensitive=model_card_pb2.SensitiveData()),
             model_card_proto.model_parameters.data)
 
     if pushed_model_artifact:
