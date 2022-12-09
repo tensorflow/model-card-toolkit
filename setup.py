@@ -14,7 +14,7 @@
 # ==============================================================================
 """Setup to install the Model Card Toolkit.
 
-Run with `python3 setup.py sdist bdist_wheel`.
+Run with `python setup.py sdist bdist_wheel`.
 """
 
 # TODO(b/188859752): deprecate distutils
@@ -31,17 +31,27 @@ from setuptools import setup
 REQUIRED_PACKAGES = [
     'absl-py>=0.9,<1.1',
     'jinja2>=3.1,<3.2',
-    'matplotlib>=3.2.0,<4',
     'jsonschema>=3.2.0,<4',
+    'protobuf>=3.19.0,<3.20.0',
+]
+
+TENSORFLOW_PACKAGES = [
+    'matplotlib>=3.2.0,<4',
     'tensorflow-data-validation>=1.5.0,<2.0.0',
     'tensorflow-model-analysis>=0.36.0,<0.42.0',
     'tensorflow-metadata>=1.5.0,<2.0.0',
     'ml-metadata>=1.5.0,<2.0.0',
-    'dataclasses;python_version<"3.7"',
 ]
 
-TESTS_REQUIRE = ['tensorflow-datasets']
-EXTRAS_REQUIRE = {'test':  TESTS_REQUIRE}
+DEV_PACKAGES = [
+    'tensorflow-datasets',
+    'wheel'
+]
+
+EXTRAS_REQUIRE = {
+    'dev': DEV_PACKAGES + TENSORFLOW_PACKAGES,
+    'tensorflow': TENSORFLOW_PACKAGES,
+}
 
 # Get version from version module.
 with open('model_card_toolkit/version.py') as fp:
@@ -50,7 +60,7 @@ with open('model_card_toolkit/version.py') as fp:
 __version__ = globals_dict['__version__']
 
 with open('README.md', 'r', encoding='utf-8') as fh:
-  _LONG_DESCRIPTION = fh.read()
+  LONG_DESCRIPTION = fh.read()
 
 
 class _BuildCommand(build.build):
@@ -107,11 +117,14 @@ setup(
     name='model-card-toolkit',
     version=__version__,
     description='Model Card Toolkit',
-    long_description=_LONG_DESCRIPTION,
+    author='The TensorFlow Authors',
+    long_description=LONG_DESCRIPTION,
     long_description_content_type='text/markdown',
     url='https://github.com/tensorflow/model-card-toolkit',
-    author='Google LLC',
-    author_email='tensorflow-extended-dev@googlegroups.com',
+    project_urls={
+        'Bug Tracker': 'https://github.com/tensorflow/model-card-toolkit/issues',
+        'Documentation': 'https://www.tensorflow.org/responsible_ai/model_card_toolkit/guide',
+    },
     packages=[
         'model_card_toolkit',
         'model_card_toolkit.documentation',
@@ -123,11 +136,10 @@ setup(
     package_data={
         'model_card_toolkit': ['schema/**/*.json', 'template/**/*.jinja']
     },
-    python_requires='>=3.6,<4',
+    python_requires='>=3.7,<4',
     install_requires=REQUIRED_PACKAGES,
-    tests_require=TESTS_REQUIRE,
+    tests_require=DEV_PACKAGES,
     extras_require=EXTRAS_REQUIRE,
-    # PyPI package information.
     classifiers=[
         'Development Status :: 4 - Beta',
         'Intended Audience :: Developers',
@@ -137,7 +149,8 @@ setup(
         'Operating System :: OS Independent',
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.7',
-        'Programming Language :: Python :: 3 :: Only',
+        'Programming Language :: Python :: 3.8',
+        'Programming Language :: Python :: 3.9',
         'Topic :: Scientific/Engineering',
         'Topic :: Scientific/Engineering :: Mathematics',
         'Topic :: Scientific/Engineering :: Artificial Intelligence',

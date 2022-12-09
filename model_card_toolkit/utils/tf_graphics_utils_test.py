@@ -11,21 +11,23 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-"""Tests for the TFX-OSS pipeline utilities."""
+"""Tests for TensorFlow plot and graphics utilities."""
 
 import logging
+
 from absl.testing import absltest
 from absl.testing import parameterized
-from model_card_toolkit import model_card as model_card_module
-from model_card_toolkit.utils import graphics
-import tensorflow_model_analysis as tfma
 from google.protobuf import text_format
+import tensorflow_model_analysis as tfma
 from tensorflow_metadata.proto.v0 import statistics_pb2
+
+from model_card_toolkit import model_card as model_card_module
+from model_card_toolkit.utils import tf_graphics_utils
 
 
 class GraphicsTest(parameterized.TestCase):
 
-  def assertGraphEqual(self, g: graphics._Graph, h: graphics._Graph):
+  def assertGraphEqual(self, g: tf_graphics_utils._Graph, h: tf_graphics_utils._Graph):
     self.assertSequenceEqual(g.x, h.x)
     self.assertSequenceEqual(g.y, h.y)
     if g.xerr and h.xerr:
@@ -48,7 +50,7 @@ class GraphicsTest(parameterized.TestCase):
         num_stats {
         }""", statistics_pb2.FeatureNameStatistics())
     self.assertIsNone(
-        graphics._extract_graph_data_from_dataset_feature_statistics(
+        tf_graphics_utils._extract_graph_data_from_dataset_feature_statistics(
             empty_numeric_feature_stats))
 
     numeric_feature_stats = text_format.Parse(
@@ -72,9 +74,9 @@ class GraphicsTest(parameterized.TestCase):
           }
         }""", statistics_pb2.FeatureNameStatistics())
     self.assertGraphEqual(
-        graphics._extract_graph_data_from_dataset_feature_statistics(
+        tf_graphics_utils._extract_graph_data_from_dataset_feature_statistics(
             numeric_feature_stats),
-        graphics._Graph(
+        tf_graphics_utils._Graph(
             x=[6, 4],
             y=['0.00-50.00', '50.00-100.00'],
             xlabel='counts',
@@ -105,9 +107,9 @@ class GraphicsTest(parameterized.TestCase):
           }
         }""", statistics_pb2.FeatureNameStatistics())
     self.assertGraphEqual(
-        graphics._extract_graph_data_from_dataset_feature_statistics(
+        tf_graphics_utils._extract_graph_data_from_dataset_feature_statistics(
             string_feature_stats),
-        graphics._Graph(
+        tf_graphics_utils._Graph(
             x=[1387, 3395, 2395],
             y=['News', 'Tech', 'Sports'],
             xlabel='counts',
@@ -123,7 +125,7 @@ class GraphicsTest(parameterized.TestCase):
         type: BYTES
         bytes_stats {}""", statistics_pb2.FeatureNameStatistics())
     self.assertIsNone(
-        graphics._extract_graph_data_from_dataset_feature_statistics(
+        tf_graphics_utils._extract_graph_data_from_dataset_feature_statistics(
             bytes_feature_stats))
 
     struct_feature_stats = text_format.Parse(
@@ -134,7 +136,7 @@ class GraphicsTest(parameterized.TestCase):
         type: STRUCT
         struct_stats {}""", statistics_pb2.FeatureNameStatistics())
     self.assertIsNone(
-        graphics._extract_graph_data_from_dataset_feature_statistics(
+        tf_graphics_utils._extract_graph_data_from_dataset_feature_statistics(
             struct_feature_stats))
 
   def test_annotate_dataset_feature_statistics_plots(self):
@@ -301,7 +303,7 @@ class GraphicsTest(parameterized.TestCase):
     """, statistics_pb2.DatasetFeatureStatisticsList())
 
     model_card = model_card_module.ModelCard()
-    graphics.annotate_dataset_feature_statistics_plots(
+    tf_graphics_utils.annotate_dataset_feature_statistics_plots(
         model_card, [train_stats, eval_stats])
 
     expected_plot_names_train = {
@@ -398,9 +400,9 @@ class GraphicsTest(parameterized.TestCase):
         })
     ]
     self.assertGraphEqual(
-        graphics._extract_graph_data_from_slicing_metrics(
+        tf_graphics_utils._extract_graph_data_from_slicing_metrics(
             slicing_metrics, 'average_loss'),
-        graphics._Graph(
+        tf_graphics_utils._Graph(
             x=[
                 0.07875693589448929, 4.4887189865112305, 2.092138290405273,
                 1.092138290405273
@@ -412,9 +414,9 @@ class GraphicsTest(parameterized.TestCase):
             name='average_loss',
             color='#A142F4'))
     self.assertGraphEqual(
-        graphics._extract_graph_data_from_slicing_metrics(
+        tf_graphics_utils._extract_graph_data_from_slicing_metrics(
             slicing_metrics, 'average_loss', 'weekday'),
-        graphics._Graph(
+        tf_graphics_utils._Graph(
             x=[
                 0.07875693589448929, 4.4887189865112305, 2.092138290405273,
                 1.092138290405273
@@ -426,9 +428,9 @@ class GraphicsTest(parameterized.TestCase):
             name='average_loss | weekday',
             color='#A142F4'))
     self.assertGraphEqual(
-        graphics._extract_graph_data_from_slicing_metrics(
+        tf_graphics_utils._extract_graph_data_from_slicing_metrics(
             slicing_metrics, 'prediction/mean'),
-        graphics._Graph(
+        tf_graphics_utils._Graph(
             x=[
                 0.5100112557411194, 0.4839990735054016, 0.3767518997192383,
                 0.4767518997192383
@@ -443,9 +445,9 @@ class GraphicsTest(parameterized.TestCase):
             color='#A142F4'))
 
     self.assertGraphEqual(
-        graphics._extract_graph_data_from_slicing_metrics(
+        tf_graphics_utils._extract_graph_data_from_slicing_metrics(
             slicing_metrics, 'prediction/mean', 'weekday'),
-        graphics._Graph(
+        tf_graphics_utils._Graph(
             x=[
                 0.5100112557411194, 0.4839990735054016, 0.3767518997192383,
                 0.4767518997192383
@@ -577,7 +579,7 @@ class GraphicsTest(parameterized.TestCase):
         file_format=None,
         model_location=None)
     model_card = model_card_module.ModelCard()
-    graphics.annotate_eval_result_plots(model_card, eval_result)
+    tf_graphics_utils.annotate_eval_result_plots(model_card, eval_result)
 
     expected_metrics_names = {
         'average_loss | weekday', 'prediction/mean | weekday',
@@ -608,7 +610,7 @@ class GraphicsTest(parameterized.TestCase):
        ('gender, zip, height, comment', u'male, 12345, 5.7, 你好')],
   ])
   def test_stringify_slice_key(self, slices, expected_result):
-    result = graphics.stringify_slice_key(slices)
+    result = tf_graphics_utils.stringify_slice_key(slices)
     self.assertEqual(result, expected_result)
 
 

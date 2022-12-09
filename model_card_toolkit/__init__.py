@@ -13,7 +13,29 @@
 # limitations under the License.
 """A module to streamline and automate generation of Model Cards."""
 from model_card_toolkit.core import ModelCardToolkit
-from model_card_toolkit.model_card import *
-from model_card_toolkit.tfx.component import ModelCardGenerator
-from model_card_toolkit.utils.source import *
+from model_card_toolkit.model_card import (
+    BaseModelCardField,
+    Citation,
+    ConfidenceInterval,
+    Considerations,
+    Dataset,
+    Graphic,
+    GraphicsCollection,
+    KeyVal,
+    License,
+    Limitation,
+    ModelCard,
+    ModelDetails,
+    ModelParameters,
+    Owner,
+    PerformanceMetric,
+    QuantitativeAnalysis,
+    Reference,
+    Risk,
+    SensitiveData,
+    Tradeoff,
+    UseCase,
+    User,
+    Version,
+)
 from model_card_toolkit.version import __version__

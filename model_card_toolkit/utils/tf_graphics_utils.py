@@ -11,20 +11,19 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-"""Utilities for generating model card plots/graphics."""
+"""Utilities for generating TensorFlow plots and graphics."""
 
-import base64
-import io
 import logging
 from typing import Sequence, Tuple, Union, Optional
 
 import attr
 import matplotlib
 import matplotlib.pyplot as plt
-from model_card_toolkit import model_card as model_card_module
 import tensorflow_model_analysis as tfma
-
 from tensorflow_metadata.proto.v0 import statistics_pb2
+
+from model_card_toolkit import model_card as model_card_module
+from model_card_toolkit.utils.graphics_utils import figure_to_base64str
 
 _COLOR_PALETTE = {
     'material_cyan_700': '#129EAF',  # default
@@ -312,20 +311,6 @@ def _draw_histogram(graph: _Graph) -> Optional[_Graph]:
     # closes the figure (to limit memory consumption)
     plt.close()
   return graph
-
-
-def figure_to_base64str(fig: matplotlib.figure.Figure) -> str:
-  """Converts a Matplotlib figure to a base64 string encoding.
-
-  Args:
-    fig: A matplotlib Figure.
-
-  Returns:
-    A base64 encoding of the figure.
-  """
-  buf = io.BytesIO()
-  fig.savefig(buf, bbox_inches='tight', format='png')
-  return base64.b64encode(buf.getbuffer().tobytes()).decode('ascii')
 
 
 # FeatureValueType represents a value that a feature could take.

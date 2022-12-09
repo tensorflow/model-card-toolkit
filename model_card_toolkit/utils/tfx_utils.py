@@ -14,18 +14,18 @@
 """Utilities for reading metadata from MLMD instances in TFX-OSS pipelines."""
 
 import enum
+import logging
 import os
 from typing import Any, Dict, Iterable, List, Optional, Sequence, Union
 
-from absl import logging
 import attr
-from model_card_toolkit import model_card as model_card_module
-import tensorflow as tf
-import tensorflow_model_analysis as tfma
-
 import ml_metadata as mlmd
 from ml_metadata.proto import metadata_store_pb2
+import tensorflow as tf
 from tensorflow_metadata.proto.v0 import statistics_pb2
+import tensorflow_model_analysis as tfma
+
+from model_card_toolkit import model_card as model_card_module
 
 # A list of artifact type names used by TFX 0.21 and later versions. This lets
 # us avoid introducing tfx as a dependency.

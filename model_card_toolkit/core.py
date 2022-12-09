@@ -18,20 +18,26 @@ from trained models, evaluations, and datasets in ML pipelines.
 """
 
 import os
+import logging
 import pkgutil
 import tempfile
 from typing import Any, Dict, Optional, Union
 
-from absl import logging
 import jinja2
 
 from model_card_toolkit.model_card import ModelCard
 from model_card_toolkit.proto import model_card_pb2
-from model_card_toolkit.utils import graphics
-from model_card_toolkit.utils import source as src
-from model_card_toolkit.utils import tfx_util
 
-import tensorflow_model_analysis as tfma
+try:
+  import tensorflow_model_analysis as tfma
+  from model_card_toolkit.utils import tf_graphics_utils
+  from model_card_toolkit.utils.tf_source import Source, MlmdSource
+  from model_card_toolkit.utils import tfx_utils
+  _has_tensorflow_extra_deps = True
+except ImportError:
+  Source = None
+  MlmdSource = None
+  _has_tensorflow_extra_deps = False
 
 # Constants about provided UI templates.
 _UI_TEMPLATES = (
@@ -48,6 +54,16 @@ _MCTA_RESOURCE_DIR = os.path.join('resources', 'plots')
 # Constants about the final generated model cards.
 _MODEL_CARDS_DIR = 'model_cards'
 _DEFAULT_MODEL_CARD_FILE_NAME = 'model_card.html'
+
+
+def _assert_tensorflow_extra_installed():
+  """Raises ImportError if model-card-toolkit[tensorflow] dependencies are not
+  installed.
+  """
+  if not _has_tensorflow_extra_deps:
+    raise ImportError(
+      "To use this functionality, pip install model-card-toolkit[tensorflow]"
+    )
 
 
 class ModelCardToolkit():
@@ -92,8 +108,8 @@ class ModelCardToolkit():
   def __init__(
       self,
       output_dir: Optional[str] = None,
-      mlmd_source: Optional[src.MlmdSource] = None,
-      source: Optional[src.Source] = None,
+      mlmd_source: Optional[MlmdSource] = None,
+      source: Optional[Source] = None,
   ):
     """Initializes the ModelCardToolkit.
 
@@ -130,7 +146,7 @@ class ModelCardToolkit():
     if mlmd_source:
       self._process_mlmd_source(mlmd_source)
 
-  def _process_mlmd_source(self, mlmd_source: src.MlmdSource) -> None:
+  def _process_mlmd_source(self, mlmd_source: MlmdSource) -> None:
     """Process the MLMD source.
 
     This gets the MLMD store, and the artifact corresponding to model_uri.
@@ -199,8 +215,13 @@ class ModelCardToolkit():
 
     Returns:
       The model_card with eval result metrics annotated.
+    
+    Raises:
+      ImportError: If a TfmaSource or MlmdSource is provided but dependencies in
+      model-card-toolkit[tensorflow] are not installed.
     """
     if self._source and self._source.tfma:
+      _assert_tensorflow_extra_installed()
       for eval_result_path in self._source.tfma.eval_result_paths:
         eval_result = tfma.load_eval_result(
             output_path=eval_result_path,
@@ -208,21 +229,22 @@ class ModelCardToolkit():
         if eval_result:
           logging.info('EvalResult found at path %s', eval_result_path)
           if self._source.tfma.metrics_include or self._source.tfma.metrics_exclude:
-            eval_result = tfx_util.filter_metrics(
+            eval_result = tfx_utils.filter_metrics(
                 eval_result, self._source.tfma.metrics_include,
                 self._source.tfma.metrics_exclude)
-          tfx_util.annotate_eval_result_metrics(model_card, eval_result)
-          graphics.annotate_eval_result_plots(model_card, eval_result)
+          tfx_utils.annotate_eval_result_metrics(model_card, eval_result)
+          tf_graphics_utils.annotate_eval_result_plots(model_card, eval_result)
         else:
           logging.info('EvalResult not found at path %s', eval_result_path)
     if self._store:
-      metrics_artifacts = tfx_util.get_metrics_artifacts_for_model(
+      _assert_tensorflow_extra_installed()
+      metrics_artifacts = tfx_utils.get_metrics_artifacts_for_model(
           self._store, self._artifact_with_model_uri.id)
       for metrics_artifact in metrics_artifacts:
-        eval_result = tfx_util.read_metrics_eval_result(metrics_artifact.uri)
+        eval_result = tfx_utils.read_metrics_eval_result(metrics_artifact.uri)
         if eval_result is not None:
-          tfx_util.annotate_eval_result_metrics(model_card, eval_result)
-          graphics.annotate_eval_result_plots(model_card, eval_result)
+          tfx_utils.annotate_eval_result_metrics(model_card, eval_result)
+          tf_graphics_utils.annotate_eval_result_plots(model_card, eval_result)
     return model_card
 
   def _annotate_dataset_statistics(self, model_card: ModelCard) -> ModelCard:
@@ -241,23 +263,29 @@ class ModelCardToolkit():
 
     Returns:
       The model_card with dataset statistics annotated.
+    
+    Raises:
+      ImportError: If a TfdvSource or MlmdSource is provided but dependencies in
+      model-card-toolkit[tensorflow] are not installed.
     """
     if self._source and self._source.tfdv:
+      _assert_tensorflow_extra_installed()
       for dataset_stats_path in self._source.tfdv.dataset_statistics_paths:
         if self._source.tfdv.features_include or self._source.tfdv.features_exclude:
-          data_stats = tfx_util.read_stats_protos_and_filter_features(
+          data_stats = tfx_utils.read_stats_protos_and_filter_features(
               dataset_stats_path, self._source.tfdv.features_include,
               self._source.tfdv.features_exclude)
         else:
-          data_stats = tfx_util.read_stats_protos(dataset_stats_path)
-        graphics.annotate_dataset_feature_statistics_plots(
+          data_stats = tfx_utils.read_stats_protos(dataset_stats_path)
+        tf_graphics_utils.annotate_dataset_feature_statistics_plots(
             model_card, data_stats)
     if self._store:
-      stats_artifacts = tfx_util.get_stats_artifacts_for_model(
+      _assert_tensorflow_extra_installed()
+      stats_artifacts = tfx_utils.get_stats_artifacts_for_model(
           self._store, self._artifact_with_model_uri.id)
       for stats_artifact in stats_artifacts:
-        data_stats = tfx_util.read_stats_protos(stats_artifact.uri)
-        graphics.annotate_dataset_feature_statistics_plots(
+        data_stats = tfx_utils.read_stats_protos(stats_artifact.uri)
+        tf_graphics_utils.annotate_dataset_feature_statistics_plots(
             model_card, data_stats)
     return model_card
 
@@ -283,15 +311,20 @@ class ModelCardToolkit():
 
     If Source is provided, pre-populate ModelCard fields with data from Source.
     If MLMD store is provided, pre-populate ModelCard fields with data from
-    MLMD. See `model_card_toolkit.utils.tfx_util` and
-    `model_card_toolkit.utils.graphics` documentation for more details.
+    MLMD. See `model_card_toolkit.utils.tfx_utils` and
+    `model_card_toolkit.utils.tf_graphics_utils` documentation for more details.
 
     Returns:
       A ModelCard representing the given model.
+
+    Raises:
+      ImportError: If an MLMD store is provided but dependencies in
+      model-card-toolkit[tensorflow] are not installed.
     """
     # Pre-populate ModelCard fields
     if self._store:
-      model_card = tfx_util.generate_model_card_for_model(
+      _assert_tensorflow_extra_installed()
+      model_card = tfx_utils.generate_model_card_for_model(
           self._store, self._artifact_with_model_uri.id)
     else:
       model_card = ModelCard()

@@ -12,8 +12,12 @@ Some use cases of model cards include:
 
 ## Installation
 
-The Model Card Toolkit is hosted on [PyPI](https://pypi.org/project/model-card-toolkit/), and can be installed with `pip install model-card-toolkit` (or `pip install model-card-toolkit
---use-deprecated=legacy-resolver` for versions of pip starting with 20.3). See [the installation guide](model_card_toolkit/documentation/guide/install.md) for more details.
+The Model Card Toolkit is hosted on [PyPI](https://pypi.org/project/model-card-toolkit/),
+and can be installed with `pip install model-card-toolkit` (or
+`pip install model-card-toolkit --use-deprecated=legacy-resolver` for versions
+of pip starting with 20.3). If you are generating model cards for TensorFlow
+models, install the optional TensorFlow dependencies with
+`pip install model-card-toolkit[tensorflow]`. See [the installation guide](model_card_toolkit/documentation/guide/install.md) for more details.
 
 ## Getting Started
 

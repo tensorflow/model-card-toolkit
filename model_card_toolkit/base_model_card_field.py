@@ -21,10 +21,11 @@ import abc
 import dataclasses
 import json as json_lib
 from typing import Any, Dict
-from model_card_toolkit.utils import validation
 
 from google.protobuf import descriptor
 from google.protobuf import message
+
+from model_card_toolkit.utils import json_utils
 
 
 class BaseModelCardField(abc.ABC):
@@ -122,7 +123,7 @@ class BaseModelCardField(abc.ABC):
                  field: "BaseModelCardField") -> "BaseModelCardField":
     """Parses a JSON dictionary into the current object."""
     for subfield_key, subfield_json_value in json_dict.items():
-      if subfield_key.startswith(validation.SCHEMA_VERSION_STRING):
+      if subfield_key.startswith(json_utils.SCHEMA_VERSION_STRING):
         continue
       elif not hasattr(field, subfield_key):
         raise ValueError(

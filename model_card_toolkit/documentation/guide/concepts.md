@@ -58,7 +58,7 @@ object.
 
 #### Graphics
 
-The `model_card_toolkit.utils.graphics.figure_to_base64str()` function can be
+The `model_card_toolkit.utils.graphics_utils.figure_to_base64str()` function can be
 used to convert graphics, such as Matplotlib figures, to base64 strings.
 
 ### Model Card Documents

@@ -3,43 +3,54 @@
 ## Installing with pip
 
 The Model Card Toolkit is hosted on
-[PyPI](https://pypi.org/project/model-card-toolkit/), and requires Python 3.6 or
+[PyPI](https://pypi.org/project/model-card-toolkit/), and requires Python 3.7 or
 later.
 
-```posix-terminal
+Installing the basic, framework agnostic package:
+
+```sh
 pip install model-card-toolkit
 ```
 
+If you are generating model cards for TensorFlow models, install the optional TensorFlow dependencies to use Model Card Toolkit's TensorFlow utilities:
+
+```sh
+pip install model-card-toolkit[tensorflow]
+```
+
 You may need to append the `--use-deprecated=legacy-resolver` flag when running
-versions of pip starting with 20.3
+versions of pip starting with 20.3 if the pip resolver is taking too long.
 
 ## Installing from source
 
-Starting with
-[version 0.1.4](https://github.com/tensorflow/model-card-toolkit/blob/master/RELEASE.md)
-compiling Model Card Toolkit requires
-[Bazel](https://docs.bazel.build/versions/master/install.html)>=2.0.0.
+Before you can install Model Card Toolkit from source, you need to install
+[Bazel](https://bazel.build/install)>=2.0.0, which powers the protobuf stub code
+generation.
 
-First, clone the github repo:
+Confirm that Bazel is installed and executable:
 
-```posix-terminal
+```sh
+bazel --version
+```
+
+Clone the Model Card Toolkit repo from GitHub:
+
+```sh
 git clone https://github.com/tensorflow/model-card-toolkit.git
 ```
 
 Build the pip package from source:
 
-```posix-terminal
+```sh
 pip install wheel
 
-cd model_card_toolkit
-
-python3 setup.py sdist bdist_wheel
+python setup.py sdist bdist_wheel
 ```
 
 Finally, install your locally built package:
 
-```posix-terminal
-pip install --upgrade ./dist/*pkg.whl
+```sh
+pip install --upgrade ./dist/model_card_toolkit-*.whl
 ```
 
 ## Filing a Bug

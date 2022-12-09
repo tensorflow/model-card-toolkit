@@ -17,15 +17,14 @@ import os
 import uuid
 
 from absl.testing import absltest
+import ml_metadata as mlmd
+from ml_metadata.proto import metadata_store_pb2
+import tensorflow_model_analysis as tfma
 
 from model_card_toolkit.model_card import ModelCard
 from model_card_toolkit.model_card import PerformanceMetric
-from model_card_toolkit.utils import tfx_util
-from model_card_toolkit.utils.testdata import testdata_utils
-import tensorflow_model_analysis as tfma
-
-import ml_metadata as mlmd
-from ml_metadata.proto import metadata_store_pb2
+from model_card_toolkit.utils import tfx_utils
+from model_card_toolkit.utils.testdata import tfx_testdata_utils
 
 _SLICING_METRICS = [((('weekday', 0),), {
     '': {
@@ -170,62 +169,62 @@ class TfxUtilsTest(absltest.TestCase):
     return mlmd.MetadataStore(empty_db_config)
 
   def test_get_metrics_artifacts_for_model(self):
-    store = testdata_utils.get_tfx_pipeline_metadata_store(self.tmp_db_path)
-    got_metrics = tfx_util.get_metrics_artifacts_for_model(
-        store, testdata_utils.TFX_0_21_MODEL_ARTIFACT_ID)
+    store = tfx_testdata_utils.get_tfx_pipeline_metadata_store(self.tmp_db_path)
+    got_metrics = tfx_utils.get_metrics_artifacts_for_model(
+        store, tfx_testdata_utils.TFX_0_21_MODEL_ARTIFACT_ID)
     got_metrics_ids = [a.id for a in got_metrics]
     self.assertCountEqual(got_metrics_ids,
-                          testdata_utils.TFX_0_21_METRICS_ARTIFACT_IDS)
+                          tfx_testdata_utils.TFX_0_21_METRICS_ARTIFACT_IDS)
 
   def test_get_metrics_artifacts_for_model_model_with_model_not_found(self):
-    store = testdata_utils.get_tfx_pipeline_metadata_store(self.tmp_db_path)
+    store = tfx_testdata_utils.get_tfx_pipeline_metadata_store(self.tmp_db_path)
     with self.assertRaisesRegex(ValueError, 'model_id cannot be found'):
       model = metadata_store_pb2.Artifact()
-      tfx_util.get_metrics_artifacts_for_model(store, model.id)
+      tfx_utils.get_metrics_artifacts_for_model(store, model.id)
 
   def test_get_metrics_artifacts_for_model_with_invalid_model(self):
-    store = testdata_utils.get_tfx_pipeline_metadata_store(self.tmp_db_path)
+    store = tfx_testdata_utils.get_tfx_pipeline_metadata_store(self.tmp_db_path)
     with self.assertRaisesRegex(ValueError, 'not an instance of Model'):
-      tfx_util.get_metrics_artifacts_for_model(
-          store, testdata_utils.TFX_0_21_MODEL_DATASET_ID)
+      tfx_utils.get_metrics_artifacts_for_model(
+          store, tfx_testdata_utils.TFX_0_21_MODEL_DATASET_ID)
 
   def test_get_metrics_artifacts_for_model_with_invalid_db(self):
     empty_db = self._get_empty_metadata_store()
     with self.assertRaisesRegex(ValueError, '`store` is invalid'):
-      tfx_util.get_metrics_artifacts_for_model(
-          empty_db, testdata_utils.TFX_0_21_MODEL_ARTIFACT_ID)
+      tfx_utils.get_metrics_artifacts_for_model(
+          empty_db, tfx_testdata_utils.TFX_0_21_MODEL_ARTIFACT_ID)
 
   def test_get_stats_artifacts_for_model(self):
-    store = testdata_utils.get_tfx_pipeline_metadata_store(self.tmp_db_path)
-    got_stats = tfx_util.get_stats_artifacts_for_model(
-        store, testdata_utils.TFX_0_21_MODEL_ARTIFACT_ID)
+    store = tfx_testdata_utils.get_tfx_pipeline_metadata_store(self.tmp_db_path)
+    got_stats = tfx_utils.get_stats_artifacts_for_model(
+        store, tfx_testdata_utils.TFX_0_21_MODEL_ARTIFACT_ID)
     got_stats_ids = [a.id for a in got_stats]
     self.assertCountEqual(got_stats_ids,
-                          [testdata_utils.TFX_0_21_STATS_ARTIFACT_ID])
+                          [tfx_testdata_utils.TFX_0_21_STATS_ARTIFACT_ID])
 
   def test_get_stats_artifacts_for_model_with_model_not_found(self):
-    store = testdata_utils.get_tfx_pipeline_metadata_store(self.tmp_db_path)
+    store = tfx_testdata_utils.get_tfx_pipeline_metadata_store(self.tmp_db_path)
     with self.assertRaisesRegex(ValueError, 'model_id cannot be found'):
       model = metadata_store_pb2.Artifact()
-      tfx_util.get_stats_artifacts_for_model(store, model.id)
+      tfx_utils.get_stats_artifacts_for_model(store, model.id)
 
   def test_get_stats_artifacts_for_model_with_invalid_model(self):
-    store = testdata_utils.get_tfx_pipeline_metadata_store(self.tmp_db_path)
+    store = tfx_testdata_utils.get_tfx_pipeline_metadata_store(self.tmp_db_path)
     with self.assertRaisesRegex(ValueError, 'not an instance of Model'):
-      tfx_util.get_stats_artifacts_for_model(
-          store, testdata_utils.TFX_0_21_MODEL_DATASET_ID)
+      tfx_utils.get_stats_artifacts_for_model(
+          store, tfx_testdata_utils.TFX_0_21_MODEL_DATASET_ID)
 
   def test_get_stats_artifacts_for_model_with_invalid_db(self):
     empty_db = self._get_empty_metadata_store()
     with self.assertRaisesRegex(ValueError, '`store` is invalid'):
-      tfx_util.get_stats_artifacts_for_model(
-          empty_db, testdata_utils.TFX_0_21_MODEL_ARTIFACT_ID)
+      tfx_utils.get_stats_artifacts_for_model(
+          empty_db, tfx_testdata_utils.TFX_0_21_MODEL_ARTIFACT_ID)
 
   def test_generate_model_card_for_model(self):
-    store = testdata_utils.get_tfx_pipeline_metadata_store(self.tmp_db_path)
-    model_card = tfx_util.generate_model_card_for_model(
-        store, testdata_utils.TFX_0_21_MODEL_ARTIFACT_ID)
-    trainers = store.get_executions_by_id([testdata_utils.TFX_0_21_TRAINER_ID])
+    store = tfx_testdata_utils.get_tfx_pipeline_metadata_store(self.tmp_db_path)
+    model_card = tfx_utils.generate_model_card_for_model(
+        store, tfx_testdata_utils.TFX_0_21_MODEL_ARTIFACT_ID)
+    trainers = store.get_executions_by_id([tfx_testdata_utils.TFX_0_21_TRAINER_ID])
     self.assertNotEmpty(trainers)
     model_details = model_card.model_details
     self.assertEqual(model_details.name,
@@ -237,99 +236,99 @@ class TfxUtilsTest(absltest.TestCase):
         [reference.reference for reference in model_details.references])
 
     datasets = store.get_artifacts_by_id(
-        [testdata_utils.TFX_0_21_MODEL_DATASET_ID])
+        [tfx_testdata_utils.TFX_0_21_MODEL_DATASET_ID])
     self.assertNotEmpty(datasets)
 
   def test_generate_model_card_for_model_with_model_not_found(self):
-    store = testdata_utils.get_tfx_pipeline_metadata_store(self.tmp_db_path)
+    store = tfx_testdata_utils.get_tfx_pipeline_metadata_store(self.tmp_db_path)
     with self.assertRaisesRegex(ValueError, 'model_id cannot be found'):
       model = metadata_store_pb2.Artifact()
-      tfx_util.generate_model_card_for_model(store, model.id)
+      tfx_utils.generate_model_card_for_model(store, model.id)
 
   def test_generate_model_card_for_model_with_invalid_model(self):
-    store = testdata_utils.get_tfx_pipeline_metadata_store(self.tmp_db_path)
+    store = tfx_testdata_utils.get_tfx_pipeline_metadata_store(self.tmp_db_path)
     with self.assertRaisesRegex(ValueError, 'not an instance of Model'):
-      tfx_util.generate_model_card_for_model(
-          store, testdata_utils.TFX_0_21_MODEL_DATASET_ID)
+      tfx_utils.generate_model_card_for_model(
+          store, tfx_testdata_utils.TFX_0_21_MODEL_DATASET_ID)
 
   def test_generate_model_card_for_model_with_invalid_db(self):
     empty_db = self._get_empty_metadata_store()
     with self.assertRaisesRegex(ValueError, '`store` is invalid'):
-      tfx_util.generate_model_card_for_model(
-          empty_db, testdata_utils.TFX_0_21_MODEL_ARTIFACT_ID)
+      tfx_utils.generate_model_card_for_model(
+          empty_db, tfx_testdata_utils.TFX_0_21_MODEL_ARTIFACT_ID)
 
   def test_read_stats_protos(self):
-    store = testdata_utils.get_tfx_pipeline_metadata_store(self.tmp_db_path)
+    store = tfx_testdata_utils.get_tfx_pipeline_metadata_store(self.tmp_db_path)
     stats = store.get_artifacts_by_id(
-        [testdata_utils.TFX_0_21_STATS_ARTIFACT_ID])
+        [tfx_testdata_utils.TFX_0_21_STATS_ARTIFACT_ID])
     self.assertLen(stats, 1)
-    data_stats = tfx_util.read_stats_protos(stats[-1].uri)
+    data_stats = tfx_utils.read_stats_protos(stats[-1].uri)
     self.assertLen(data_stats, 2)  # Split-eval, Split-train
 
   def test_read_stats_proto(self):
-    store = testdata_utils.get_tfx_pipeline_metadata_store(self.tmp_db_path)
+    store = tfx_testdata_utils.get_tfx_pipeline_metadata_store(self.tmp_db_path)
     stats = store.get_artifacts_by_id(
-        [testdata_utils.TFX_0_21_STATS_ARTIFACT_ID])
+        [tfx_testdata_utils.TFX_0_21_STATS_ARTIFACT_ID])
     self.assertLen(stats, 1)
-    train_stats = tfx_util.read_stats_proto(stats[-1].uri, 'Split-train')
+    train_stats = tfx_utils.read_stats_proto(stats[-1].uri, 'Split-train')
     self.assertIsNotNone(train_stats)
-    eval_stats = tfx_util.read_stats_proto(stats[-1].uri, 'Split-eval')
+    eval_stats = tfx_utils.read_stats_proto(stats[-1].uri, 'Split-eval')
     self.assertIsNotNone(eval_stats)
 
   def test_read_stats_proto_with_invalid_split(self):
-    store = testdata_utils.get_tfx_pipeline_metadata_store(self.tmp_db_path)
+    store = tfx_testdata_utils.get_tfx_pipeline_metadata_store(self.tmp_db_path)
     stats = store.get_artifacts_by_id(
-        [testdata_utils.TFX_0_21_STATS_ARTIFACT_ID])
+        [tfx_testdata_utils.TFX_0_21_STATS_ARTIFACT_ID])
     self.assertLen(stats, 1)
-    actual_stats = tfx_util.read_stats_proto(stats[-1].uri, 'invalid_split')
+    actual_stats = tfx_utils.read_stats_proto(stats[-1].uri, 'invalid_split')
     self.assertIsNone(actual_stats)
 
   def test_read_stats_proto_with_invalid_uri(self):
-    self.assertIsNone(tfx_util.read_stats_proto('/does/not/exist/', 'train'))
-    self.assertIsNone(tfx_util.read_stats_proto('/does/not/exist/', 'eval'))
+    self.assertIsNone(tfx_utils.read_stats_proto('/does/not/exist/', 'train'))
+    self.assertIsNone(tfx_utils.read_stats_proto('/does/not/exist/', 'eval'))
 
   def test_filter_features(self):
-    store = testdata_utils.get_tfx_pipeline_metadata_store(self.tmp_db_path)
+    store = tfx_testdata_utils.get_tfx_pipeline_metadata_store(self.tmp_db_path)
     stats = store.get_artifacts_by_id(
-        [testdata_utils.TFX_0_21_STATS_ARTIFACT_ID])
-    dataset_stats = tfx_util.read_stats_protos(stats[-1].uri)[0].datasets[0]
+        [tfx_testdata_utils.TFX_0_21_STATS_ARTIFACT_ID])
+    dataset_stats = tfx_utils.read_stats_protos(stats[-1].uri)[0].datasets[0]
 
     one_half_of_the_features = _DATASET_FEATURES[:27]
     the_other_half_of_the_features = _DATASET_FEATURES[27:]
 
     with self.subTest(name='features_include'):
       filtered_features = [
-          feature.path.step[0] for feature in tfx_util.filter_features(
+          feature.path.step[0] for feature in tfx_utils.filter_features(
               dataset_stats, features_include=one_half_of_the_features).features
       ]
       self.assertSameElements(one_half_of_the_features, filtered_features)
     with self.subTest(name='features_exclude'):
       filtered_features = [
-          feature.path.step[0] for feature in tfx_util.filter_features(
+          feature.path.step[0] for feature in tfx_utils.filter_features(
               dataset_stats, features_exclude=one_half_of_the_features).features
       ]
       self.assertSameElements(the_other_half_of_the_features, filtered_features)
     with self.subTest(
         name='both features_include and features_exclude (invalid)'):
       with self.assertRaises(ValueError):
-        tfx_util.filter_features(
+        tfx_utils.filter_features(
             dataset_stats,
             features_include=one_half_of_the_features,
             features_exclude=the_other_half_of_the_features)
     with self.subTest(
         name='neither features_include nor features_exclude (invalid)'):
       with self.assertRaises(ValueError):
-        tfx_util.filter_features(dataset_stats)
+        tfx_utils.filter_features(dataset_stats)
 
   def test_read_metrics_eval_result(self):
-    store = testdata_utils.get_tfx_pipeline_metadata_store(self.tmp_db_path)
+    store = tfx_testdata_utils.get_tfx_pipeline_metadata_store(self.tmp_db_path)
     metrics = store.get_artifacts_by_id(
-        testdata_utils.TFX_0_21_METRICS_ARTIFACT_IDS)
-    eval_result = tfx_util.read_metrics_eval_result(metrics[-1].uri)
+        tfx_testdata_utils.TFX_0_21_METRICS_ARTIFACT_IDS)
+    eval_result = tfx_utils.read_metrics_eval_result(metrics[-1].uri)
     self.assertIsNotNone(eval_result)
 
   def test_read_metrics_eval_result_with_invalid_uri(self):
-    self.assertIsNone(tfx_util.read_metrics_eval_result('/does/not/exist/'))
+    self.assertIsNone(tfx_utils.read_metrics_eval_result('/does/not/exist/'))
 
   def test_annotate_eval_results_metrics(self):
     eval_result = tfma.EvalResult(  # pytype: disable=wrong-arg-types
@@ -341,7 +340,7 @@ class TfxUtilsTest(absltest.TestCase):
         file_format=None,
         model_location=None)
     model_card = ModelCard()
-    tfx_util.annotate_eval_result_metrics(model_card, eval_result)
+    tfx_utils.annotate_eval_result_metrics(model_card, eval_result)
 
     expected_metrics = [
         PerformanceMetric(
@@ -466,25 +465,25 @@ class TfxUtilsTest(absltest.TestCase):
     ]
     with self.subTest(name='metrics_include'):
       self.assertEqual(
-          tfx_util.filter_metrics(
+          tfx_utils.filter_metrics(
               eval_result, metrics_include=metrics_include).slicing_metrics,
           expected_slicing_metrics)
     with self.subTest(name='metrics_exclude'):
       self.assertEqual(
-          tfx_util.filter_metrics(
+          tfx_utils.filter_metrics(
               eval_result, metrics_exclude=metrics_exclude).slicing_metrics,
           expected_slicing_metrics)
     with self.subTest(
         name='both metrics_include and metrics_exclude (invalid)'):
       with self.assertRaises(ValueError):
-        tfx_util.filter_metrics(
+        tfx_utils.filter_metrics(
             eval_result,
             metrics_include=metrics_include,
             metrics_exclude=metrics_exclude)
     with self.subTest(
         name='neither metrics_include nor metrics_exclude (invalid)'):
       with self.assertRaises(ValueError):
-        tfx_util.filter_metrics(eval_result)
+        tfx_utils.filter_metrics(eval_result)
 
 
 if __name__ == '__main__':
