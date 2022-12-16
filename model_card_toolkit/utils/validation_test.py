@@ -192,10 +192,10 @@ class ValidationTest(parameterized.TestCase):
 
   @parameterized.named_parameters(("train_data", "train_data.json"),
                                   ("considerations", "considerations.json"),
-                                  ("cats_vs_dogs", "cats_vs_dogs.json"),
+                                  ("cats_vs_dogs", "cats_vs_dogs_v0_0_2.json"),
                                   ("full", "full.json"))
   def test_template_test_files(self, file_name):
-    template_path = os.path.join("template", "test", file_name)
+    template_path = os.path.join("utils", "testdata", file_name)
     json_data = json.loads(
         pkgutil.get_data("model_card_toolkit", template_path))
     validation.validate_json_schema(json_data)

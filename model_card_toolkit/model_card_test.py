@@ -27,11 +27,11 @@ from google.protobuf import text_format
 _FULL_PROTO_FILE_NAME = "full.pbtxt"
 _FULL_PROTO = pkgutil.get_data(
     "model_card_toolkit",
-    os.path.join("template/test", _FULL_PROTO_FILE_NAME))
+    os.path.join("utils", "testdata", _FULL_PROTO_FILE_NAME))
 _FULL_JSON_FILE_PATH = "full.json"
 _FULL_JSON = model_card_json_bytestring = pkgutil.get_data(
     "model_card_toolkit",
-    os.path.join("template/test", _FULL_JSON_FILE_PATH))
+    os.path.join("utils", "testdata", _FULL_JSON_FILE_PATH))
 
 
 class ModelCardTest(absltest.TestCase):

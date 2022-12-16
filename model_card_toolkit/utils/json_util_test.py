@@ -7,12 +7,12 @@ from absl.testing import absltest
 import jsonschema
 from model_card_toolkit.utils import json_util
 
-_CATS_VS_DOGS_V1_PATH = os.path.join("utils", "testdata", "cats_vs_dogs.json")
+_CATS_VS_DOGS_V1_PATH = os.path.join("utils", "testdata", "cats_vs_dogs_v0_0_1.json")
 _CATS_VS_DOGS_V1_TEXT = pkgutil.get_data("model_card_toolkit",
                                          _CATS_VS_DOGS_V1_PATH)
 _CATS_VS_DOGS_V1_DICT = json.loads(_CATS_VS_DOGS_V1_TEXT)
 
-_CATS_VS_DOGS_V2_PATH = os.path.join("template", "test", "cats_vs_dogs.json")
+_CATS_VS_DOGS_V2_PATH = os.path.join("utils", "testdata", "cats_vs_dogs_v0_0_2.json")
 _CATS_VS_DOGS_V2_TEXT = pkgutil.get_data("model_card_toolkit",
                                          _CATS_VS_DOGS_V2_PATH)
 _CATS_VS_DOGS_V2_DICT = json.loads(_CATS_VS_DOGS_V2_TEXT)
