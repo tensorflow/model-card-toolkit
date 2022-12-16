@@ -52,7 +52,7 @@ class ModelCardTest(absltest.TestCase):
 
     self.assertEqual(want_proto, got_proto)
 
-  def test_copy_from_proto_sucess(self):
+  def test_copy_from_proto_success(self):
     # Test fields convert.
     owner = model_card.Owner(name="my_name1")
     owner_proto = model_card_pb2.Owner(name="my_name2", contact="my_contact2")
@@ -71,7 +71,7 @@ class ModelCardTest(absltest.TestCase):
         model_card.ModelDetails(
             owners=[model_card.Owner(name="my_name2", contact="my_contact2")]))
 
-  def test_merge_from_proto_sucess(self):
+  def test_merge_from_proto_success(self):
     # Test fields convert.
     owner = model_card.Owner(name="my_name1")
     owner_proto = model_card_pb2.Owner(contact="my_contact1")
@@ -109,7 +109,7 @@ class ModelCardTest(absltest.TestCase):
         TypeError, ".*expected .*Owner got .*Version.*"):
       owner.merge_from_proto(wrong_proto)
 
-  def test_to_proto_sucess(self):
+  def test_to_proto_success(self):
     # Test fields convert.
     owner = model_card.Owner()
     self.assertEqual(owner.to_proto(), model_card_pb2.Owner())
@@ -125,8 +125,7 @@ class ModelCardTest(absltest.TestCase):
     self.assertEqual(
         model_details.to_proto(),
         model_card_pb2.ModelDetails(
-            owners=[model_card_pb2.Owner(name="my_name", contact="my_contact")],
-            version=model_card_pb2.Version()))
+            owners=[model_card_pb2.Owner(name="my_name", contact="my_contact")]))
 
   def test_to_proto_with_invalid_field(self):
     owner = model_card.Owner()

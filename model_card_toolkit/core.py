@@ -399,7 +399,7 @@ class ModelCardToolkit():
     # If model_card is not passed in, read from Proto file.
     else:
       model_card = self._read_proto_file(self._mcta_proto_file)
-      if not model_card:
+      if model_card is None:
         raise ValueError('model_card could not be found. '
                          'Call scaffold_assets() to generate model_card.')
 

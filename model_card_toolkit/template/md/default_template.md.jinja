@@ -25,7 +25,7 @@
 |Name|Value|
 -----|------{% for metric in metrics %}
 |{{ metric_name(metric) }}|{{ metric_value(metric) }}|{% endfor %}{% endmacro %}
-# Model Card for {{ model_details.name }}
+# Model Card{% if model_details.name %} for {{ model_details.name }}{% endif %}{% if model_details %}
 
 ## Model Details{% if model_details.overview %}
 
@@ -50,7 +50,7 @@
 ### Citations
 {% for citation in model_details.citations %}
 * {{ citation.citation }}{% endfor %}
-{% endif %}{% if model_parameters.model_architecture or model_parameters.input_format or model_parameters.output_format %}
+{% endif %}{% endif %}{% if model_parameters.model_architecture or model_parameters.input_format or model_parameters.output_format %}
 
 ## Model Parameters
 {% if model_parameters.model_architecture %}
