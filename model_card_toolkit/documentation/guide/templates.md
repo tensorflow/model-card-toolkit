@@ -18,7 +18,7 @@ model_card = mct.scaffold_assets()
 mct.update_model_card(model_card)
 ```
 
-When you run `mct.scaffold_assets()`, the contents of [model_card_toolkit/template](https://github.com/tensorflow/model-card-toolkit/tree/master/model_card_toolkit/template) are copied into `mct_directory/template`. This includes premade templates such as [default_template.html.jinja](https://github.com/tensorflow/model-card-toolkit/blob/master/model_card_toolkit/template/html/default_template.html.jinja) and [default_template.md.jinja](https://github.com/tensorflow/model-card-toolkit/blob/master/model_card_toolkit/template/md/default_template.md.jinja).
+When you run `mct.scaffold_assets()`, the contents of [model_card_toolkit/template](https://github.com/tensorflow/model-card-toolkit/tree/main/model_card_toolkit/template) are copied into `mct_directory/template`. This includes premade templates such as [default_template.html.jinja](https://github.com/tensorflow/model-card-toolkit/blob/main/model_card_toolkit/template/html/default_template.html.jinja) and [default_template.md.jinja](https://github.com/tensorflow/model-card-toolkit/blob/main/model_card_toolkit/template/md/default_template.md.jinja).
 
 The
 [`model_card`](https://www.tensorflow.org/responsible_ai/model_card_toolkit/api_docs/python/model_card_toolkit/ModelCard)
@@ -40,7 +40,7 @@ mct.export_format(template_path=template_path, output_file='model_card.html')
 
 ### Modify the Model Card Template
 
-You can freely modify a premade template to change styling, reorganize information, etc. You should be familiar with the [Jinja API](https://jinja.palletsprojects.com/en/2.11.x/api/) and [control structures](https://jinja.palletsprojects.com/en/2.11.x/templates/#list-of-control-structures). Model Card field names are taken from [model_card.py](https://github.com/tensorflow/model-card-toolkit/blob/master/model_card_toolkit/model_card.py).
+You can freely modify a premade template to change styling, reorganize information, etc. You should be familiar with the [Jinja API](https://jinja.palletsprojects.com/en/2.11.x/api/) and [control structures](https://jinja.palletsprojects.com/en/2.11.x/templates/#list-of-control-structures). Model Card field names are taken from [model_card.py](https://github.com/tensorflow/model-card-toolkit/blob/main/model_card_toolkit/model_card.py).
 
 ### Creating a new Model Card Template
 

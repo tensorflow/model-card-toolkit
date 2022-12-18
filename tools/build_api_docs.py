@@ -19,7 +19,7 @@ flags.DEFINE_string(
 
 flags.DEFINE_string(
     "code_url_prefix",
-    default="https://github.com/tensorflow/model-card-toolkit/tree/master/model-card-toolkit",
+    default="https://github.com/tensorflow/model-card-toolkit/tree/main/model-card-toolkit",
     help="The URL prefix for links to code.")
 
 flags.DEFINE_bool(

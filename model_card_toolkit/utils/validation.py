@@ -37,7 +37,7 @@ def validate_json_schema(
 
   If schema_version is not provided, it will use the latest schema version.
   See
-  https://github.com/tensorflow/model-card-toolkit/tree/master/model_card_toolkit/schema/.
+  https://github.com/tensorflow/model-card-toolkit/tree/main/model_card_toolkit/schema/.
 
   Args:
     json_dict: A dictionary following the schema for a model card field.
