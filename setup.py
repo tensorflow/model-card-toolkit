@@ -37,10 +37,13 @@ REQUIRED_PACKAGES = [
     'tensorflow-model-analysis>=0.36.0,<0.42.0',
     'tensorflow-metadata>=1.5.0,<2.0.0',
     'ml-metadata>=1.5.0,<2.0.0',
-    'dataclasses;python_version<"3.7"',
 ]
 
-TESTS_REQUIRE = ['tensorflow-datasets']
+TESTS_REQUIRE = [
+    'pytest',
+    'tensorflow-datasets',
+]
+
 EXTRAS_REQUIRE = {'test':  TESTS_REQUIRE}
 
 # Get version from version module.
@@ -123,7 +126,7 @@ setup(
     package_data={
         'model_card_toolkit': ['schema/**/*.json', 'template/**/*.jinja']
     },
-    python_requires='>=3.6,<4',
+    python_requires='>=3.7,<4',
     install_requires=REQUIRED_PACKAGES,
     tests_require=TESTS_REQUIRE,
     extras_require=EXTRAS_REQUIRE,
@@ -137,7 +140,8 @@ setup(
         'Operating System :: OS Independent',
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.7',
-        'Programming Language :: Python :: 3 :: Only',
+        'Programming Language :: Python :: 3.8',
+        'Programming Language :: Python :: 3.9',
         'Topic :: Scientific/Engineering',
         'Topic :: Scientific/Engineering :: Mathematics',
         'Topic :: Scientific/Engineering :: Artificial Intelligence',
