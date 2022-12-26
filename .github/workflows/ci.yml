@@ -41,7 +41,7 @@ jobs:
         # Cache pip
         path: ~/.cache/pip
         # Check the cache for a given setup.py + MCT version
-        key: ${{ runner.os }}-pip-${{ hashFiles('tfx_addons/version.py') }}
+        key: ${{ runner.os }}-pip-${{ hashFiles('model_card_toolkit/version.py') }}
         restore-keys: |
           ${{ runner.os }}-pip
     - name: Install dependencies
