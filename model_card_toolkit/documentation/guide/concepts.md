@@ -78,7 +78,7 @@ The Model Card Toolkit integrates with the
 can be used during Model Card Toolkit initialization to pre-populate many model
 card fields and generate training and evaluation plots.
 
-[Artifacts](https://github.com/tensorflow/tfx/blob/main/tfx/types/standard_artifacts.py)
+[Artifacts](https://github.com/tensorflow/tfx/blob/master/tfx/types/standard_artifacts.py)
 used by MCT:
 
 *   [Examples](https://github.com/tensorflow/tfx/blob/74978506db5b7463c6f3c5b0716c4e834314b596/tfx/types/standard_artifacts.py#L76)
@@ -93,7 +93,7 @@ used by MCT:
     [TFMA](https://www.tensorflow.org/tfx/model_analysis/get_started) sliced
     evaluation metrics.
 
-[Executions](https://github.com/tensorflow/tfx/blob/main/tfx/types/standard_component_specs.py)
+[Executions](https://github.com/tensorflow/tfx/blob/master/tfx/types/standard_component_specs.py)
 used by MCT:
 
 *   [Trainer](https://www.tensorflow.org/tfx/api_docs/python/tfx/v1/components/Trainer):
