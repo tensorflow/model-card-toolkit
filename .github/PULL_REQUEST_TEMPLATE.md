@@ -15,7 +15,7 @@ Fixes [issue or discussion link]
 ## Before submitting
 
 Before submitting a pull request, please be sure to do the following:
-- [ ] Read the [How to Contribute guide](https://github.com/tensorflow/model-card-toolkit/blob/master/CONTRIBUTING.md) if this is your first contribution.
+- [ ] Read the [How to Contribute guide](https://github.com/tensorflow/model-card-toolkit/blob/main/CONTRIBUTING.md) if this is your first contribution.
 - [ ] Open an issue or discussion topic to discuss this change.
 - [ ] Write new tests if applicable.
 - [ ] Update documentation if applicable.
