@@ -182,7 +182,7 @@ class TfxTest(tfma.eval_saved_model.testutil.TensorflowModelAnalysisTest):
       self._put_artifact(store, _TFX_STATS_TYPE, tfdv_path)
 
 
-if not __name__ == '__main__':
+if __name__ != '__main__':
   # Manually pass and parse flags to prevent UnparsedFlagAccessError when using
   # pytest or unittest as a runner.
   flags.FLAGS(['--test_tmpdir'])
