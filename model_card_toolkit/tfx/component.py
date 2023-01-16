@@ -21,8 +21,7 @@ try:
   from tfx_addons.model_card_generator.component import ModelCardGenerator
 except ImportError:
   ModelCardGenerator = None
-  logging.info(
-      """
+  logging.info("""
       The ModelCardGenerator component and its dependencies have been moved to
       the TFX Addons project (https://github.com/tensorflow/tfx-addons).
 
@@ -31,5 +30,4 @@ except ImportError:
       ```
       $ pip install tfx-addons[model_card_generator]
       ```
-      """
-  )
+      """)

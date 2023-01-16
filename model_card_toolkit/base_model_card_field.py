@@ -21,10 +21,10 @@ import abc
 import dataclasses
 import json as json_lib
 from typing import Any, Dict
-from model_card_toolkit.utils import validation
 
-from google.protobuf import descriptor
-from google.protobuf import message
+from google.protobuf import descriptor, message
+
+from model_card_toolkit.utils import validation
 
 
 class BaseModelCardField(abc.ABC):
@@ -36,7 +36,6 @@ class BaseModelCardField(abc.ABC):
   `to_proto` to convert the class from and to proto. The child class does not
   need to override this unless it needs some special process.
   """
-
   def __len__(self) -> int:
     """Returns the number of items in a field. Ignores None values recursively,
     so the length of a field that only contains another field that has all None
@@ -66,7 +65,8 @@ class BaseModelCardField(abc.ABC):
       if field_descriptor.type == descriptor.FieldDescriptor.TYPE_MESSAGE:
         if field_descriptor.label == descriptor.FieldDescriptor.LABEL_REPEATED:
           for nested_message in field_value:
-            getattr(proto, field_name).add().CopyFrom(nested_message.to_proto())  # pylint: disable=protected-access
+            getattr(proto,
+                    field_name).add().CopyFrom(nested_message.to_proto())  # pylint: disable=protected-access
         else:
           getattr(proto, field_name).CopyFrom(field_value.to_proto())  # pylint: disable=protected-access
       # Process Non-Message type
@@ -136,8 +136,8 @@ class BaseModelCardField(abc.ABC):
             "BaseModelCardField %s has no such field named '%s.'" %
             (field, subfield_key))
       elif isinstance(subfield_json_value, dict):
-        subfield_value = self._from_json(
-            subfield_json_value, getattr(field, subfield_key))
+        subfield_value = self._from_json(subfield_json_value,
+                                         getattr(field, subfield_key))
       elif isinstance(subfield_json_value, list):
         subfield_value = []
         for item in subfield_json_value:

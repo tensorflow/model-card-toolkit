@@ -343,8 +343,9 @@ class QuantitativeAnalysis(BaseModelCardField):
   graphics: GraphicsCollection = dataclasses.field(
       default_factory=GraphicsCollection)
 
-  _proto_type: dataclasses.InitVar[type(model_card_pb2.QuantitativeAnalysis
-                                       )] = model_card_pb2.QuantitativeAnalysis
+  _proto_type: dataclasses.InitVar[type(
+      model_card_pb2.QuantitativeAnalysis
+  )] = model_card_pb2.QuantitativeAnalysis
 
 
 @dataclasses.dataclass
@@ -476,8 +477,8 @@ class ModelCard(BaseModelCardField):
     """Write ModelCard to JSON."""
     model_card_dict = self.to_dict()
     model_card_dict[
-        validation
-        .SCHEMA_VERSION_STRING] = validation.get_latest_schema_version()
+        validation.
+        SCHEMA_VERSION_STRING] = validation.get_latest_schema_version()
     return json_lib.dumps(model_card_dict, indent=2)
 
   def from_json(self, json_dict: Dict[str, Any]) -> None:

@@ -18,6 +18,7 @@ Standalone_Model_Card_Toolkit_Demo.ipynb.
 """
 
 from typing import Any, Dict, Text
+
 import tensorflow as tf
 import tensorflow_datasets as tfds
 
@@ -131,10 +132,9 @@ def create_model(
   outputs = tf.keras.layers.Dense(1)(x)
   model = tf.keras.Model(inputs, outputs)
 
-  model.compile(
-      optimizer=tf.keras.optimizers.Adam(),
-      loss=tf.keras.losses.BinaryCrossentropy(from_logits=True),
-      metrics=[tf.keras.metrics.BinaryAccuracy()])
+  model.compile(optimizer=tf.keras.optimizers.Adam(),
+                loss=tf.keras.losses.BinaryCrossentropy(from_logits=True),
+                metrics=[tf.keras.metrics.BinaryAccuracy()])
 
   model.fit(
       train_ds,

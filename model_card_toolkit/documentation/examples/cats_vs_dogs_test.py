@@ -1,6 +1,7 @@
 """Tests for model_card_toolkit.documentation.examples.cats_vs_dogs."""
 
 from absl.testing import absltest
+
 from model_card_toolkit.documentation.examples import cats_vs_dogs
 
 SLICES = ['combined', 'cat', 'dog']
@@ -8,7 +9,6 @@ FIELDS = ['examples', 'labels']
 
 
 class CatsVsDogsTest(absltest.TestCase):
-
   def test_get_data(self):
     data = cats_vs_dogs.get_data()
     self.assertSameElements(data.keys(), SLICES)

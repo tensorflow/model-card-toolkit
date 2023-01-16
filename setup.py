@@ -17,16 +17,13 @@
 Run with `python3 setup.py sdist bdist_wheel`.
 """
 
-# TODO(b/188859752): deprecate distutils
-from distutils.command import build
-
 import platform
 import shutil
 import subprocess
+# TODO(b/188859752): deprecate distutils
+from distutils.command import build
 
-from setuptools import Command
-from setuptools import setup
-
+from setuptools import Command, setup
 
 REQUIRED_PACKAGES = [
     'absl-py>=0.9,<1.1',
@@ -44,7 +41,7 @@ TESTS_REQUIRE = [
     'tensorflow-datasets',
 ]
 
-EXTRAS_REQUIRE = {'test':  TESTS_REQUIRE}
+EXTRAS_REQUIRE = {'test': TESTS_REQUIRE}
 
 # Get version from version module.
 with open('model_card_toolkit/version.py') as fp:
@@ -80,7 +77,6 @@ class _BuildCommand(build.build):
 
 class _BazelBuildCommand(Command):
   """Build Bazel artifacts and move generated files."""
-
   def initialize_options(self):
     pass
 

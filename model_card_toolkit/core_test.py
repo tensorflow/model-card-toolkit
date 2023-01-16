@@ -16,26 +16,22 @@
 import os
 from unittest import mock
 
+import tensorflow_model_analysis as tfma
 from absl import flags
-from absl.testing import absltest
-from absl.testing import parameterized
+from absl.testing import absltest, parameterized
+from ml_metadata.proto import metadata_store_pb2
 
-from model_card_toolkit import core
-from model_card_toolkit import model_card
+from model_card_toolkit import core, model_card
 from model_card_toolkit.proto import model_card_pb2
 from model_card_toolkit.utils import graphics
 from model_card_toolkit.utils import source as src
 from model_card_toolkit.utils.testdata import testdata_utils
 from model_card_toolkit.utils.testdata.tfxtest import TfxTest
-from model_card_toolkit.utils.tfx_util import _TFX_METRICS_TYPE
-from model_card_toolkit.utils.tfx_util import _TFX_STATS_TYPE
-import tensorflow_model_analysis as tfma
-
-from ml_metadata.proto import metadata_store_pb2
+from model_card_toolkit.utils.tfx_util import (_TFX_METRICS_TYPE,
+                                               _TFX_STATS_TYPE)
 
 
 class CoreTest(parameterized.TestCase, TfxTest):
-
   def setUp(self):
     super(CoreTest, self).setUp()
     test_dir = self.create_tempdir()
@@ -65,11 +61,14 @@ class CoreTest(parameterized.TestCase, TfxTest):
 
   def test_scaffold_assets_with_json(self):
     mct = core.ModelCardToolkit(output_dir=self.mct_dir)
-    mc = mct.scaffold_assets({'model_details': {'name': 'json_test',}})
+    mc = mct.scaffold_assets({'model_details': {
+        'name': 'json_test',
+    }})
     self.assertEqual(mc.model_details.name, 'json_test')
 
-  @mock.patch.object(
-      graphics, 'annotate_dataset_feature_statistics_plots', autospec=True)
+  @mock.patch.object(graphics,
+                     'annotate_dataset_feature_statistics_plots',
+                     autospec=True)
   @mock.patch.object(graphics, 'annotate_eval_result_plots', autospec=True)
   def test_scaffold_assets_with_store(self, mock_annotate_data_stats,
                                       mock_annotate_eval_results):
@@ -123,7 +122,8 @@ class CoreTest(parameterized.TestCase, TfxTest):
       example_statistics_artifacts = mlmd_store.get_artifacts_by_type(
           _TFX_STATS_TYPE)
       # Use placeholder artifact to avoid introducing tfx as a dependency
-      pushed_model_artifact = metadata_store_pb2.Artifact(uri=pushed_model_path)
+      pushed_model_artifact = metadata_store_pb2.Artifact(
+          uri=pushed_model_path)
       tfma_src = src.TfmaSource(
           model_evaluation_artifacts=model_evaluation_artifacts,
           metrics_exclude=['average_loss'])
@@ -135,16 +135,15 @@ class CoreTest(parameterized.TestCase, TfxTest):
       self._write_tfma(tfma_path, output_file_format, add_metrics_callbacks)
       self._write_tfdv(tfdv_path, train_dataset_name, train_features,
                        eval_dataset_name, eval_features)
-      tfma_src = src.TfmaSource(
-          eval_result_paths=[tfma_path], metrics_exclude=['average_loss'])
+      tfma_src = src.TfmaSource(eval_result_paths=[tfma_path],
+                                metrics_exclude=['average_loss'])
       tfdv_src = src.TfdvSource(
           dataset_statistics_paths=[tfdv_path],
           features_include=['feature_name1', 'feature_name3'])
       model_src = src.ModelSource(pushed_model_path=pushed_model_path)
 
-    mc = core.ModelCardToolkit(
-        source=src.Source(tfma=tfma_src, tfdv=tfdv_src,
-                          model=model_src)).scaffold_assets()
+    mc = core.ModelCardToolkit(source=src.Source(
+        tfma=tfma_src, tfdv=tfdv_src, model=model_src)).scaffold_assets()
 
     with self.subTest(name='quantitative_analysis'):
       list_to_proto = lambda lst: [x.to_proto() for x in lst]
@@ -195,23 +194,19 @@ class CoreTest(parameterized.TestCase, TfxTest):
         ValueError,
         'Only one of TfmaSource.metrics_include and TfmaSource.metrics_exclude '
         'should be set.'):
-      core.ModelCardToolkit(
-          source=src.Source(
-              tfma=src.TfmaSource(
-                  eval_result_paths=['dummy/path'],
-                  metrics_include=['false_positive_rate'],
-                  metrics_exclude=['false_negative_rate'])))
+      core.ModelCardToolkit(source=src.Source(
+          tfma=src.TfmaSource(eval_result_paths=['dummy/path'],
+                              metrics_include=['false_positive_rate'],
+                              metrics_exclude=['false_negative_rate'])))
 
   def test_scaffold_assets_with_invalid_tfdv_source(self):
     with self.assertRaisesWithLiteralMatch(
         ValueError, 'Only one of TfdvSource.features_include and '
         'TfdvSource.features_exclude should be set.'):
-      core.ModelCardToolkit(
-          source=src.Source(
-              tfdv=src.TfdvSource(
-                  dataset_statistics_paths=['dummy/path'],
-                  features_include=['brand_confidence'],
-                  features_exclude=['brand_prominence'])))
+      core.ModelCardToolkit(source=src.Source(
+          tfdv=src.TfdvSource(dataset_statistics_paths=['dummy/path'],
+                              features_include=['brand_confidence'],
+                              features_exclude=['brand_prominence'])))
 
   def test_update_model_card_with_valid_model_card(self):
     mct = core.ModelCardToolkit(output_dir=self.mct_dir)
@@ -272,8 +267,8 @@ class CoreTest(parameterized.TestCase, TfxTest):
     template_path = os.path.join(self.mct_dir,
                                  'template/html/default_template.html.jinja')
     output_file = 'my_model_card.html'
-    result = mct.export_format(
-        template_path=template_path, output_file=output_file)
+    result = mct.export_format(template_path=template_path,
+                               output_file=output_file)
 
     model_card_path = os.path.join(self.mct_dir, 'model_cards', output_file)
     self.assertTrue(os.path.exists(model_card_path))

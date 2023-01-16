@@ -17,15 +17,15 @@ import enum
 import os
 from typing import Any, Dict, Iterable, List, Optional, Sequence, Union
 
-from absl import logging
 import attr
-from model_card_toolkit import model_card as model_card_module
+import ml_metadata as mlmd
 import tensorflow as tf
 import tensorflow_model_analysis as tfma
-
-import ml_metadata as mlmd
+from absl import logging
 from ml_metadata.proto import metadata_store_pb2
 from tensorflow_metadata.proto.v0 import statistics_pb2
+
+from model_card_toolkit import model_card as model_card_module
 
 # A list of artifact type names used by TFX 0.21 and later versions. This lets
 # us avoid introducing tfx as a dependency.
@@ -78,18 +78,20 @@ def _get_tfx_pipeline_types(store: mlmd.MetadataStore) -> PipelineTypes:
   if missing_types:
     raise ValueError(
         f'Given `store` is invalid: missing ArtifactTypes: {missing_types}.')
-  execution_types = {etype.name: etype for etype in store.get_execution_types()}
+  execution_types = {
+      etype.name: etype
+      for etype in store.get_execution_types()
+  }
   expected_execution_types = {_TFX_TRAINER_TYPE}
   missing_types = expected_execution_types.difference(execution_types.keys())
   if missing_types:
     raise ValueError(
         f'Given `store` is invalid: missing ExecutionTypes: {missing_types}.')
-  return PipelineTypes(
-      dataset_type=artifact_types[_TFX_DATASET_TYPE],
-      stats_type=artifact_types[_TFX_STATS_TYPE],
-      model_type=artifact_types[_TFX_MODEL_TYPE],
-      metrics_type=artifact_types[_TFX_METRICS_TYPE],
-      trainer_type=execution_types[_TFX_TRAINER_TYPE])
+  return PipelineTypes(dataset_type=artifact_types[_TFX_DATASET_TYPE],
+                       stats_type=artifact_types[_TFX_STATS_TYPE],
+                       model_type=artifact_types[_TFX_MODEL_TYPE],
+                       metrics_type=artifact_types[_TFX_METRICS_TYPE],
+                       trainer_type=execution_types[_TFX_TRAINER_TYPE])
 
 
 def _validate_model_id(store: mlmd.MetadataStore,
@@ -115,7 +117,8 @@ def _validate_model_id(store: mlmd.MetadataStore,
   model = model_artifacts[0]
   if model.type_id != model_type.id:
     raise ValueError(
-        f'Found artifact with `model_id` is not an instance of Model: {model}.')
+        f'Found artifact with `model_id` is not an instance of Model: {model}.'
+    )
   return model
 
 
@@ -271,10 +274,9 @@ def get_stats_artifacts_for_model(
       transformed_example_ids.add(example.id)
     else:
       dataset_ids.add(example.id)
-  dataset_ids.update(
-      dataset.id for dataset in _get_one_hop_artifacts(
-          store, transformed_example_ids, _Direction.ANCESTOR,
-          pipeline_types.dataset_type))
+  dataset_ids.update(dataset.id for dataset in _get_one_hop_artifacts(
+      store, transformed_example_ids, _Direction.ANCESTOR,
+      pipeline_types.dataset_type))
   return _get_one_hop_artifacts(store, dataset_ids, _Direction.SUCCESSOR,
                                 pipeline_types.stats_type)
 
@@ -414,8 +416,8 @@ def read_metrics_eval_result(
     A TFMA EvalResults named tuple including configs and sliced metrics.
     Returns None if no slicing metrics found from `metrics_artifact_uri`.
   """
-  result = tfma.load_eval_result(
-      output_path=metrics_artifact_uri, output_file_format=output_file_format)
+  result = tfma.load_eval_result(output_path=metrics_artifact_uri,
+                                 output_file_format=output_file_format)
   if not result.slicing_metrics:
     logging.warning('Cannot load eval results from: %s', metrics_artifact_uri)
     return None
@@ -433,7 +435,6 @@ def annotate_eval_result_metrics(model_card: model_card_module.ModelCard,
   Raises:
     ValueError: if eval_result is improperly formatted.
   """
-
   def _parse_array_value(array: Dict[str, Any]) -> str:
     data_type = array['dataType']
     if data_type in _TYPE_FIELD_MAP:
@@ -452,11 +453,13 @@ def annotate_eval_result_metrics(model_card: model_card_module.ModelCard,
       output_names.add(output_name)
   for output_name in sorted(output_names):
     for slice_repr, metrics_for_slice in (
-        eval_result.get_metrics_for_all_slices(output_name=output_name).items()):
+        eval_result.get_metrics_for_all_slices(
+            output_name=output_name).items()):
       # Parse the slice name
       if not isinstance(slice_repr, tuple):
         raise ValueError(
-            f'Expected EvalResult slices to be tuples; found {type(slice_repr)}')
+            f'Expected EvalResult slices to be tuples; found {type(slice_repr)}'
+        )
       slice_name = '_X_'.join(f'{a}_{b}' for a, b in slice_repr)
       for metric_name, metric_value in metrics_for_slice.items():
         # Parse the metric value
@@ -476,8 +479,9 @@ def annotate_eval_result_metrics(model_card: model_card_module.ModelCard,
           if output_name:
             metric_type = f"{output_name}.{metric_name}"
           # Create the PerformanceMetric and append to the ModelCard
-          metric = model_card_module.PerformanceMetric(
-              type=metric_type, value=str(parsed_value), slice=slice_name)
+          metric = model_card_module.PerformanceMetric(type=metric_type,
+                                                       value=str(parsed_value),
+                                                       slice=slice_name)
           model_card.quantitative_analysis.performance_metrics.append(metric)
 
 
@@ -505,8 +509,9 @@ def filter_metrics(
   elif metrics_exclude and not metrics_include:
     include = lambda metric_name: metric_name not in metrics_exclude
   else:
-    raise ValueError('filter_metrics() requires exactly one of metrics_include '
-                     'and metrics_exclude.')
+    raise ValueError(
+        'filter_metrics() requires exactly one of metrics_include '
+        'and metrics_exclude.')
 
   filtered_slicing_metrics = []
   for slc, mtrc in eval_result.slicing_metrics:
@@ -516,21 +521,20 @@ def filter_metrics(
         for mtrc_name in mtrc[output_name][subkey]:
           if include(mtrc_name):
             filtered_mtrc[output_name] = filtered_mtrc.get(output_name, {})
-            filtered_mtrc[output_name][subkey] = filtered_mtrc[output_name].get(
-                subkey, {})
+            filtered_mtrc[output_name][subkey] = filtered_mtrc[
+                output_name].get(subkey, {})
             filtered_mtrc[output_name][subkey][mtrc_name] = mtrc[output_name][
                 subkey][mtrc_name]
     filtered_slicing_metrics.append(
         tfma.view.SlicedMetrics(slice=slc, metrics=filtered_mtrc))
 
-  return tfma.EvalResult(
-      slicing_metrics=filtered_slicing_metrics,
-      plots=eval_result.plots,
-      attributions=eval_result.attributions,
-      config=eval_result.config,
-      data_location=eval_result.data_location,
-      file_format=eval_result.file_format,
-      model_location=eval_result.model_location)
+  return tfma.EvalResult(slicing_metrics=filtered_slicing_metrics,
+                         plots=eval_result.plots,
+                         attributions=eval_result.attributions,
+                         config=eval_result.config,
+                         data_location=eval_result.data_location,
+                         file_format=eval_result.file_format,
+                         model_location=eval_result.model_location)
 
 
 def filter_features(
