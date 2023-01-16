@@ -51,7 +51,6 @@ confidence=
 # no Warning level messages displayed, use"--disable=all --enable=classes
 # --disable=W"
 disable=abstract-method,
-        abstract-class-instantiated,
         apply-builtin,
         arguments-differ,
         attribute-defined-outside-init,
@@ -60,11 +59,11 @@ disable=abstract-method,
         basestring-builtin,
         buffer-builtin,
         c-extension-no-member,
+        consider-using-enumerate,
         cmp-builtin,
         cmp-method,
         coerce-builtin,
         coerce-method,
-        consider-using-enumerate,
         delslice-method,
         div-method,
         duplicate-code,
@@ -89,9 +88,9 @@ disable=abstract-method,
         long-builtin,
         long-suffix,
         map-builtin-not-iterating,
-        metaclass-assignment,
         misplaced-comparison-constant,
         missing-function-docstring,
+        metaclass-assignment,
         next-method-called,
         next-method-defined,
         no-absolute-import,
@@ -111,7 +110,6 @@ disable=abstract-method,
         old-raise-syntax,
         parameter-unpacking,
         print-statement,
-        protected-access,
         raising-string,
         range-builtin-not-iterating,
         raw_input-builtin,
@@ -123,7 +121,6 @@ disable=abstract-method,
         setslice-method,
         signature-differs,
         standarderror-builtin,
-        super-with-arguments,
         suppressed-message,
         sys-max-int,
         too-few-public-methods,
@@ -262,7 +259,7 @@ generated-members=
 [FORMAT]
 
 # Maximum number of characters on a single line.
-max-line-length=125
+max-line-length=80
 
 # TODO(https://github.com/PyCQA/pylint/issues/3352): Direct pylint to exempt
 # lines made too long by directives to pytype.
