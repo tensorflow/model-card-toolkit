@@ -1,0 +1,17 @@
+# See https://pre-commit.com for more information
+# See https://pre-commit.com/hooks.html for more hooks
+default_stages: [push,commit]
+repos:
+-   repo:  https://github.com/pre-commit/mirrors-yapf
+    rev: v0.31.0
+    hooks:
+    -   id: yapf
+-   repo: https://github.com/pycqa/isort
+    rev: 5.8.0
+    hooks:
+    -   id: isort
+        name: isort (python)
+-   repo: https://github.com/PyCQA/pylint
+    rev: v2.8.3
+    hooks:
+    -   id: pylint
