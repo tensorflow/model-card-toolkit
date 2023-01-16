@@ -477,7 +477,7 @@ def annotate_eval_result_metrics(model_card: model_card_module.ModelCard,
         if parsed_value:
           metric_type = metric_name
           if output_name:
-            metric_type = f"{output_name}.{metric_name}"
+            metric_type = f'{output_name}.{metric_name}'
           # Create the PerformanceMetric and append to the ModelCard
           metric = model_card_module.PerformanceMetric(type=metric_type,
                                                        value=str(parsed_value),
