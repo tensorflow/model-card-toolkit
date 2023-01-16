@@ -156,7 +156,7 @@ _DATASET_FEATURES = [
 
 class TfxUtilsTest(absltest.TestCase):
   def setUp(self):
-    super(TfxUtilsTest, self).setUp()
+    super().setUp()
     self.tmp_db_path = os.path.join(absltest.get_default_test_tmpdir(),
                                     f'test_mlmd_{uuid.uuid4()}.db')
 

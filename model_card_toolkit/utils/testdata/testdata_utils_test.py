@@ -22,7 +22,7 @@ from model_card_toolkit.utils.testdata import testdata_utils
 
 class TestDataUtilsTest(absltest.TestCase):
   def setUp(self):
-    super(TestDataUtilsTest, self).setUp()
+    super().setUp()
     tmp_db_path = os.path.join(absltest.get_default_test_tmpdir(), 'test.db')
     self.store = testdata_utils.get_tfx_pipeline_metadata_store(tmp_db_path)
     self.assertIsNotNone(self.store)

@@ -33,7 +33,7 @@ from model_card_toolkit.utils.tfx_util import (_TFX_METRICS_TYPE,
 
 class CoreTest(parameterized.TestCase, TfxTest):
   def setUp(self):
-    super(CoreTest, self).setUp()
+    super().setUp()
     test_dir = self.create_tempdir()
     self.tmp_db_path = os.path.join(test_dir, 'test_mlmd.db')
     self.mct_dir = test_dir.mkdir(os.path.join(test_dir,

@@ -33,7 +33,7 @@ from model_card_toolkit.utils.tfx_util import (_TFX_METRICS_TYPE,
 class TfxTest(tfma.eval_saved_model.testutil.TensorflowModelAnalysisTest):
   """A helper class for testing interop with TFX pipelines."""
   def setUp(self):
-    super(TfxTest, self).setUp()
+    super().setUp()
     self.tmp_db_path = os.path.join(self.create_tempdir(), 'test_mlmd.db')
     self.tmpdir = self.create_tempdir()
 
