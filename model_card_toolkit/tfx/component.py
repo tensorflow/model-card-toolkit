@@ -18,7 +18,8 @@ Optionally imports the ModelCardGenerator TFX component.
 import logging
 
 try:
-  from tfx_addons.model_card_generator.component import ModelCardGenerator
+  from tfx_addons.model_card_generator.component import \
+      ModelCardGenerator  # pylint: disable=unused-import
 except ImportError:
   ModelCardGenerator = None
   logging.info("""
