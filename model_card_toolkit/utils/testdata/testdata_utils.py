@@ -22,7 +22,8 @@ from ml_metadata.proto import metadata_store_pb2
 # constants in a mlmd metadata store instance derived from a tfx pipeline
 _TEST_DATA_DIR = os.path.join(os.path.dirname(__file__), 'tfx_oss_0_21')
 _TFX_0_21_DB_FILE = 'metadata.sqlite'
-_TFX_0_21_PAYLOAD_DIR = '/tmp/tfx-interactive-2020-03-24T21_31_20.888155-mny0kawj'
+_TFX_0_21_PAYLOAD_DIR = \
+  '/tmp/tfx-interactive-2020-03-24T21_31_20.888155-mny0kawj'
 
 TFX_0_21_METRICS_ARTIFACT_IDS = (9, 11)
 TFX_0_21_MODEL_ARTIFACT_ID = 8

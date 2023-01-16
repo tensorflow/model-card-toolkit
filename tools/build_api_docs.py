@@ -16,7 +16,7 @@ flags.DEFINE_string("output_dir",
 flags.DEFINE_string(
     "code_url_prefix",
     default=
-    "https://github.com/tensorflow/model-card-toolkit/tree/master/model-card-toolkit",
+    "https://github.com/tensorflow/model-card-toolkit/tree/master/model-card-toolkit",  # pylint: disable=line-too-long
     help="The URL prefix for links to code.")
 
 flags.DEFINE_bool("search_hints",

@@ -373,7 +373,7 @@ class GraphicsTest(parameterized.TestCase):
                             # CI not computed because only 16 samples
                             # were non-empty. Expected 20.
                             'bytesValue':
-                            'Q0kgbm90IGNvbXB1dGVkIGJlY2F1c2Ugb25seSAxNiBzYW1wbGVzIHdlcmUgbm9uLWVtcHR5LiBFeHBlY3RlZCAyMC4='
+                            'Q0kgbm90IGNvbXB1dGVkIGJlY2F1c2Ugb25seSAxNiBzYW1wbGVzIHdlcmUgbm9uLWVtcHR5LiBFeHBlY3RlZCAyMC4='  # pylint: disable=line-too-long
                         }
                     }
                 }
@@ -541,7 +541,7 @@ class GraphicsTest(parameterized.TestCase):
                             # CI not computed because only 16 samples
                             # were non-empty. Expected 20.
                             'bytesValue':
-                            'Q0kgbm90IGNvbXB1dGVkIGJlY2F1c2Ugb25seSAxNiBzYW1wbGVzIHdlcmUgbm9uLWVtcHR5LiBFeHBlY3RlZCAyMC4='
+                            'Q0kgbm90IGNvbXB1dGVkIGJlY2F1c2Ugb25seSAxNiBzYW1wbGVzIHdlcmUgbm9uLWVtcHR5LiBFeHBlY3RlZCAyMC4='  # pylint: disable=line-too-long
                         }
                     }
                 }

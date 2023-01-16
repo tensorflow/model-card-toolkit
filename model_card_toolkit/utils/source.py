@@ -93,7 +93,8 @@ class TfdvSource:
   def __post_init__(self):
     if self.dataset_statistics_paths and not self.example_statistics_artifacts:
       pass
-    elif self.example_statistics_artifacts and not self.dataset_statistics_paths:
+    elif self.example_statistics_artifacts \
+      and not self.dataset_statistics_paths:
       self.dataset_statistics_paths = [
           artifact.uri for artifact in self.example_statistics_artifacts
       ]
