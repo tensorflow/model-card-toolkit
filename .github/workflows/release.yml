@@ -6,7 +6,7 @@ on:
       - 'model_card_toolkit/**'
       - 'setup.py'
     branches:
-      - master
+      - main
       - r*
   release:
     types: [published]

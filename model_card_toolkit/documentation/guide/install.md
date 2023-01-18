@@ -16,9 +16,9 @@ versions of pip starting with 20.3
 ## Installing from source
 
 Starting with
-[version 0.1.4](https://github.com/tensorflow/model-card-toolkit/blob/master/RELEASE.md)
+[version 0.1.4](https://github.com/tensorflow/model-card-toolkit/blob/main/RELEASE.md)
 compiling Model Card Toolkit requires
-[Bazel](https://docs.bazel.build/versions/master/install.html)>=2.0.0.
+[Bazel](https://docs.bazel.build/versions/main/install.html)>=2.0.0.
 
 First, clone the github repo:
 

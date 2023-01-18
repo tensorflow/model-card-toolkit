@@ -126,11 +126,11 @@ bazel run //model_card_toolkit:move_generated_files
 
 Include a license at the top of new files.
 
-- [Python license example](https://github.com/tensorflow/model-card-toolkit/blob/master/setup.py#L1)
-- [Bash license example](https://github.com/tensorflow/model-card-toolkit/blob/master/model_card_toolkit/move_generated_files.sh#L2)
+- [Python license example](https://github.com/tensorflow/model-card-toolkit/blob/main/setup.py#L1)
+- [Bash license example](https://github.com/tensorflow/model-card-toolkit/blob/main/model_card_toolkit/move_generated_files.sh#L2)
 
 Bazel BUILD files also need to include a license section. See
-[BUILD example](https://github.com/tensorflow/model-card-toolkit/blob/master/model_card_toolkit/BUILD#L15).
+[BUILD example](https://github.com/tensorflow/model-card-toolkit/blob/main/model_card_toolkit/BUILD#L15).
 
 **Do not** include a license at the top of Jinja template files.
 

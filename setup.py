@@ -88,7 +88,7 @@ class _BazelBuildCommand(Command):
     if not self._bazel_cmd:
       raise RuntimeError(
           'Could not find "bazel" or "bazelisk" binary. Please visit '
-          'https://docs.bazel.build/versions/master/install.html for '
+          'https://docs.bazel.build/versions/main/install.html for '
           'installation instruction.')
     self._additional_build_options = []
     if platform.system() == 'Darwin':  # see b/175182911 for context

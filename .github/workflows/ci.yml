@@ -8,7 +8,7 @@ on:
       - 'setup.py'
       - 'pyproject.toml'
     branches:
-      - master
+      - main
       - r*
   pull_request:
     paths:
@@ -17,7 +17,7 @@ on:
       - 'setup.py'
       - 'pyproject.toml'
     branches:
-      - master
+      - main
       - r*
 
 concurrency: 

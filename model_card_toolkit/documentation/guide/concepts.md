@@ -19,10 +19,10 @@ Some use cases of model cards include:
 ### Schema
 
 The
-[Model Card schema](https://github.com/tensorflow/model-card-toolkit/blob/master/model_card_toolkit/proto/model_card.proto)
+[Model Card schema](https://github.com/tensorflow/model-card-toolkit/blob/main/model_card_toolkit/proto/model_card.proto)
 is a [proto](https://developers.google.com/protocol-buffers) describing a model
 card's available fields. A
-[JSON interface](https://github.com/tensorflow/model-card-toolkit/blob/master/model_card_toolkit/schema)
+[JSON interface](https://github.com/tensorflow/model-card-toolkit/blob/main/model_card_toolkit/schema)
 is also available. These objects can be interfaced with other systems for
 storage, analysis, or visualization.
 
@@ -45,14 +45,14 @@ Toolkit can help with [generating base64 images](###model-card-api).
 ## Model Card Toolkit
 
 The
-[Model Card Toolkit](https://github.com/tensorflow/model-card-toolkit/blob/master/model_card_toolkit/model_card_toolkit.py)
+[Model Card Toolkit](https://github.com/tensorflow/model-card-toolkit/blob/main/model_card_toolkit/model_card_toolkit.py)
 allows you to generate [Model Card documents](###model-card-documents), as well
 as [Proto and JSON objects](###schema), with a streamlined Python interface.
 
 ### Model Card API
 
 The Model Card Toolkit includes a Model Card API consisting of a
-[Python class](https://github.com/tensorflow/model-card-toolkit/blob/master/model_card_toolkit/model_card.py).
+[Python class](https://github.com/tensorflow/model-card-toolkit/blob/main/model_card_toolkit/model_card.py).
 Updates made to a Model Card Python object are written to a Model Card proto
 object.
 
@@ -64,10 +64,10 @@ used to convert graphics, such as Matplotlib figures, to base64 strings.
 ### Model Card Documents
 
 By default, the generated model card document is a HTML file based on
-[default_template.html.jinja](https://github.com/tensorflow/model-card-toolkit/blob/master/model_card_toolkit/template/html/default_template.html.jinja).
+[default_template.html.jinja](https://github.com/tensorflow/model-card-toolkit/blob/main/model_card_toolkit/template/html/default_template.html.jinja).
 However, you can also provide your own custom Jinja template. These templates
 files can be any text-based format (HTML, Markdown, LaTeX, etc.). A
-[Markdown template](https://github.com/tensorflow/model-card-toolkit/blob/master/model_card_toolkit/template/md/default_template.md.jinja)
+[Markdown template](https://github.com/tensorflow/model-card-toolkit/blob/main/model_card_toolkit/template/md/default_template.md.jinja)
 is provided as an example.
 
 ### TFX and MLMD Integration

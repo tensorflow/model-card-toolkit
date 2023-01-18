@@ -7,20 +7,20 @@ TFX Addons follows [Semantic Versioning 2.0](https://semver.org/) strategy.
 
 ## Making Major and Minor Releases
 
-1. Create new `rX.Y` branch on https://github.com/tensorflow/model-card-toolkit from `master`.
+1. Create new `rX.Y` branch on https://github.com/tensorflow/model-card-toolkit from `main`.
 2. Create new PR with updates to `version.py` against `rX.Y` branch.
-	* Set the correct version and suffix in [version.py](https://github.com/tensorflow/model-card-toolkit/blob/master/model_card_toolkit/version.py).
-	* Ensure proper supported Python libraries are set in [setup.py](https://github.com/tensorflow/model-card-toolkit/blob/master/setup.py).
+	* Set the correct version and suffix in [version.py](https://github.com/tensorflow/model-card-toolkit/blob/main/model_card_toolkit/version.py).
+	* Ensure proper supported Python libraries are set in [setup.py](https://github.com/tensorflow/model-card-toolkit/blob/main/setup.py).
 3. Create a [new release](https://github.com/tensorflow/model-card-toolkit/releases) from `rX.Y` branch. Create a tag with `vX.Y.Z` name.
     * Add updates for new features, enhancements, bug fixes
     * Add contributors using `git shortlog <last-version>..HEAD -s`
-4. Create a new PR and merge an increase of `_MINOR_VERSION` in [version.py](https://github.com/tensorflow/model-card-toolkit/blob/master/model_card_toolkit/version.py) on `master` to get ready for next release.
+4. Create a new PR and merge an increase of `_MINOR_VERSION` in [version.py](https://github.com/tensorflow/model-card-toolkit/blob/main/model_card_toolkit/version.py) on `main` to get ready for next release.
 
 ## Making Patch Releases
 1. Cherry-pick commits to `rX.Y` branch. Release team can just port PR by commenting "/cherry-pick rX.Y" in a merged PR.
 2. Create new PR with increasing `_PATCH_VERSION` in `version.py` against `rX.Y` branch.
-	* Set the correct version and suffix in [version.py](https://github.com/tensorflow/model-card-toolkit/blob/master/model_card_toolkit/version.py).
-	* Ensure proper supported Python libraries are set in [setup.py](https://github.com/tensorflow/model-card-toolkit/blob/master/setup.py).
+	* Set the correct version and suffix in [version.py](https://github.com/tensorflow/model-card-toolkit/blob/main/model_card_toolkit/version.py).
+	* Ensure proper supported Python libraries are set in [setup.py](https://github.com/tensorflow/model-card-toolkit/blob/main/setup.py).
 3. Create a [new release](https://github.com/tensorflow/model-card-toolkit/releases) from `rX.Y` branch. Create a tag with `vX.Y.Z` name.
     * Add updates for new features, enhancements, bug fixes
     * Add contributors using `git shortlog <last-version>..HEAD -s`
@@ -131,7 +131,7 @@ Current Release Team:
 #### Bug fixes and other changes
 
 * Update default template layout so charts can wrap to multiple rows
-* Installing from source now requires [Bazel](https://docs.bazel.build/versions/master/install.html)>=2.0.0.
+* Installing from source now requires [Bazel](https://docs.bazel.build/versions/main/install.html)>=2.0.0.
 * Update model card templates to use new schema.
 * `model_card_toolkit.utils.validation.validate_json_schema()` can now validate both schema v0.0.1 and v0.0.2.
 * Add `_jinja_loader` attribute to `model_card_toolkit` to allow custom Jinja loaders.
