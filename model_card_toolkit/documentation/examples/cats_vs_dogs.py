@@ -87,7 +87,7 @@ def create_model(
   https://www.tensorflow.org/guide/keras/transfer_learning.
 
   This model is used in
-  https://github.com/tensorflow/model-card-toolkit/blob/master/model_card_toolkit/documentation/examples/Standalone_Model_Card_Toolkit_Demo.ipynb.
+  https://github.com/tensorflow/model-card-toolkit/blob/main/model_card_toolkit/documentation/examples/Standalone_Model_Card_Toolkit_Demo.ipynb.
 
   Args:
     training_epochs: The number of epochs to train the model over. 4 by default.

@@ -24,7 +24,7 @@ landing_page:
         <br>
         <br>
         MCT stores model card fields using a
-        <a href="https://github.com/tensorflow/model-card-toolkit/blob/master/model_card_toolkit/schema/v0.0.1/model_card.schema.json">JSON schema</a>.
+        <a href="https://github.com/tensorflow/model-card-toolkit/blob/main/model_card_toolkit/schema/v0.0.1/model_card.schema.json">JSON schema</a>.
         MCT can automatically populate those fields for TFX users via
         <a href="https://www.tensorflow.org/tfx/guide/mlmd">ML Metadata (MLMD)</a>. Model card
         fields can also be manually populated via a
