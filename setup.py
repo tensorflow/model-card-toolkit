@@ -41,7 +41,7 @@ REQUIRED_PACKAGES = [
 
 TESTS_REQUIRE = [
     'pytest',
-    'tensorflow-datasets',
+    'tensorflow-datasets>=4.8.3',
 ]
 
 EXTRAS_REQUIRE = {'test':  TESTS_REQUIRE}
