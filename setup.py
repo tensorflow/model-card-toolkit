@@ -89,17 +89,20 @@ class _BazelBuildCommand(Command):
       raise RuntimeError(
           'Could not find "bazel" or "bazelisk" binary. Please visit '
           'https://docs.bazel.build/versions/main/install.html for '
-          'installation instruction.')
+          'installation instruction.'
+      )
     self._additional_build_options = []
     if platform.system() == 'Darwin':  # see b/175182911 for context
       self._additional_build_options = ['--macos_minimum_os=10.9']
 
   def run(self):
-    subprocess.check_call([
-        self._bazel_cmd, 'run', '--verbose_failures',
-        *self._additional_build_options,
-        'model_card_toolkit:move_generated_files'
-    ])
+    subprocess.check_call(
+        [
+            self._bazel_cmd, 'run', '--verbose_failures',
+            *self._additional_build_options,
+            'model_card_toolkit:move_generated_files'
+        ]
+    )
 
 
 setup(
@@ -150,4 +153,5 @@ setup(
     cmdclass={
         'build': _BuildCommand,
         'bazel_build': _BazelBuildCommand,
-    })
+    }
+)

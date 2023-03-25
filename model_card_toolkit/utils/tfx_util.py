@@ -77,7 +77,8 @@ def _get_tfx_pipeline_types(store: mlmd.MetadataStore) -> PipelineTypes:
   missing_types = expected_artifact_types.difference(artifact_types.keys())
   if missing_types:
     raise ValueError(
-        f'Given `store` is invalid: missing ArtifactTypes: {missing_types}.')
+        f'Given `store` is invalid: missing ArtifactTypes: {missing_types}.'
+    )
   execution_types = {
       etype.name: etype
       for etype in store.get_execution_types()
@@ -86,17 +87,21 @@ def _get_tfx_pipeline_types(store: mlmd.MetadataStore) -> PipelineTypes:
   missing_types = expected_execution_types.difference(execution_types.keys())
   if missing_types:
     raise ValueError(
-        f'Given `store` is invalid: missing ExecutionTypes: {missing_types}.')
-  return PipelineTypes(dataset_type=artifact_types[_TFX_DATASET_TYPE],
-                       stats_type=artifact_types[_TFX_STATS_TYPE],
-                       model_type=artifact_types[_TFX_MODEL_TYPE],
-                       metrics_type=artifact_types[_TFX_METRICS_TYPE],
-                       trainer_type=execution_types[_TFX_TRAINER_TYPE])
+        f'Given `store` is invalid: missing ExecutionTypes: {missing_types}.'
+    )
+  return PipelineTypes(
+      dataset_type=artifact_types[_TFX_DATASET_TYPE],
+      stats_type=artifact_types[_TFX_STATS_TYPE],
+      model_type=artifact_types[_TFX_MODEL_TYPE],
+      metrics_type=artifact_types[_TFX_METRICS_TYPE],
+      trainer_type=execution_types[_TFX_TRAINER_TYPE]
+  )
 
 
-def _validate_model_id(store: mlmd.MetadataStore,
-                       model_type: metadata_store_pb2.ArtifactType,
-                       model_id: int) -> metadata_store_pb2.Artifact:
+def _validate_model_id(
+    store: mlmd.MetadataStore, model_type: metadata_store_pb2.ArtifactType,
+    model_id: int
+) -> metadata_store_pb2.Artifact:
   """Validates the given `model_id` against the `store`.
 
   Args:
@@ -130,8 +135,7 @@ class _Direction(enum.Enum):
 
 
 def _get_one_hop_artifacts(
-    store: mlmd.MetadataStore,
-    artifact_ids: Iterable[int],
+    store: mlmd.MetadataStore, artifact_ids: Iterable[int],
     direction: _Direction,
     filter_type: Optional[metadata_store_pb2.ArtifactType] = None
 ) -> List[metadata_store_pb2.Artifact]:
@@ -149,23 +153,31 @@ def _get_one_hop_artifacts(
   """
   traverse_events = {}
   if direction == _Direction.ANCESTOR:
-    traverse_events['execution'] = (metadata_store_pb2.Event.OUTPUT,
-                                    metadata_store_pb2.Event.DECLARED_OUTPUT)
-    traverse_events['artifact'] = (metadata_store_pb2.Event.INPUT,
-                                   metadata_store_pb2.Event.DECLARED_INPUT)
+    traverse_events['execution'] = (
+        metadata_store_pb2.Event.OUTPUT,
+        metadata_store_pb2.Event.DECLARED_OUTPUT
+    )
+    traverse_events['artifact'] = (
+        metadata_store_pb2.Event.INPUT, metadata_store_pb2.Event.DECLARED_INPUT
+    )
   elif direction == _Direction.SUCCESSOR:
-    traverse_events['execution'] = (metadata_store_pb2.Event.INPUT,
-                                    metadata_store_pb2.Event.DECLARED_INPUT)
-    traverse_events['artifact'] = (metadata_store_pb2.Event.OUTPUT,
-                                   metadata_store_pb2.Event.DECLARED_OUTPUT)
+    traverse_events['execution'] = (
+        metadata_store_pb2.Event.INPUT, metadata_store_pb2.Event.DECLARED_INPUT
+    )
+    traverse_events['artifact'] = (
+        metadata_store_pb2.Event.OUTPUT,
+        metadata_store_pb2.Event.DECLARED_OUTPUT
+    )
   executions_ids = set(
       event.execution_id
       for event in store.get_events_by_artifact_ids(artifact_ids)
-      if event.type in traverse_events['execution'])
+      if event.type in traverse_events['execution']
+  )
   artifacts_ids = set(
       event.artifact_id
       for event in store.get_events_by_execution_ids(executions_ids)
-      if event.type in traverse_events['artifact'])
+      if event.type in traverse_events['artifact']
+  )
   return [
       artifact for artifact in store.get_artifacts_by_id(artifacts_ids)
       if not filter_type or artifact.type_id == filter_type.id
@@ -173,8 +185,7 @@ def _get_one_hop_artifacts(
 
 
 def _get_one_hop_executions(
-    store: mlmd.MetadataStore,
-    artifact_ids: Iterable[int],
+    store: mlmd.MetadataStore, artifact_ids: Iterable[int],
     direction: _Direction,
     filter_type: Optional[metadata_store_pb2.ExecutionType] = None
 ) -> List[metadata_store_pb2.Execution]:
@@ -191,15 +202,19 @@ def _get_one_hop_executions(
     A list of qualified executions within 1-hop neighborhood in the `store`.
   """
   if direction == _Direction.ANCESTOR:
-    traverse_event = (metadata_store_pb2.Event.OUTPUT,
-                      metadata_store_pb2.Event.DECLARED_OUTPUT)
+    traverse_event = (
+        metadata_store_pb2.Event.OUTPUT,
+        metadata_store_pb2.Event.DECLARED_OUTPUT
+    )
   elif direction == _Direction.SUCCESSOR:
-    traverse_event = (metadata_store_pb2.Event.INPUT,
-                      metadata_store_pb2.Event.DECLARED_INPUT)
+    traverse_event = (
+        metadata_store_pb2.Event.INPUT, metadata_store_pb2.Event.DECLARED_INPUT
+    )
   executions_ids = set(
       event.execution_id
       for event in store.get_events_by_artifact_ids(artifact_ids)
-      if event.type in traverse_event)
+      if event.type in traverse_event
+  )
   return [
       execution for execution in store.get_executions_by_id(executions_ids)
       if not filter_type or execution.type_id == filter_type.id
@@ -207,8 +222,7 @@ def _get_one_hop_executions(
 
 
 def get_metrics_artifacts_for_model(
-    store: mlmd.MetadataStore,
-    model_id: int,
+    store: mlmd.MetadataStore, model_id: int,
     pipeline_types: Optional[PipelineTypes] = None
 ) -> List[metadata_store_pb2.Artifact]:
   """Gets a list of evaluation artifacts from a model artifact.
@@ -232,13 +246,13 @@ def get_metrics_artifacts_for_model(
   if not pipeline_types:
     pipeline_types = _get_tfx_pipeline_types(store)
   _validate_model_id(store, pipeline_types.model_type, model_id)
-  return _get_one_hop_artifacts(store, [model_id], _Direction.SUCCESSOR,
-                                pipeline_types.metrics_type)
+  return _get_one_hop_artifacts(
+      store, [model_id], _Direction.SUCCESSOR, pipeline_types.metrics_type
+  )
 
 
 def get_stats_artifacts_for_model(
-    store: mlmd.MetadataStore,
-    model_id: int,
+    store: mlmd.MetadataStore, model_id: int,
     pipeline_types: Optional[PipelineTypes] = None
 ) -> List[metadata_store_pb2.Artifact]:
   """Gets a list of statistics artifacts from a model artifact.
@@ -263,9 +277,9 @@ def get_stats_artifacts_for_model(
   if not pipeline_types:
     pipeline_types = _get_tfx_pipeline_types(store)
   _validate_model_id(store, pipeline_types.model_type, model_id)
-  trainer_examples = _get_one_hop_artifacts(store, [model_id],
-                                            _Direction.ANCESTOR,
-                                            pipeline_types.dataset_type)
+  trainer_examples = _get_one_hop_artifacts(
+      store, [model_id], _Direction.ANCESTOR, pipeline_types.dataset_type
+  )
   # If trainer takes transformed example, we look for its original dataset.
   dataset_ids = set()
   transformed_example_ids = set()
@@ -274,18 +288,22 @@ def get_stats_artifacts_for_model(
       transformed_example_ids.add(example.id)
     else:
       dataset_ids.add(example.id)
-  dataset_ids.update(dataset.id for dataset in _get_one_hop_artifacts(
-      store, transformed_example_ids, _Direction.ANCESTOR,
-      pipeline_types.dataset_type))
-  return _get_one_hop_artifacts(store, dataset_ids, _Direction.SUCCESSOR,
-                                pipeline_types.stats_type)
+  dataset_ids.update(
+      dataset.id for dataset in _get_one_hop_artifacts(
+          store, transformed_example_ids, _Direction.ANCESTOR,
+          pipeline_types.dataset_type
+      )
+  )
+  return _get_one_hop_artifacts(
+      store, dataset_ids, _Direction.SUCCESSOR, pipeline_types.stats_type
+  )
 
 
 def _property_value(
     node: Union[metadata_store_pb2.Artifact, metadata_store_pb2.Execution,
-                metadata_store_pb2.Context],
-    name: str,
-    is_custom_property: bool = False) -> Optional[Union[int, float, str]]:
+                metadata_store_pb2.Context], name: str,
+    is_custom_property: bool = False
+) -> Optional[Union[int, float, str]]:
   """Given a MLMD node and a (custom) property name, returns its value if any.
 
   Args:
@@ -308,8 +326,7 @@ def _property_value(
 
 
 def generate_model_card_for_model(
-    store: mlmd.MetadataStore,
-    model_id: int,
+    store: mlmd.MetadataStore, model_id: int,
     pipeline_types: Optional[PipelineTypes] = None
 ) -> model_card_module.ModelCard:
   """Populates model card properties for a model artifact.
@@ -335,14 +352,16 @@ def generate_model_card_for_model(
   _validate_model_id(store, pipeline_types.model_type, model_id)
   model_card = model_card_module.ModelCard()
   model_details = model_card.model_details
-  trainers = _get_one_hop_executions(store, [model_id], _Direction.ANCESTOR,
-                                     pipeline_types.trainer_type)
+  trainers = _get_one_hop_executions(
+      store, [model_id], _Direction.ANCESTOR, pipeline_types.trainer_type
+  )
   if trainers:
     model_details.name = _property_value(trainers[-1], 'module_file')
     model_details.version.name = _property_value(trainers[0], 'checksum_md5')
     model_details.references = [
         model_card_module.Reference(
-            reference=_property_value(trainers[0], 'pipeline_name'))
+            reference=_property_value(trainers[0], 'pipeline_name')
+        )
     ]
   return model_card
 
@@ -370,8 +389,8 @@ def read_stats_protos(
 
 
 def read_stats_proto(
-    stats_artifact_uri: str,
-    split: str) -> Optional[statistics_pb2.DatasetFeatureStatisticsList]:
+    stats_artifact_uri: str, split: str
+) -> Optional[statistics_pb2.DatasetFeatureStatisticsList]:
   """Reads DatasetFeatureStatisticsList proto from provided stats artifact uri.
 
   Args:
@@ -383,10 +402,12 @@ def read_stats_proto(
     eval split stats as DatasetFeatureStatisticsList.
   """
   stats = statistics_pb2.DatasetFeatureStatisticsList()
-  feature_stats_path = os.path.join(stats_artifact_uri, split,
-                                    'FeatureStats.pb')
-  stats_tfrecord_path = os.path.join(stats_artifact_uri, split,
-                                     'stats_tfrecord')
+  feature_stats_path = os.path.join(
+      stats_artifact_uri, split, 'FeatureStats.pb'
+  )
+  stats_tfrecord_path = os.path.join(
+      stats_artifact_uri, split, 'stats_tfrecord'
+  )
 
   if tf.io.gfile.exists(feature_stats_path):
     with tf.io.gfile.GFile(feature_stats_path, mode='rb') as f:
@@ -394,18 +415,21 @@ def read_stats_proto(
     return stats
   elif tf.io.gfile.exists(stats_tfrecord_path):
     serialized_stats = next(
-        tf.compat.v1.io.tf_record_iterator(stats_tfrecord_path))
+        tf.compat.v1.io.tf_record_iterator(stats_tfrecord_path)
+    )
     stats.ParseFromString(serialized_stats)
     return stats
   else:
-    logging.warning('No artifact found at %s or %s', stats_tfrecord_path,
-                    feature_stats_path)
+    logging.warning(
+        'No artifact found at %s or %s', stats_tfrecord_path,
+        feature_stats_path
+    )
     return None
 
 
 def read_metrics_eval_result(
-    metrics_artifact_uri: str,
-    output_file_format: Optional[str] = None) -> Optional[tfma.EvalResult]:
+    metrics_artifact_uri: str, output_file_format: Optional[str] = None
+) -> Optional[tfma.EvalResult]:
   """Reads TFMA evaluation results from the evaluator output path.
 
   Args:
@@ -416,16 +440,18 @@ def read_metrics_eval_result(
     A TFMA EvalResults named tuple including configs and sliced metrics.
     Returns None if no slicing metrics found from `metrics_artifact_uri`.
   """
-  result = tfma.load_eval_result(output_path=metrics_artifact_uri,
-                                 output_file_format=output_file_format)
+  result = tfma.load_eval_result(
+      output_path=metrics_artifact_uri, output_file_format=output_file_format
+  )
   if not result.slicing_metrics:
     logging.warning('Cannot load eval results from: %s', metrics_artifact_uri)
     return None
   return result
 
 
-def annotate_eval_result_metrics(model_card: model_card_module.ModelCard,
-                                 eval_result: tfma.EvalResult):
+def annotate_eval_result_metrics(
+    model_card: model_card_module.ModelCard, eval_result: tfma.EvalResult
+):
   """Annotates model_card's PerformanceMetrics for every metric in eval_result.
 
   Args:
@@ -454,8 +480,8 @@ def annotate_eval_result_metrics(model_card: model_card_module.ModelCard,
       output_names.add(output_name)
   for output_name in sorted(output_names):
     for slice_repr, metrics_for_slice in (
-        eval_result.get_metrics_for_all_slices(
-            output_name=output_name).items()):
+        eval_result.get_metrics_for_all_slices(output_name=output_name).items()
+    ):
       # Parse the slice name
       if not isinstance(slice_repr, tuple):
         raise ValueError(
@@ -474,22 +500,23 @@ def annotate_eval_result_metrics(model_card: model_card_module.ModelCard,
         else:
           logging.warning(
               'Expected doubleValue, boundedValue, or arrayValue; found %s',
-              metric_value.keys())
+              metric_value.keys()
+          )
         if parsed_value:
           metric_type = metric_name
           if output_name:
             metric_type = f'{output_name}.{metric_name}'
           # Create the PerformanceMetric and append to the ModelCard
-          metric = model_card_module.PerformanceMetric(type=metric_type,
-                                                       value=str(parsed_value),
-                                                       slice=slice_name)
+          metric = model_card_module.PerformanceMetric(
+              type=metric_type, value=str(parsed_value), slice=slice_name
+          )
           model_card.quantitative_analysis.performance_metrics.append(metric)
 
 
 def filter_metrics(
-    eval_result: tfma.EvalResult,
-    metrics_include: Optional[List[str]] = None,
-    metrics_exclude: Optional[List[str]] = None) -> tfma.EvalResult:
+    eval_result: tfma.EvalResult, metrics_include: Optional[List[str]] = None,
+    metrics_exclude: Optional[List[str]] = None
+) -> tfma.EvalResult:
   """Filters metrics in a TFMA EvalResult.
 
   Args:
@@ -512,7 +539,8 @@ def filter_metrics(
   else:
     raise ValueError(
         'filter_metrics() requires exactly one of metrics_include '
-        'and metrics_exclude.')
+        'and metrics_exclude.'
+    )
 
   filtered_slicing_metrics = []
   for slc, mtrc in eval_result.slicing_metrics:
@@ -527,15 +555,16 @@ def filter_metrics(
             filtered_mtrc[output_name][subkey][mtrc_name] = mtrc[output_name][
                 subkey][mtrc_name]
     filtered_slicing_metrics.append(
-        tfma.view.SlicedMetrics(slice=slc, metrics=filtered_mtrc))
+        tfma.view.SlicedMetrics(slice=slc, metrics=filtered_mtrc)
+    )
 
-  return tfma.EvalResult(slicing_metrics=filtered_slicing_metrics,
-                         plots=eval_result.plots,
-                         attributions=eval_result.attributions,
-                         config=eval_result.config,
-                         data_location=eval_result.data_location,
-                         file_format=eval_result.file_format,
-                         model_location=eval_result.model_location)
+  return tfma.EvalResult(
+      slicing_metrics=filtered_slicing_metrics, plots=eval_result.plots,
+      attributions=eval_result.attributions, config=eval_result.config,
+      data_location=eval_result.data_location,
+      file_format=eval_result.file_format,
+      model_location=eval_result.model_location
+  )
 
 
 def filter_features(
@@ -567,8 +596,10 @@ def filter_features(
   elif features_exclude and not features_include:
     include = lambda feature: feature_name(feature) not in features_exclude
   else:
-    raise ValueError('filter_features() requires exactly one of '
-                     'features_include and features_exclude.')
+    raise ValueError(
+        'filter_features() requires exactly one of '
+        'features_include and features_exclude.'
+    )
 
   # Create new DatasetFeatureStatistics
   filtered_data_stats = statistics_pb2.DatasetFeatureStatistics()
@@ -586,8 +617,7 @@ def filter_features(
 
 
 def read_stats_protos_and_filter_features(
-    stats_artifact_uri: str,
-    features_include: Optional[Sequence[str]] = None,
+    stats_artifact_uri: str, features_include: Optional[Sequence[str]] = None,
     features_exclude: Optional[List[str]] = None
 ) -> List[statistics_pb2.DatasetFeatureStatisticsList]:
   """Reads DatasetFeatureStatisticsList protos and filters features.

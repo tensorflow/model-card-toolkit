@@ -75,23 +75,27 @@ def _update_from_v1_to_v2(json_dict: Dict[Text, Any]) -> Dict[Text, Any]:
 
   # Update model_details
   if json_dict["model_details"]["license"]:
-    json_dict["model_details"]["licenses"] = [{
-        "custom_text":
-        json_dict["model_details"].pop("license")
-    }]
+    json_dict["model_details"]["licenses"] = [
+        {
+            "custom_text": json_dict["model_details"].pop("license")
+        }
+    ]
   if json_dict["model_details"]["references"]:
-    json_dict["model_details"]["references"] = [{
-        "reference": reference
-    } for reference in json_dict["model_details"]["references"]]
+    json_dict["model_details"]["references"] = [
+        {
+            "reference": reference
+        } for reference in json_dict["model_details"]["references"]
+    ]
   if json_dict["model_details"]["citation"]:
-    json_dict["model_details"]["citations"] = [{
-        "citation":
-        json_dict["model_details"].pop("citation")
-    }]
+    json_dict["model_details"]["citations"] = [
+        {
+            "citation": json_dict["model_details"].pop("citation")
+        }
+    ]
 
   # Update model_parameters
-  if "model_parameters" in json_dict and "data" in json_dict[
-      "model_parameters"]:
+  if "model_parameters" in json_dict and "data" in json_dict["model_parameters"
+                                                             ]:
     new_data = []
     if "train" in json_dict["model_parameters"]["data"]:
       old_train_data = json_dict["model_parameters"]["data"]["train"]
@@ -108,22 +112,30 @@ def _update_from_v1_to_v2(json_dict: Dict[Text, Any]) -> Dict[Text, Any]:
   # Update considerations
   if "considerations" in json_dict and "use_cases" in json_dict[
       "considerations"]:
-    json_dict["considerations"]["use_cases"] = [{
-        "description": use_case
-    } for use_case in json_dict["considerations"]["use_cases"]]
+    json_dict["considerations"]["use_cases"] = [
+        {
+            "description": use_case
+        } for use_case in json_dict["considerations"]["use_cases"]
+    ]
   if "considerations" in json_dict and "users" in json_dict["considerations"]:
-    json_dict["considerations"]["users"] = [{
-        "description": user
-    } for user in json_dict["considerations"]["users"]]
+    json_dict["considerations"]["users"] = [
+        {
+            "description": user
+        } for user in json_dict["considerations"]["users"]
+    ]
   if "considerations" in json_dict and "limitations" in json_dict[
       "considerations"]:
-    json_dict["considerations"]["limitations"] = [{
-        "description": limitation
-    } for limitation in json_dict["considerations"]["limitations"]]
+    json_dict["considerations"]["limitations"] = [
+        {
+            "description": limitation
+        } for limitation in json_dict["considerations"]["limitations"]
+    ]
   if "considerations" in json_dict and "tradeoffs" in json_dict[
       "considerations"]:
-    json_dict["considerations"]["tradeoffs"] = [{
-        "description": limitation
-    } for limitation in json_dict["considerations"]["tradeoffs"]]
+    json_dict["considerations"]["tradeoffs"] = [
+        {
+            "description": limitation
+        } for limitation in json_dict["considerations"]["tradeoffs"]
+    ]
 
   return json_dict

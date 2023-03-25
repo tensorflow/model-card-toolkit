@@ -35,8 +35,8 @@ SCHEMA_VERSION_STRING = 'schema_version'
 
 
 def validate_json_schema(
-    json_dict: Dict[str, Any],
-    schema_version: Optional[str] = None) -> Dict[str, Any]:
+    json_dict: Dict[str, Any], schema_version: Optional[str] = None
+) -> Dict[str, Any]:
   """Validates the json schema of a model card field.
 
   If schema_version is not provided, it will use the latest schema version.
@@ -56,8 +56,10 @@ def validate_json_schema(
       version.
     ValidationError: If `model_card_json` does not follow the model card schema.
   """
-  schema = _find_json_schema(schema_version or json_dict.get('schema_version')
-                             or _LATEST_SCHEMA_VERSION)
+  schema = _find_json_schema(
+      schema_version or json_dict.get('schema_version')
+      or _LATEST_SCHEMA_VERSION
+  )
   jsonschema.validate(json_dict, schema)
   return schema
 
@@ -82,7 +84,9 @@ def _find_json_schema(schema_version: Optional[str] = None) -> Dict[str, Any]:
     raise ValueError(
         'Cannot find schema version that matches the version of the given '
         'model card. Found Versions: {}. Given Version: {}'.format(
-            ', '.join(_SCHEMA_VERSIONS), schema_version))
+            ', '.join(_SCHEMA_VERSIONS), schema_version
+        )
+    )
 
   schema_file = os.path.join('schema', 'v' + schema_version, _SCHEMA_FILE_NAME)
   json_file = pkgutil.get_data('model_card_toolkit', schema_file)

@@ -54,8 +54,9 @@ class BaseModelCardField(abc.ABC):
 
     for field_name, field_value in self.__dict__.items():
       if not hasattr(proto, field_name):
-        raise ValueError("%s has no such field named '%s'." %
-                         (type(proto), field_name))
+        raise ValueError(
+            "%s has no such field named '%s'." % (type(proto), field_name)
+        )
       if not field_value:
         continue
 
@@ -65,8 +66,9 @@ class BaseModelCardField(abc.ABC):
       if field_descriptor.type == descriptor.FieldDescriptor.TYPE_MESSAGE:
         if field_descriptor.label == descriptor.FieldDescriptor.LABEL_REPEATED:
           for nested_message in field_value:
-            getattr(proto,
-                    field_name).add().CopyFrom(nested_message.to_proto())  # pylint: disable=protected-access
+            getattr(proto, field_name).add().CopyFrom(
+                nested_message.to_proto()
+            )  # pylint: disable=protected-access
         else:
           getattr(proto, field_name).CopyFrom(field_value.to_proto())  # pylint: disable=protected-access
       # Process Non-Message type
@@ -81,14 +83,17 @@ class BaseModelCardField(abc.ABC):
   def _from_proto(self, proto: message.Message) -> "BaseModelCardField":
     """Convert proto to this class object."""
     if not isinstance(proto, self._proto_type):
-      raise TypeError("%s is expected. However %s is provided." %
-                      (self._proto_type, type(proto)))
+      raise TypeError(
+          "%s is expected. However %s is provided." %
+          (self._proto_type, type(proto))
+      )
 
     for field_descriptor in proto.DESCRIPTOR.fields:
       field_name = field_descriptor.name
       if not hasattr(self, field_name):
-        raise ValueError("%s has no such field named '%s.'" %
-                         (self, field_name))
+        raise ValueError(
+            "%s has no such field named '%s.'" % (self, field_name)
+        )
 
       # Process Message type.
       if field_descriptor.type == descriptor.FieldDescriptor.TYPE_MESSAGE:
@@ -126,8 +131,9 @@ class BaseModelCardField(abc.ABC):
     self.clear()
     return self._from_proto(proto)
 
-  def _from_json(self, json_dict: Dict[str, Any],
-                 field: "BaseModelCardField") -> "BaseModelCardField":
+  def _from_json(
+      self, json_dict: Dict[str, Any], field: "BaseModelCardField"
+  ) -> "BaseModelCardField":
     """Parses a JSON dictionary into the current object."""
     for subfield_key, subfield_json_value in json_dict.items():
       if subfield_key.startswith(validation.SCHEMA_VERSION_STRING):
@@ -135,10 +141,12 @@ class BaseModelCardField(abc.ABC):
       elif not hasattr(field, subfield_key):
         raise ValueError(
             "BaseModelCardField %s has no such field named '%s.'" %
-            (field, subfield_key))
+            (field, subfield_key)
+        )
       elif isinstance(subfield_json_value, dict):
-        subfield_value = self._from_json(subfield_json_value,
-                                         getattr(field, subfield_key))
+        subfield_value = self._from_json(
+            subfield_json_value, getattr(field, subfield_key)
+        )
       elif isinstance(subfield_json_value, list):
         subfield_value = []
         for item in subfield_json_value:

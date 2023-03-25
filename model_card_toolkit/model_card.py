@@ -42,8 +42,8 @@ class Owner(BaseModelCardField):
   name: Optional[str] = None
   contact: Optional[str] = None
 
-  _proto_type: dataclasses.InitVar[type(
-      model_card_pb2.Owner)] = model_card_pb2.Owner
+  _proto_type: dataclasses.InitVar[type(model_card_pb2.Owner)
+                                   ] = model_card_pb2.Owner
 
 
 @dataclasses.dataclass
@@ -66,8 +66,8 @@ class Version(BaseModelCardField):
   date: Optional[str] = None
   diff: Optional[str] = None
 
-  _proto_type: dataclasses.InitVar[type(
-      model_card_pb2.Version)] = model_card_pb2.Version
+  _proto_type: dataclasses.InitVar[type(model_card_pb2.Version)
+                                   ] = model_card_pb2.Version
 
 
 @dataclasses.dataclass
@@ -82,8 +82,8 @@ class License(BaseModelCardField):
   identifier: Optional[str] = None
   custom_text: Optional[str] = None
 
-  _proto_type: dataclasses.InitVar[type(
-      model_card_pb2.License)] = model_card_pb2.License
+  _proto_type: dataclasses.InitVar[type(model_card_pb2.License)
+                                   ] = model_card_pb2.License
 
 
 @dataclasses.dataclass
@@ -95,8 +95,8 @@ class Reference(BaseModelCardField):
   """
   reference: Optional[str] = None
 
-  _proto_type: dataclasses.InitVar[type(
-      model_card_pb2.Reference)] = model_card_pb2.Reference
+  _proto_type: dataclasses.InitVar[type(model_card_pb2.Reference)
+                                   ] = model_card_pb2.Reference
 
 
 @dataclasses.dataclass
@@ -110,8 +110,8 @@ class Citation(BaseModelCardField):
   style: Optional[str] = None
   citation: Optional[str] = None
 
-  _proto_type: dataclasses.InitVar[type(
-      model_card_pb2.Citation)] = model_card_pb2.Citation
+  _proto_type: dataclasses.InitVar[type(model_card_pb2.Citation)
+                                   ] = model_card_pb2.Citation
 
 
 @dataclasses.dataclass
@@ -144,8 +144,8 @@ class ModelDetails(BaseModelCardField):
   citations: List[Citation] = dataclasses.field(default_factory=list)
   path: Optional[str] = None
 
-  _proto_type: dataclasses.InitVar[type(
-      model_card_pb2.ModelDetails)] = model_card_pb2.ModelDetails
+  _proto_type: dataclasses.InitVar[type(model_card_pb2.ModelDetails)
+                                   ] = model_card_pb2.ModelDetails
 
 
 @dataclasses.dataclass
@@ -159,8 +159,8 @@ class Graphic(BaseModelCardField):
   name: Optional[str] = None
   image: Optional[str] = None
 
-  _proto_type: dataclasses.InitVar[type(
-      model_card_pb2.Graphic)] = model_card_pb2.Graphic
+  _proto_type: dataclasses.InitVar[type(model_card_pb2.Graphic)
+                                   ] = model_card_pb2.Graphic
 
 
 @dataclasses.dataclass
@@ -194,8 +194,8 @@ class GraphicsCollection(BaseModelCardField):
   description: Optional[str] = None
   collection: List[Graphic] = dataclasses.field(default_factory=list)
 
-  _proto_type: dataclasses.InitVar[type(
-      model_card_pb2.GraphicsCollection)] = model_card_pb2.GraphicsCollection
+  _proto_type: dataclasses.InitVar[type(model_card_pb2.GraphicsCollection)
+                                   ] = model_card_pb2.GraphicsCollection
 
 
 @dataclasses.dataclass
@@ -212,8 +212,8 @@ class SensitiveData(BaseModelCardField):
   """
   sensitive_data: List[str] = dataclasses.field(default_factory=list)
 
-  _proto_type: dataclasses.InitVar[type(
-      model_card_pb2.SensitiveData)] = model_card_pb2.SensitiveData
+  _proto_type: dataclasses.InitVar[type(model_card_pb2.SensitiveData)
+                                   ] = model_card_pb2.SensitiveData
 
 
 @dataclasses.dataclass
@@ -231,12 +231,14 @@ class Dataset(BaseModelCardField):
   description: Optional[str] = None
   link: Optional[str] = None
   sensitive: Optional[SensitiveData] = dataclasses.field(
-      default_factory=SensitiveData)
+      default_factory=SensitiveData
+  )
   graphics: GraphicsCollection = dataclasses.field(
-      default_factory=GraphicsCollection)
+      default_factory=GraphicsCollection
+  )
 
-  _proto_type: dataclasses.InitVar[type(
-      model_card_pb2.Dataset)] = model_card_pb2.Dataset
+  _proto_type: dataclasses.InitVar[type(model_card_pb2.Dataset)
+                                   ] = model_card_pb2.Dataset
 
 
 @dataclasses.dataclass
@@ -250,8 +252,8 @@ class KeyVal(BaseModelCardField):
   key: Optional[str] = None
   value: Optional[str] = None
 
-  _proto_type: dataclasses.InitVar[type(
-      model_card_pb2.KeyVal)] = model_card_pb2.KeyVal
+  _proto_type: dataclasses.InitVar[type(model_card_pb2.KeyVal)
+                                   ] = model_card_pb2.KeyVal
 
 
 @dataclasses.dataclass
@@ -275,8 +277,8 @@ class ModelParameters(BaseModelCardField):
   output_format: Optional[str] = None
   output_format_map: List[KeyVal] = dataclasses.field(default_factory=list)
 
-  _proto_type: dataclasses.InitVar[type(
-      model_card_pb2.ModelParameters)] = model_card_pb2.ModelParameters
+  _proto_type: dataclasses.InitVar[type(model_card_pb2.ModelParameters)
+                                   ] = model_card_pb2.ModelParameters
 
 
 @dataclasses.dataclass
@@ -291,7 +293,8 @@ class ConfidenceInterval(BaseModelCardField):
   upper_bound: Optional[str] = None
 
   _proto_type: dataclasses.InitVar[BaseModelCardField._get_type(
-      model_card_pb2.ConfidenceInterval)] = model_card_pb2.ConfidenceInterval
+      model_card_pb2.ConfidenceInterval
+  )] = model_card_pb2.ConfidenceInterval
 
 
 @dataclasses.dataclass
@@ -308,10 +311,12 @@ class PerformanceMetric(BaseModelCardField):
   value: Optional[str] = None
   slice: Optional[str] = None
   confidence_interval: ConfidenceInterval = dataclasses.field(
-      default_factory=ConfidenceInterval)
+      default_factory=ConfidenceInterval
+  )
 
   _proto_type: dataclasses.InitVar[BaseModelCardField._get_type(
-      model_card_pb2.PerformanceMetric)] = model_card_pb2.PerformanceMetric
+      model_card_pb2.PerformanceMetric
+  )] = model_card_pb2.PerformanceMetric
 
 
 @dataclasses.dataclass
@@ -339,13 +344,14 @@ class QuantitativeAnalysis(BaseModelCardField):
     graphics: A collection of visualizations of model performance.
   """
   performance_metrics: List[PerformanceMetric] = dataclasses.field(
-      default_factory=list)
+      default_factory=list
+  )
   graphics: GraphicsCollection = dataclasses.field(
-      default_factory=GraphicsCollection)
+      default_factory=GraphicsCollection
+  )
 
-  _proto_type: dataclasses.InitVar[type(
-      model_card_pb2.QuantitativeAnalysis
-  )] = model_card_pb2.QuantitativeAnalysis
+  _proto_type: dataclasses.InitVar[type(model_card_pb2.QuantitativeAnalysis)
+                                   ] = model_card_pb2.QuantitativeAnalysis
 
 
 @dataclasses.dataclass
@@ -357,8 +363,8 @@ class User(BaseModelCardField):
   """
   description: Optional[str] = None
 
-  _proto_type: dataclasses.InitVar[type(
-      model_card_pb2.User)] = model_card_pb2.User
+  _proto_type: dataclasses.InitVar[type(model_card_pb2.User)
+                                   ] = model_card_pb2.User
 
 
 @dataclasses.dataclass
@@ -370,8 +376,8 @@ class UseCase(BaseModelCardField):
   """
   description: Optional[str] = None
 
-  _proto_type: dataclasses.InitVar[type(
-      model_card_pb2.UseCase)] = model_card_pb2.UseCase
+  _proto_type: dataclasses.InitVar[type(model_card_pb2.UseCase)
+                                   ] = model_card_pb2.UseCase
 
 
 @dataclasses.dataclass
@@ -383,8 +389,8 @@ class Limitation(BaseModelCardField):
   """
   description: Optional[str] = None
 
-  _proto_type: dataclasses.InitVar[type(
-      model_card_pb2.Limitation)] = model_card_pb2.Limitation
+  _proto_type: dataclasses.InitVar[type(model_card_pb2.Limitation)
+                                   ] = model_card_pb2.Limitation
 
 
 @dataclasses.dataclass
@@ -396,8 +402,8 @@ class Tradeoff(BaseModelCardField):
   """
   description: Optional[str] = None
 
-  _proto_type: dataclasses.InitVar[type(
-      model_card_pb2.Tradeoff)] = model_card_pb2.Tradeoff
+  _proto_type: dataclasses.InitVar[type(model_card_pb2.Tradeoff)
+                                   ] = model_card_pb2.Tradeoff
 
 
 @dataclasses.dataclass
@@ -412,8 +418,8 @@ class Risk(BaseModelCardField):
   name: Optional[str] = None
   mitigation_strategy: Optional[str] = None
 
-  _proto_type: dataclasses.InitVar[type(
-      model_card_pb2.Risk)] = model_card_pb2.Risk
+  _proto_type: dataclasses.InitVar[type(model_card_pb2.Risk)
+                                   ] = model_card_pb2.Risk
 
 
 @dataclasses.dataclass
@@ -447,8 +453,8 @@ class Considerations(BaseModelCardField):
   tradeoffs: List[Tradeoff] = dataclasses.field(default_factory=list)
   ethical_considerations: List[Risk] = dataclasses.field(default_factory=list)
 
-  _proto_type: dataclasses.InitVar[type(
-      model_card_pb2.Considerations)] = model_card_pb2.Considerations
+  _proto_type: dataclasses.InitVar[type(model_card_pb2.Considerations)
+                                   ] = model_card_pb2.Considerations
 
 
 @dataclasses.dataclass
@@ -464,21 +470,23 @@ class ModelCard(BaseModelCardField):
   """
   model_details: ModelDetails = dataclasses.field(default_factory=ModelDetails)
   model_parameters: ModelParameters = dataclasses.field(
-      default_factory=ModelParameters)
+      default_factory=ModelParameters
+  )
   quantitative_analysis: QuantitativeAnalysis = dataclasses.field(
-      default_factory=QuantitativeAnalysis)
+      default_factory=QuantitativeAnalysis
+  )
   considerations: Considerations = dataclasses.field(
-      default_factory=Considerations)
+      default_factory=Considerations
+  )
 
-  _proto_type: dataclasses.InitVar[type(
-      model_card_pb2.ModelCard)] = model_card_pb2.ModelCard
+  _proto_type: dataclasses.InitVar[type(model_card_pb2.ModelCard)
+                                   ] = model_card_pb2.ModelCard
 
   def to_json(self) -> str:
     """Write ModelCard to JSON."""
     model_card_dict = self.to_dict()
-    model_card_dict[
-        validation.
-        SCHEMA_VERSION_STRING] = validation.get_latest_schema_version()
+    model_card_dict[validation.SCHEMA_VERSION_STRING
+                    ] = validation.get_latest_schema_version()
     return json_lib.dumps(model_card_dict, indent=2)
 
   def from_json(self, json_dict: Dict[str, Any]) -> None:
