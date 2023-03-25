@@ -22,12 +22,14 @@ import tensorflow_model_analysis as tfma
 from absl import flags
 from ml_metadata.proto import metadata_store_pb2
 from tensorflow_metadata.proto.v0 import statistics_pb2
-from tensorflow_model_analysis.eval_saved_model.example_trainers import \
+from tensorflow_model_analysis.eval_saved_model.example_trainers import (
     fixed_prediction_estimator
+)
 from tfx_bsl.tfxio import raw_tf_record
 
-from model_card_toolkit.utils.tfx_util import (_TFX_METRICS_TYPE,
-                                               _TFX_STATS_TYPE)
+from model_card_toolkit.utils.tfx_util import (
+    _TFX_METRICS_TYPE, _TFX_STATS_TYPE
+)
 
 
 class TfxTest(tfma.eval_saved_model.testutil.TensorflowModelAnalysisTest):

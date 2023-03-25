@@ -27,8 +27,9 @@ from model_card_toolkit.utils import graphics
 from model_card_toolkit.utils import source as src
 from model_card_toolkit.utils.testdata import testdata_utils
 from model_card_toolkit.utils.testdata.tfxtest import TfxTest
-from model_card_toolkit.utils.tfx_util import (_TFX_METRICS_TYPE,
-                                               _TFX_STATS_TYPE)
+from model_card_toolkit.utils.tfx_util import (
+    _TFX_METRICS_TYPE, _TFX_STATS_TYPE
+)
 
 
 class CoreTest(parameterized.TestCase, TfxTest):
