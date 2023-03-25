@@ -205,8 +205,8 @@ class ModelCardToolkit():
             output_file_format=self._source.tfma.file_format)
         if eval_result:
           logging.info('EvalResult found at path %s', eval_result_path)
-          if self._source.tfma.metrics_include or \
-            self._source.tfma.metrics_exclude:
+          if (self._source.tfma.metrics_include or
+            self._source.tfma.metrics_exclude):
             eval_result = tfx_util.filter_metrics(
                 eval_result, self._source.tfma.metrics_include,
                 self._source.tfma.metrics_exclude)
@@ -243,8 +243,8 @@ class ModelCardToolkit():
     """
     if self._source and self._source.tfdv:
       for dataset_stats_path in self._source.tfdv.dataset_statistics_paths:
-        if self._source.tfdv.features_include \
-          or self._source.tfdv.features_exclude:
+        if (self._source.tfdv.features_include or
+          self._source.tfdv.features_exclude):
           data_stats = tfx_util.read_stats_protos_and_filter_features(
               dataset_stats_path, self._source.tfdv.features_include,
               self._source.tfdv.features_exclude)

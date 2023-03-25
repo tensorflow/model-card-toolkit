@@ -23,8 +23,7 @@ from absl.testing import absltest, parameterized
 from model_card_toolkit.utils import validation
 
 _MODEL_DETAILS_V1_DICT = {
-    "name":
-    "my model",
+    "name": "my model",
     "owners": [{
         "name": "foo",
         "contact": "foo@xyz.com"

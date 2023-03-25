@@ -98,8 +98,7 @@ class BaseModelCardField(abc.ABC):
           for p in getattr(proto, field_name):
             # To get the type hint of a list is not easy.
             field = \
-              self.__annotations__[field_name]\
-                .__args__[0]()  # pytype: disable=attribute-error
+              self.__annotations__[field_name].__args__[0]()  # pytype: disable=attribute-error
             field._from_proto(p)  # pylint: disable=protected-access
             getattr(self, field_name).append(field)
 
@@ -145,8 +144,7 @@ class BaseModelCardField(abc.ABC):
         for item in subfield_json_value:
           if isinstance(item, dict):
             new_object = \
-              field.__annotations__[subfield_key]\
-                .__args__[0]()  # pytype: disable=attribute-error
+              field.__annotations__[subfield_key].__args__[0]()  # pytype: disable=attribute-error
             subfield_value.append(self._from_json(item, new_object))
           else:  # if primitive
             subfield_value.append(item)
