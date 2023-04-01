@@ -18,7 +18,8 @@ Optionally imports the ModelCardGenerator TFX component.
 import logging
 
 try:
-  from tfx_addons.model_card_generator.component import ModelCardGenerator
+  from tfx_addons.model_card_generator.component import \
+      ModelCardGenerator  # pylint: disable=unused-import
 except ImportError:
   ModelCardGenerator = None
   logging.info(
@@ -26,7 +27,8 @@ except ImportError:
       The ModelCardGenerator component and its dependencies have been moved to
       the TFX Addons project (https://github.com/tensorflow/tfx-addons).
 
-      If you'd like to use the component, you need to install the tfx-addons package:
+      If you'd like to use the component,
+      you need to install the tfx-addons package:
 
       ```
       $ pip install tfx-addons[model_card_generator]

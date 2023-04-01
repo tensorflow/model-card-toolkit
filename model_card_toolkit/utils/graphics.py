@@ -16,15 +16,15 @@
 import base64
 import io
 import logging
-from typing import Sequence, Tuple, Union, Optional
+from typing import Optional, Sequence, Tuple, Union
 
 import attr
 import matplotlib
 import matplotlib.pyplot as plt
-from model_card_toolkit import model_card as model_card_module
 import tensorflow_model_analysis as tfma
-
 from tensorflow_metadata.proto.v0 import statistics_pb2
+
+from model_card_toolkit import model_card as model_card_module
 
 _COLOR_PALETTE = {
     'material_cyan_700': '#129EAF',  # default
@@ -55,7 +55,8 @@ class _Graph():
 
 def annotate_dataset_feature_statistics_plots(
     model_card: model_card_module.ModelCard,
-    data_stats: Sequence[statistics_pb2.DatasetFeatureStatisticsList]) -> None:
+    data_stats: Sequence[statistics_pb2.DatasetFeatureStatisticsList]
+) -> None:
   """Annotates visualizations for every dataset and feature.
 
   This function adds a new Dataset object at model_card.model_parameters.data
@@ -69,7 +70,8 @@ def annotate_dataset_feature_statistics_plots(
   """
   colors = (
       _COLOR_PALETTE['material_teal_700'],
-      _COLOR_PALETTE['material_indigo_400'])
+      _COLOR_PALETTE['material_indigo_400']
+  )
   for stats, color in zip(data_stats, colors):
     if not stats:
       continue
@@ -77,20 +79,26 @@ def annotate_dataset_feature_statistics_plots(
       graphs = []
       for feature in dataset.features:
         graph = _extract_graph_data_from_dataset_feature_statistics(
-            feature, color)
+            feature, color
+        )
         graph = _draw_histogram(graph)
         if graph is not None:
           graphs.append(
               model_card_module.Graphic(
-                  name=graph.name, image=graph.base64str))
+                  name=graph.name, image=graph.base64str
+              )
+          )
       model_card.model_parameters.data.append(
           model_card_module.Dataset(
               name=dataset.name,
-              graphics=model_card_module.GraphicsCollection(collection=graphs)))
+              graphics=model_card_module.GraphicsCollection(collection=graphs)
+          )
+      )
 
 
-def annotate_eval_result_plots(model_card: model_card_module.ModelCard,
-                               eval_result: tfma.EvalResult) -> None:
+def annotate_eval_result_plots(
+    model_card: model_card_module.ModelCard, eval_result: tfma.EvalResult
+) -> None:
   """Annotates visualizations for every metric in eval_result.
 
   This function generates barcharts for sliced metrics, encoded as base64 text
@@ -120,21 +128,25 @@ def annotate_eval_result_plots(model_card: model_card_module.ModelCard,
   for metric in metrics:
     for slices_key in slices_keys:
       graph = _extract_graph_data_from_slicing_metrics(
-          eval_result.slicing_metrics, metric, slices_key)
+          eval_result.slicing_metrics, metric, slices_key
+      )
       graph = _draw_histogram(graph)
       if graph is not None:
         graphs.append(graph)
 
   # annotate model_card with generated graphs
-  model_card.quantitative_analysis.graphics.collection.extend([
-      model_card_module.Graphic(name=graph.name, image=graph.base64str)
-      for graph in graphs
-  ])
+  model_card.quantitative_analysis.graphics.collection.extend(
+      [
+          model_card_module.Graphic(name=graph.name, image=graph.base64str)
+          for graph in graphs
+      ]
+  )
 
 
 def _extract_graph_data_from_dataset_feature_statistics(
     feature_stats: statistics_pb2.FeatureNameStatistics,
-    color: Optional[str] = None) -> Union[_Graph, None]:
+    color: Optional[str] = None
+) -> Union[_Graph, None]:
   """Generates a _Graph object based on the histograms of feature_stats.
 
   Each bar in the histogram corresponds to a bucket in histogram.buckets.
@@ -154,7 +166,9 @@ def _extract_graph_data_from_dataset_feature_statistics(
   feature_name = feature_stats.name or feature_stats.path.step[0]
   graph = _Graph()
 
-  if feature_stats.HasField('num_stats') and feature_stats.num_stats.histograms:
+  if feature_stats.HasField(
+      'num_stats'
+  ) and feature_stats.num_stats.histograms:
     # Only generate graph for the first histogram.
     # The second one is QUANTILES graph.
     histogram = feature_stats.num_stats.histograms[0]
@@ -183,9 +197,10 @@ def _extract_graph_data_from_dataset_feature_statistics(
       graph.color = color
     return graph
 
-  logging.warning('Did not generate a graph for feature %s: '
-                  'FeatureNameStatistics must have string_stats or num_stats',
-                  feature_name)
+  logging.warning(
+      'Did not generate a graph for feature %s: '
+      'FeatureNameStatistics must have string_stats or num_stats', feature_name
+  )
   return None
 
 
@@ -230,11 +245,15 @@ def _extract_graph_data_from_slicing_metrics(
       continue
     slice_values.append(value)
 
-    if (output_name not in slicing_metric[1] or
-        sub_key not in slicing_metric[1][output_name] or
-        metric not in slicing_metric[1][output_name][sub_key]):
-      logging.warning('%s, %s, %s not in %s. Skipping %s', output_name, sub_key,
-                      metric, slicing_metric[1], slices_key)
+    if (
+        output_name not in slicing_metric[1]
+        or sub_key not in slicing_metric[1][output_name]
+        or metric not in slicing_metric[1][output_name][sub_key]
+    ):
+      logging.warning(
+          '%s, %s, %s not in %s. Skipping %s', output_name, sub_key, metric,
+          slicing_metric[1], slices_key
+      )
       return None
 
     # https://www.tensorflow.org/tfx/model_analysis/metrics#metric_value
@@ -245,11 +264,17 @@ def _extract_graph_data_from_slicing_metrics(
     elif 'boundedValue' in metric_value:
       has_bounded_value = True
       metric_values.append(metric_value['boundedValue']['value'])
-      bounds.append((metric_value['boundedValue']['lowerBound'],
-                     metric_value['boundedValue']['upperBound']))
+      bounds.append(
+          (
+              metric_value['boundedValue']['lowerBound'],
+              metric_value['boundedValue']['upperBound']
+          )
+      )
     else:
-      logging.warning('%s must be a doubleValue or boundedValue; skipping %s.',
-                      metric, slices_key)
+      logging.warning(
+          '%s must be a doubleValue or boundedValue; skipping %s.', metric,
+          slices_key
+      )
       return None
 
   graph = _Graph()
@@ -299,7 +324,9 @@ def _draw_histogram(graph: _Graph) -> Optional[_Graph]:
       show_value = f'{value:.2f}' if isinstance(value, float) else value
       # To avoid the number has overlap with the box of the graph.
       if value > 0.9 * max(graph.x):
-        ax.text(value - (value / 10), index, show_value, va='center', color='w')
+        ax.text(
+            value - (value / 10), index, show_value, va='center', color='w'
+        )
       else:
         ax.text(value, index, show_value, va='center')
 
@@ -382,5 +409,7 @@ def stringify_slice_key(slice_key: SliceKeyType) -> Tuple[str, str]:
 
   # To use u'{}' instead of '{}' here to avoid encoding a unicode character with
   # ascii codec.
-  return (separator.join([u'{}'.format(key) for key in keys]),
-          separator.join([u'{}'.format(value) for value in values]))
+  return (
+      separator.join([u'{}'.format(key) for key in keys]),
+      separator.join([u'{}'.format(value) for value in values])
+  )

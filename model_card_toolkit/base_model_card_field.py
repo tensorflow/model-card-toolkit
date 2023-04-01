@@ -21,10 +21,10 @@ import abc
 import dataclasses
 import json as json_lib
 from typing import Any, Dict
-from model_card_toolkit.utils import validation
 
-from google.protobuf import descriptor
-from google.protobuf import message
+from google.protobuf import descriptor, message
+
+from model_card_toolkit.utils import validation
 
 
 class BaseModelCardField(abc.ABC):
@@ -36,7 +36,6 @@ class BaseModelCardField(abc.ABC):
   `to_proto` to convert the class from and to proto. The child class does not
   need to override this unless it needs some special process.
   """
-
   def __len__(self) -> int:
     """Returns the number of items in a field. Ignores None values recursively,
     so the length of a field that only contains another field that has all None
@@ -55,8 +54,9 @@ class BaseModelCardField(abc.ABC):
 
     for field_name, field_value in self.__dict__.items():
       if not hasattr(proto, field_name):
-        raise ValueError("%s has no such field named '%s'." %
-                         (type(proto), field_name))
+        raise ValueError(
+            "%s has no such field named '%s'." % (type(proto), field_name)
+        )
       if not field_value:
         continue
 
@@ -66,7 +66,9 @@ class BaseModelCardField(abc.ABC):
       if field_descriptor.type == descriptor.FieldDescriptor.TYPE_MESSAGE:
         if field_descriptor.label == descriptor.FieldDescriptor.LABEL_REPEATED:
           for nested_message in field_value:
-            getattr(proto, field_name).add().CopyFrom(nested_message.to_proto())  # pylint: disable=protected-access
+            getattr(proto, field_name).add().CopyFrom(
+                nested_message.to_proto()
+            )  # pylint: disable=protected-access
         else:
           getattr(proto, field_name).CopyFrom(field_value.to_proto())  # pylint: disable=protected-access
       # Process Non-Message type
@@ -81,14 +83,17 @@ class BaseModelCardField(abc.ABC):
   def _from_proto(self, proto: message.Message) -> "BaseModelCardField":
     """Convert proto to this class object."""
     if not isinstance(proto, self._proto_type):
-      raise TypeError("%s is expected. However %s is provided." %
-                      (self._proto_type, type(proto)))
+      raise TypeError(
+          "%s is expected. However %s is provided." %
+          (self._proto_type, type(proto))
+      )
 
     for field_descriptor in proto.DESCRIPTOR.fields:
       field_name = field_descriptor.name
       if not hasattr(self, field_name):
-        raise ValueError("%s has no such field named '%s.'" %
-                         (self, field_name))
+        raise ValueError(
+            "%s has no such field named '%s.'" % (self, field_name)
+        )
 
       # Process Message type.
       if field_descriptor.type == descriptor.FieldDescriptor.TYPE_MESSAGE:
@@ -97,7 +102,8 @@ class BaseModelCardField(abc.ABC):
           setattr(self, field_name, [])
           for p in getattr(proto, field_name):
             # To get the type hint of a list is not easy.
-            field = self.__annotations__[field_name].__args__[0]()  # pytype: disable=attribute-error
+            field = \
+              self.__annotations__[field_name].__args__[0]()  # pytype: disable=attribute-error
             field._from_proto(p)  # pylint: disable=protected-access
             getattr(self, field_name).append(field)
 
@@ -125,8 +131,9 @@ class BaseModelCardField(abc.ABC):
     self.clear()
     return self._from_proto(proto)
 
-  def _from_json(self, json_dict: Dict[str, Any],
-                 field: "BaseModelCardField") -> "BaseModelCardField":
+  def _from_json(
+      self, json_dict: Dict[str, Any], field: "BaseModelCardField"
+  ) -> "BaseModelCardField":
     """Parses a JSON dictionary into the current object."""
     for subfield_key, subfield_json_value in json_dict.items():
       if subfield_key.startswith(validation.SCHEMA_VERSION_STRING):
@@ -134,15 +141,18 @@ class BaseModelCardField(abc.ABC):
       elif not hasattr(field, subfield_key):
         raise ValueError(
             "BaseModelCardField %s has no such field named '%s.'" %
-            (field, subfield_key))
+            (field, subfield_key)
+        )
       elif isinstance(subfield_json_value, dict):
         subfield_value = self._from_json(
-            subfield_json_value, getattr(field, subfield_key))
+            subfield_json_value, getattr(field, subfield_key)
+        )
       elif isinstance(subfield_json_value, list):
         subfield_value = []
         for item in subfield_json_value:
           if isinstance(item, dict):
-            new_object = field.__annotations__[subfield_key].__args__[0]()  # pytype: disable=attribute-error
+            new_object = \
+              field.__annotations__[subfield_key].__args__[0]()  # pytype: disable=attribute-error
             subfield_value.append(self._from_json(item, new_object))
           else:  # if primitive
             subfield_value.append(item)

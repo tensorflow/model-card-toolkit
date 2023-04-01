@@ -140,6 +140,20 @@ Changes to Model Card Toolkit Python code should conform to the
 [Google Python Style Guide](https://github.com/google/styleguide/blob/gh-pages/pyguide.md)
 with indentation width of 2 spaces.
 
+### Linting your code
+
+Please check your code for linting errors before submitting your PR for review. Pull requests are lint checked using `pre-commit` and `pylint`.
+If you want to run the [`pre-commit`](https://pre-commit.com/) checks locally, please install
+
+```sh
+pip install pre-commit
+```
+
+When you have `pre-commit` installed, you can run follow command from your local project folder to check for linting errors.
+```sh
+pre-commit run --all-files
+```
+
 ### Testing your changes
 
 #### Writing and updating unit tests

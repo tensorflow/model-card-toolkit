@@ -18,6 +18,7 @@ Standalone_Model_Card_Toolkit_Demo.ipynb.
 """
 
 from typing import Any, Dict, Text
+
 import tensorflow as tf
 import tensorflow_datasets as tfds
 
@@ -39,9 +40,10 @@ def get_data() -> Dict[Text, Any]:
       as_supervised=True,  # Include labels
   )
   validation_ds_resized = validation_ds.map(
-      lambda x, y: (tf.image.resize(x, (IMAGE_SIZE, IMAGE_SIZE)), y))
-  validation_ds_performant = validation_ds_resized.cache().batch(
-      BATCH_SIZE).prefetch(buffer_size=10)
+      lambda x, y: (tf.image.resize(x, (IMAGE_SIZE, IMAGE_SIZE)), y)
+  )
+  validation_ds_performant = validation_ds_resized.cache(
+  ).batch(BATCH_SIZE).prefetch(buffer_size=10)
   validation_numpy = iter(tfds.as_numpy(validation_ds_performant))
 
   # Each batch is 32 examples.
@@ -76,7 +78,8 @@ def get_data() -> Dict[Text, Any]:
 
 
 def create_model(
-    training_epochs: int = DEFAULT_TRAINING_EPOCHS) -> tf.keras.Model:
+    training_epochs: int = DEFAULT_TRAINING_EPOCHS
+) -> tf.keras.Model:
   """Create and train model used in Standalone Model Card Toolkit notebook.
 
   This is a MobileNetV2-architecture model, using pretrained weights based on
@@ -103,9 +106,11 @@ def create_model(
       as_supervised=True,  # Include labels
   )
   train_ds = train_ds.map(resize).cache().batch(BATCH_SIZE).prefetch(
-      buffer_size=10)
+      buffer_size=10
+  )
   validation_ds = validation_ds.map(resize).cache().batch(BATCH_SIZE).prefetch(
-      buffer_size=10)
+      buffer_size=10
+  )
 
   base_model = tf.keras.applications.MobileNetV2(
       weights='imagenet',  # Load weights pre-trained on ImageNet.
@@ -118,10 +123,12 @@ def create_model(
 
   # Create new model on top
   inputs = tf.keras.Input(shape=(IMAGE_SIZE, IMAGE_SIZE, 3))
-  data_augmentation = tf.keras.Sequential([
-      tf.keras.layers.experimental.preprocessing.RandomFlip('horizontal'),
-      tf.keras.layers.experimental.preprocessing.RandomRotation(0.1),
-  ])
+  data_augmentation = tf.keras.Sequential(
+      [
+          tf.keras.layers.experimental.preprocessing.RandomFlip('horizontal'),
+          tf.keras.layers.experimental.preprocessing.RandomRotation(0.1),
+      ]
+  )
   x = data_augmentation(inputs)  # Apply random data augmentation
   x = tf.keras.applications.mobilenet_v2.preprocess_input(x)
 
@@ -134,7 +141,8 @@ def create_model(
   model.compile(
       optimizer=tf.keras.optimizers.Adam(),
       loss=tf.keras.losses.BinaryCrossentropy(from_logits=True),
-      metrics=[tf.keras.metrics.BinaryAccuracy()])
+      metrics=[tf.keras.metrics.BinaryAccuracy()]
+  )
 
   model.fit(
       train_ds,

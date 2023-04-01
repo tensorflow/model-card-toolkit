@@ -22,16 +22,15 @@ import pkgutil
 import tempfile
 from typing import Any, Dict, Optional, Union
 
-from absl import logging
 import jinja2
+import tensorflow_model_analysis as tfma
+from absl import logging
 
 from model_card_toolkit.model_card import ModelCard
 from model_card_toolkit.proto import model_card_pb2
 from model_card_toolkit.utils import graphics
 from model_card_toolkit.utils import source as src
 from model_card_toolkit.utils import tfx_util
-
-import tensorflow_model_analysis as tfma
 
 # Constants about provided UI templates.
 _UI_TEMPLATES = (
@@ -88,7 +87,6 @@ class ModelCardToolkit():
   html = mct.export_format()
   ```
   """
-
   def __init__(
       self,
       output_dir: Optional[str] = None,
@@ -119,8 +117,9 @@ class ModelCardToolkit():
     self.output_dir = output_dir or tempfile.mkdtemp()
     self._mcta_proto_file = os.path.join(self.output_dir, _MCTA_PROTO_FILE)
     self._mcta_template_dir = os.path.join(self.output_dir, _MCTA_TEMPLATE_DIR)
-    self.default_template = os.path.join(self._mcta_template_dir,
-                                         _DEFAULT_UI_TEMPLATE_FILE)
+    self.default_template = os.path.join(
+        self._mcta_template_dir, _DEFAULT_UI_TEMPLATE_FILE
+    )
     self._model_cards_dir = os.path.join(self.output_dir, _MODEL_CARDS_DIR)
     self._source = source
 
@@ -146,11 +145,13 @@ class ModelCardToolkit():
     models = self._store.get_artifacts_by_uri(mlmd_source.model_uri)
     if not models:
       raise ValueError(
-          f'"{mlmd_source.model_uri}" cannot be found in the `store`.')
+          f'"{mlmd_source.model_uri}" cannot be found in the `store`.'
+      )
     if len(models) > 1:
       logging.info(
           '%d artifacts are found with the `model_uri`="%s". '
-          'The last one is used.', len(models), mlmd_source.model_uri)
+          'The last one is used.', len(models), mlmd_source.model_uri
+      )
     self._artifact_with_model_uri = models[-1]
 
   def _jinja_loader(self, template_dir: str) -> jinja2.FileSystemLoader:
@@ -163,8 +164,8 @@ class ModelCardToolkit():
       f.write(content)
 
   def _write_proto_file(
-      self, path: str, model_card: Union[ModelCard,
-                                         model_card_pb2.ModelCard]) -> None:
+      self, path: str, model_card: Union[ModelCard, model_card_pb2.ModelCard]
+  ) -> None:
     """Write serialized model card proto to the path."""
     os.makedirs(os.path.dirname(path), exist_ok=True)
     with open(path, 'wb') as f:
@@ -204,20 +205,26 @@ class ModelCardToolkit():
       for eval_result_path in self._source.tfma.eval_result_paths:
         eval_result = tfma.load_eval_result(
             output_path=eval_result_path,
-            output_file_format=self._source.tfma.file_format)
+            output_file_format=self._source.tfma.file_format
+        )
         if eval_result:
           logging.info('EvalResult found at path %s', eval_result_path)
-          if self._source.tfma.metrics_include or self._source.tfma.metrics_exclude:
+          if (
+              self._source.tfma.metrics_include
+              or self._source.tfma.metrics_exclude
+          ):
             eval_result = tfx_util.filter_metrics(
                 eval_result, self._source.tfma.metrics_include,
-                self._source.tfma.metrics_exclude)
+                self._source.tfma.metrics_exclude
+            )
           tfx_util.annotate_eval_result_metrics(model_card, eval_result)
           graphics.annotate_eval_result_plots(model_card, eval_result)
         else:
           logging.info('EvalResult not found at path %s', eval_result_path)
     if self._store:
       metrics_artifacts = tfx_util.get_metrics_artifacts_for_model(
-          self._store, self._artifact_with_model_uri.id)
+          self._store, self._artifact_with_model_uri.id
+      )
       for metrics_artifact in metrics_artifacts:
         eval_result = tfx_util.read_metrics_eval_result(metrics_artifact.uri)
         if eval_result is not None:
@@ -244,21 +251,28 @@ class ModelCardToolkit():
     """
     if self._source and self._source.tfdv:
       for dataset_stats_path in self._source.tfdv.dataset_statistics_paths:
-        if self._source.tfdv.features_include or self._source.tfdv.features_exclude:
+        if (
+            self._source.tfdv.features_include
+            or self._source.tfdv.features_exclude
+        ):
           data_stats = tfx_util.read_stats_protos_and_filter_features(
               dataset_stats_path, self._source.tfdv.features_include,
-              self._source.tfdv.features_exclude)
+              self._source.tfdv.features_exclude
+          )
         else:
           data_stats = tfx_util.read_stats_protos(dataset_stats_path)
         graphics.annotate_dataset_feature_statistics_plots(
-            model_card, data_stats)
+            model_card, data_stats
+        )
     if self._store:
       stats_artifacts = tfx_util.get_stats_artifacts_for_model(
-          self._store, self._artifact_with_model_uri.id)
+          self._store, self._artifact_with_model_uri.id
+      )
       for stats_artifact in stats_artifacts:
         data_stats = tfx_util.read_stats_protos(stats_artifact.uri)
         graphics.annotate_dataset_feature_statistics_plots(
-            model_card, data_stats)
+            model_card, data_stats
+        )
     return model_card
 
   def _annotate_model(self, model_card: ModelCard) -> ModelCard:
@@ -292,7 +306,8 @@ class ModelCardToolkit():
     # Pre-populate ModelCard fields
     if self._store:
       model_card = tfx_util.generate_model_card_for_model(
-          self._store, self._artifact_with_model_uri.id)
+          self._store, self._artifact_with_model_uri.id
+      )
     else:
       model_card = ModelCard()
     model_card = self._annotate_eval_results(model_card)
@@ -300,9 +315,9 @@ class ModelCardToolkit():
     model_card = self._annotate_model(model_card)
     return model_card
 
-  def scaffold_assets(self,
-                      json: Optional[Union[Dict[str, Any],
-                                           str]] = None) -> ModelCard:
+  def scaffold_assets(
+      self, json: Optional[Union[Dict[str, Any], str]] = None
+  ) -> ModelCard:
     """Generates the Model Card Tookit assets.
 
     Assets include the ModelCard proto file, Model Card document, and jinja
@@ -343,12 +358,14 @@ class ModelCardToolkit():
         raise FileNotFoundError(f"Cannot find file: '{template_path}'")
       template_content = template_content.decode('utf8')
       self._write_file(
-          os.path.join(self.output_dir, template_path), template_content)
+          os.path.join(self.output_dir, template_path), template_content
+      )
 
     return model_card
 
   def update_model_card(
-      self, model_card: Union[ModelCard, model_card_pb2.ModelCard]) -> None:
+      self, model_card: Union[ModelCard, model_card_pb2.ModelCard]
+  ) -> None:
     """Updates the Proto file in the MCT assets directory.
 
     Args:
@@ -359,11 +376,11 @@ class ModelCardToolkit():
     """
     self._write_proto_file(self._mcta_proto_file, model_card)
 
-  def export_format(self,
-                    model_card: Optional[Union[
-                        ModelCard, model_card_pb2.ModelCard]] = None,
-                    template_path: Optional[str] = None,
-                    output_file: Optional[str] = None) -> str:
+  def export_format(
+      self, model_card: Optional[Union[ModelCard,
+                                       model_card_pb2.ModelCard]] = None,
+      template_path: Optional[str] = None, output_file: Optional[str] = None
+  ) -> str:
     """Generates a model card document based on the MCT assets.
 
     The model card document is both returned by this function, as well as saved
@@ -400,21 +417,23 @@ class ModelCardToolkit():
     else:
       model_card = self._read_proto_file(self._mcta_proto_file)
       if model_card is None:
-        raise ValueError('model_card could not be found. '
-                         'Call scaffold_assets() to generate model_card.')
+        raise ValueError(
+            'model_card could not be found. '
+            'Call scaffold_assets() to generate model_card.'
+        )
 
     # Generate Model Card.
     jinja_env = jinja2.Environment(
-        loader=self._jinja_loader(template_dir),
-        autoescape=True,
-        auto_reload=True,
-        cache_size=0)
+        loader=self._jinja_loader(template_dir), autoescape=True,
+        auto_reload=True, cache_size=0
+    )
     template = jinja_env.get_template(template_file)
     model_card_file_content = template.render(
         model_details=model_card.model_details,
         model_parameters=model_card.model_parameters,
         quantitative_analysis=model_card.quantitative_analysis,
-        considerations=model_card.considerations)
+        considerations=model_card.considerations
+    )
 
     # Write the model card document file and return its contents.
     mode_card_file_path = os.path.join(self._model_cards_dir, output_file)

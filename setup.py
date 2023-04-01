@@ -17,16 +17,13 @@
 Run with `python3 setup.py sdist bdist_wheel`.
 """
 
-# TODO(b/188859752): deprecate distutils
-from distutils.command import build
-
 import platform
 import shutil
 import subprocess
+# TODO(b/188859752): deprecate distutils
+from distutils.command import build
 
-from setuptools import Command
-from setuptools import setup
-
+from setuptools import Command, setup
 
 REQUIRED_PACKAGES = [
     'absl-py>=0.9,<1.1',
@@ -44,7 +41,7 @@ TESTS_REQUIRE = [
     'tensorflow-datasets>=4.8.2',
 ]
 
-EXTRAS_REQUIRE = {'test':  TESTS_REQUIRE}
+EXTRAS_REQUIRE = {'test': TESTS_REQUIRE}
 
 # Get version from version module.
 with open('model_card_toolkit/version.py') as fp:
@@ -80,7 +77,6 @@ class _BuildCommand(build.build):
 
 class _BazelBuildCommand(Command):
   """Build Bazel artifacts and move generated files."""
-
   def initialize_options(self):
     pass
 
@@ -93,17 +89,20 @@ class _BazelBuildCommand(Command):
       raise RuntimeError(
           'Could not find "bazel" or "bazelisk" binary. Please visit '
           'https://docs.bazel.build/versions/main/install.html for '
-          'installation instruction.')
+          'installation instruction.'
+      )
     self._additional_build_options = []
     if platform.system() == 'Darwin':  # see b/175182911 for context
       self._additional_build_options = ['--macos_minimum_os=10.9']
 
   def run(self):
-    subprocess.check_call([
-        self._bazel_cmd, 'run', '--verbose_failures',
-        *self._additional_build_options,
-        'model_card_toolkit:move_generated_files'
-    ])
+    subprocess.check_call(
+        [
+            self._bazel_cmd, 'run', '--verbose_failures',
+            *self._additional_build_options,
+            'model_card_toolkit:move_generated_files'
+        ]
+    )
 
 
 setup(
@@ -154,4 +153,5 @@ setup(
     cmdclass={
         'build': _BuildCommand,
         'bazel_build': _BazelBuildCommand,
-    })
+    }
+)

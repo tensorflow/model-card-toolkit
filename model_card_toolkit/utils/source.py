@@ -44,8 +44,8 @@ class TfmaSource:
   """
   eval_result_paths: List[str] = dataclasses.field(default_factory=list)
   file_format: Optional[str] = ''
-  model_evaluation_artifacts: List[
-      metadata_store_pb2.Artifact] = dataclasses.field(default_factory=list)
+  model_evaluation_artifacts: List[metadata_store_pb2.Artifact
+                                   ] = dataclasses.field(default_factory=list)
   metrics_include: List[str] = dataclasses.field(default_factory=list)
   metrics_exclude: List[str] = dataclasses.field(default_factory=list)
 
@@ -54,8 +54,7 @@ class TfmaSource:
       pass
     elif self.model_evaluation_artifacts and not self.eval_result_paths:
       self.eval_result_paths = [
-          artifact.uri
-          for artifact in self.model_evaluation_artifacts
+          artifact.uri for artifact in self.model_evaluation_artifacts
       ]
     else:
       raise ValueError(
@@ -64,8 +63,10 @@ class TfmaSource:
       )
 
     if self.metrics_include and self.metrics_exclude:
-      raise ValueError('Only one of TfmaSource.metrics_include and '
-                       'TfmaSource.metrics_exclude should be set.')
+      raise ValueError(
+          'Only one of TfmaSource.metrics_include and '
+          'TfmaSource.metrics_exclude should be set.'
+      )
 
 
 @dataclasses.dataclass
@@ -88,18 +89,20 @@ class TfdvSource:
       features_include.
   """
   dataset_statistics_paths: List[str] = dataclasses.field(default_factory=list)
-  example_statistics_artifacts: List[
-      metadata_store_pb2.Artifact] = dataclasses.field(default_factory=list)
+  example_statistics_artifacts: List[metadata_store_pb2.Artifact
+                                     ] = dataclasses.field(
+                                         default_factory=list
+                                     )
   features_include: List[str] = dataclasses.field(default_factory=list)
   features_exclude: List[str] = dataclasses.field(default_factory=list)
 
   def __post_init__(self):
     if self.dataset_statistics_paths and not self.example_statistics_artifacts:
       pass
-    elif self.example_statistics_artifacts and not self.dataset_statistics_paths:
+    elif self.example_statistics_artifacts \
+      and not self.dataset_statistics_paths:
       self.dataset_statistics_paths = [
-          artifact.uri
-          for artifact in self.example_statistics_artifacts
+          artifact.uri for artifact in self.example_statistics_artifacts
       ]
     else:
       raise ValueError(
@@ -108,8 +111,10 @@ class TfdvSource:
       )
 
     if self.features_include and self.features_exclude:
-      raise ValueError('Only one of TfdvSource.features_include and '
-                       'TfdvSource.features_exclude should be set.')
+      raise ValueError(
+          'Only one of TfdvSource.features_include and '
+          'TfdvSource.features_exclude should be set.'
+      )
 
 
 @dataclasses.dataclass
