@@ -34,6 +34,36 @@ Current Release Team:
 - Suzen Fylke - @codesue
 
 ## Past Releases
+
+### Release 2.0.0
+
+#### Major Features and Improvements
+* Reduced package dependencies and therefore removed `tfx` as a dependency.
+
+#### Bug fixes and other changes
+* Updated `Standalone_Model_Card_Toolkit_Demo.ipynb` demo.
+* Updated linter setup.
+* Updated `tensorflow-datasets` dependency for tests.
+* Updated package release workflow.
+
+#### Breaking changes and Deprecations
+* Renamed `master` branch to `main`.
+* Deprecated `ModelCardGenerator`. The component will be made available via TFX Addons.
+
+#### Contributions By
+* Alan Schiemenz
+* Calvin Leung
+* Gerard Casas Saez
+* Hannes Hapke
+* Rebecca Chen
+* Sanat
+* Suzen Fylke
+* sklin93
+* vulkomilev
+
+Thank you!
+
+
 ### Release 1.3.2
 
 #### Major Features and Improvements
