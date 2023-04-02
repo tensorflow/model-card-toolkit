@@ -34,6 +34,7 @@ Current Release Team:
 - Suzen Fylke - @codesue
 
 ## Past Releases
+
 ### Release 1.3.2
 
 #### Major Features and Improvements
