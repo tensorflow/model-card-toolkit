@@ -20,10 +20,8 @@ Run with `python3 setup.py sdist bdist_wheel`.
 import platform
 import shutil
 import subprocess
-# TODO(b/188859752): deprecate distutils
-from distutils.command import build
+from setuptools.command.build import build
 
-from setuptools import Command, setup
 
 REQUIRED_PACKAGES = [
     'absl-py>=0.9,<1.1',
