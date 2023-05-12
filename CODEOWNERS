@@ -8,8 +8,10 @@
 
 # PyPI distribution files (Core members)
 /model_card_toolkit/__init__.py @rcrowe-google @casassg @hanneshapke @codesue @ahmed-bd @deutranium
+/model_card_toolkit/dependencies.py @rcrowe-google @casassg @hanneshapke @codesue @ahmed-bd @deutranium
 /model_card_toolkit/version.py @rcrowe-google @casassg @hanneshapke @codesue @ahmed-bd @deutranium
 /package_build/ @rcrowe-google @casassg @hanneshapke @codesue @ahmed-bd @deutranium
+/proto_build/ @rcrowe-google @casassg @hanneshapke @codesue @ahmed-bd @deutranium
 /setup.py @rcrowe-google @casassg @hanneshapke @codesue @ahmed-bd @deutranium
 /WORKSPACE @rcrowe-google @casassg @hanneshapke @codesue @ahmed-bd @deutranium
 /RELEASE.md @rcrowe-google @casassg @hanneshapke @codesue @ahmed-bd @deutranium
