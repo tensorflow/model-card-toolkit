@@ -1,21 +1,19 @@
 # Global owners for the Model Card Toolkit
 * @codesue @casassg @ahmed-bd @hanneshapke
 
-# Core members
-/CONTRIBUTING.md @rcrowe-google @casassg @hanneshapke @codesue @wihanbooyse @ahmed-bd
-/README.md @rcrowe-google @casassg @hanneshapke @codesue @wihanbooyse @ahmed-bd
-/CODE_OF_CONDUCT.md @rcrowe-google @casassg @hanneshapke @codesue @wihanbooyse @ahmed-bd
+# Community standards (Core members)
+/CONTRIBUTING.md @rcrowe-google @casassg @hanneshapke @codesue @wihanbooyse @ahmed-bd @deutranium
+/README.md @rcrowe-google @casassg @hanneshapke @codesue @wihanbooyse @ahmed-bd @deutranium
+/CODE_OF_CONDUCT.md @rcrowe-google @casassg @hanneshapke @codesue @wihanbooyse @ahmed-bd @deutranium
 
-# PyPi distribution files
-/tfx_addons/__init__.py @rcrowe-google @casassg @hanneshapke @codesue @wihanbooyse @ahmed-bd
-/tfx_addons/version.py @rcrowe-google @casassg @hanneshapke @codesue @wihanbooyse @ahmed-bd
-/setup.py @rcrowe-google @casassg @hanneshapke @codesue @wihanbooyse @ahmed-bd
-/WORKSPACE @rcrowe-google @casassg @hanneshapke @codesue @wihanbooyse @ahmed-bd
-/RELEASE.md @rcrowe-google @casassg @hanneshapke @codesue @wihanbooyse @ahmed-bd
+# PyPI distribution files (Core members)
+/model_card_toolkit/__init__.py @rcrowe-google @casassg @hanneshapke @codesue @wihanbooyse @ahmed-bd @deutranium
+/model_card_toolkit/version.py @rcrowe-google @casassg @hanneshapke @codesue @wihanbooyse @ahmed-bd @deutranium
+/package_build/ @@rcrowe-google @casassg @hanneshapke @codesue @wihanbooyse @ahmed-bd @deutranium
+/setup.py @rcrowe-google @casassg @hanneshapke @codesue @wihanbooyse @ahmed-bd @deutranium
+/WORKSPACE @rcrowe-google @casassg @hanneshapke @codesue @wihanbooyse @ahmed-bd @deutranium
+/RELEASE.md @rcrowe-google @casassg @hanneshapke @codesue @wihanbooyse @ahmed-bd @deutranium
 
 # CI/CD configuration (Release team)
 /.github/workflows/ @casassg @codesue @hanneshapke
-/.github/ci  @casassg @codesue @hanneshapke
-
-# TFX component
-/model_card_toolkit/tfx @shuklak13
+/.github/ci/  @casassg @codesue @hanneshapke
