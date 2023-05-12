@@ -14,8 +14,8 @@
 """Defines Model Card Toolkit version information."""
 
 # We follow Semantic Versioning (https://semver.org/)
-_MAJOR_VERSION = "2"
-_MINOR_VERSION = "1"
+_MAJOR_VERSION = "3"
+_MINOR_VERSION = "0"
 _PATCH_VERSION = "0"
 
 # When building releases, we can update this value on the release branch to
