@@ -38,6 +38,7 @@ _VERSIONS = {
 }
 
 _REQUIRED_DEPS = [
+    'absl',
     'jinja2',  # rendering model card templates
     'jsonschema',  # validating JSON schema
     'matplotlib',  # plotting
