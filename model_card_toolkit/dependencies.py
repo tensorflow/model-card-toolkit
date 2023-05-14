@@ -125,7 +125,8 @@ def make_extra_packages_test() -> List[str]:
 def make_extra_packages_all() -> List[str]:
   """Returns the list of all optional packages."""
   return [
-      *make_extra_packages_docs(),
+      # TODO (codesue): Uncomment after testing in CI.
+      # *make_extra_packages_docs(),
       *make_extra_packages_examples(),
       *make_extra_packages_tensorflow(),
       *make_extra_packages_test(),
