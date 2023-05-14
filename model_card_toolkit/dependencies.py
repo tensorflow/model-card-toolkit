@@ -122,14 +122,13 @@ def make_extra_packages_test() -> List[str]:
   return _make_deps_list(_TEST_EXTRA_DEPS)
 
 
+# NOTE: Omit `docs` dependencies from `all` since they're not necessary for
+# running all tests and to avoid dependency conflicts.
 def make_extra_packages_all() -> List[str]:
   """Returns the list of all optional packages."""
   return [
       *make_extra_packages_examples(),
       *make_extra_packages_tensorflow(),
-      # NOTE: Install `docs` dependencies (i.e. tensorflow-docs) after
-      # `tensorflow` dependencies to avoid conflicts.
-      *make_extra_packages_docs(),
       *make_extra_packages_test(),
   ]
 
