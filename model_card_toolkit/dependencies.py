@@ -110,7 +110,7 @@ def has_tensorflow_extra_deps() -> bool:
   return all(importlib.util.find_spec(name) for name in _TENSORFLOW_EXTRA_DEPS)
 
 
-def assert_tensorflow_extra_deps_installed():
+def ensure_tensorflow_extra_deps_installed():
   """Raises ImportError if tensorflow extra dependencies are not installed.
   """
   if not has_tensorflow_extra_deps():

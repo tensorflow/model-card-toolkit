@@ -44,15 +44,15 @@ class DependenciesTest(absltest.TestCase):
     assert not dependencies.has_tensorflow_extra_deps()
 
   @mock.patch.dict('sys.modules', _MOCK_TENSORFLOW_EXTRA_MODULES)
-  def test_assert_tensorflow_extra_deps_installed(self):
-    dependencies.assert_tensorflow_extra_deps_installed()
+  def test_ensure_tensorflow_extra_deps_installed(self):
+    dependencies.ensure_tensorflow_extra_deps_installed()
 
   @mock.patch.dict('sys.modules', _MOCK_TENSORFLOW_EXTRA_MISSING_DEP)
-  def test_assert_tensorflow_extra_deps_installed_fails(self):
+  def test_ensure_tensorflow_extra_deps_installed_fails(self):
     with self.assertRaisesWithLiteralMatch(
         ImportError, dependencies.TENSORFLOW_EXTRA_IMPORT_ERROR_MSG
     ):
-      dependencies.assert_tensorflow_extra_deps_installed()
+      dependencies.ensure_tensorflow_extra_deps_installed()
 
 
 if __name__ == '__main__':

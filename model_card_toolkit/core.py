@@ -124,7 +124,7 @@ class ModelCardToolkit():
     """
 
     if source or mlmd_source:
-      dependencies.assert_tensorflow_extra_deps_installed()
+      dependencies.ensure_tensorflow_extra_deps_installed()
 
     self.output_dir = output_dir or tempfile.mkdtemp()
     self._mcta_proto_file = os.path.join(self.output_dir, _MCTA_PROTO_FILE)
