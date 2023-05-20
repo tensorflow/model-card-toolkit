@@ -7,3 +7,5 @@ toc:
   path: /responsible_ai/model_card_toolkit/guide/concepts
 - title: Templates
   path: /responsible_ai/model_card_toolkit/guide/templates
+- title: Migration
+  path: /responsible_ai/model_card_toolkit/guide/migration

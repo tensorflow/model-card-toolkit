@@ -11,7 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-"""Tests for model_card_toolkit.validation."""
+"""Tests for model_card_toolkit.utils.json_utils."""
 
 import json
 import os
@@ -20,7 +20,7 @@ import pkgutil
 import jsonschema
 from absl.testing import absltest, parameterized
 
-from model_card_toolkit.utils import validation
+from model_card_toolkit.utils import json_utils
 
 _MODEL_DETAILS_V1_DICT = {
     "name":
@@ -185,25 +185,45 @@ _MODEL_CARD_V2_DICT = {
     "considerations": _CONSIDERATIONS_V2_DICT
 }
 
+_CATS_VS_DOGS_V1_PATH = os.path.join(
+    "utils", "testdata", "cats_vs_dogs_v0_0_1.json"
+)
+_CATS_VS_DOGS_V1_TEXT = pkgutil.get_data(
+    "model_card_toolkit", _CATS_VS_DOGS_V1_PATH
+)
+_CATS_VS_DOGS_V1_DICT = json.loads(_CATS_VS_DOGS_V1_TEXT)
 
-class ValidationTest(parameterized.TestCase):
+_CATS_VS_DOGS_V2_PATH = os.path.join(
+    "utils", "testdata", "cats_vs_dogs_v0_0_2.json"
+)
+_CATS_VS_DOGS_V2_TEXT = pkgutil.get_data(
+    "model_card_toolkit", _CATS_VS_DOGS_V2_PATH
+)
+_CATS_VS_DOGS_V2_DICT = json.loads(_CATS_VS_DOGS_V2_TEXT)
+
+_MODEL_CARD_SECTIONS = ("model_details", "model_parameters", "considerations")
+_QUANTITATIVE_ANALYSIS = "quantitative_analysis"
+_CONFIDENCE_INTERVAL = "confidence_interval"
+
+
+class JsonUtilsTest(parameterized.TestCase):
   def test_validate_json_schema(self):
-    validation.validate_json_schema(
+    json_utils.validate_json_schema(
         _MODEL_CARD_V1_DICT, schema_version="0.0.1"
     )
-    validation.validate_json_schema(
+    json_utils.validate_json_schema(
         _MODEL_CARD_V2_DICT, schema_version="0.0.2"
     )
 
   def test_validate_json_schema_invalid_dict(self):
     invalid_json_dict = {"model_name": "the_greatest_model"}
     with self.assertRaises(jsonschema.ValidationError):
-      validation.validate_json_schema(invalid_json_dict)
+      json_utils.validate_json_schema(invalid_json_dict)
 
   def test_validate_json_schema_invalid_version(self):
     invalid_schema_version = "0.0.3"
     with self.assertRaises(ValueError):
-      validation.validate_json_schema(
+      json_utils.validate_json_schema(
           _MODEL_CARD_V1_DICT, schema_version=invalid_schema_version
       )
 
@@ -217,7 +237,69 @@ class ValidationTest(parameterized.TestCase):
     json_data = json.loads(
         pkgutil.get_data("model_card_toolkit", template_path)
     )
-    validation.validate_json_schema(json_data)
+    json_utils.validate_json_schema(json_data)
+
+  def test_json_update_succeeds(self):
+
+    updated_cats_vs_dogs_dict = json_utils.update(
+        json_dict=_CATS_VS_DOGS_V1_DICT
+    )
+
+    for section in _MODEL_CARD_SECTIONS:
+      with self.subTest(name=section):
+        self.assertDictEqual(
+            updated_cats_vs_dogs_dict.get(section),
+            _CATS_VS_DOGS_V2_DICT.get(section)
+        )
+
+    with self.subTest(name=_QUANTITATIVE_ANALYSIS):
+
+      # Check Graphics fields are equal
+      v1_graphics_updated = updated_cats_vs_dogs_dict.get(
+          _QUANTITATIVE_ANALYSIS
+      ).get("graphics")
+      v2_graphics = _CATS_VS_DOGS_V2_DICT.get(_QUANTITATIVE_ANALYSIS
+                                              ).get("graphics")
+      self.assertDictEqual(v1_graphics_updated, v2_graphics)
+
+      # Check PerformanceMetrics fields are equal length
+      v1_metrics_updated = updated_cats_vs_dogs_dict.get(
+          _QUANTITATIVE_ANALYSIS
+      ).get("performance_metrics")
+      v2_metrics = _CATS_VS_DOGS_V2_DICT.get(_QUANTITATIVE_ANALYSIS
+                                             ).get("performance_metrics")
+      self.assertLen(v1_metrics_updated, len(v2_metrics))
+
+      # Check PerformanceMetrics fields are equal value
+      for v1m, v2m in zip(v1_metrics_updated, v2_metrics):
+        self.assertSameElements(v1m.keys(), v2m.keys())
+        for field in v1m.keys():
+          if field == _CONFIDENCE_INTERVAL:
+            self.assertEqual(
+                str(v1m[_CONFIDENCE_INTERVAL]["lower_bound"]),
+                str(v2m[_CONFIDENCE_INTERVAL]["lower_bound"])
+            )
+            self.assertEqual(
+                str(v1m[_CONFIDENCE_INTERVAL]["upper_bound"]),
+                str(v2m[_CONFIDENCE_INTERVAL]["upper_bound"])
+            )
+          else:
+            self.assertEqual(str(v1m[field]), str(v2m[field]))
+
+  def test_json_update_latest_version_should_be_identity_function(self):
+    updated_cats_vs_dogs_dict = json_utils.update(
+        json_dict=_CATS_VS_DOGS_V2_DICT
+    )
+    for section in _MODEL_CARD_SECTIONS:
+      with self.subTest(name=section):
+        self.assertDictEqual(
+            updated_cats_vs_dogs_dict.get(section),
+            _CATS_VS_DOGS_V2_DICT.get(section)
+        )
+
+  def test_json_update_validation_error(self):
+    with self.assertRaises(jsonschema.ValidationError):
+      json_utils.update(json_dict={"model_name": "the_greatest_model"})
 
 
 if __name__ == "__main__":

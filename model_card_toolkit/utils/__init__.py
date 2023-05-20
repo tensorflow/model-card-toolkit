@@ -12,4 +12,3 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """A module of util functions for the Model Card Toolkit."""
-from model_card_toolkit.utils.source import *

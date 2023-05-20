@@ -1,11 +1,5 @@
 # Model Card templates
 
-
-
-
-
-
-
 [Jinja templates](https://jinja.palletsprojects.com/) are the backend structure of a Model Card document. The Model Card Toolkit comes with a few pre-made templates, but you can freely modify these templates or even build your own. In this document, we will discuss how to do this.
 
 The following is the standard way you may initialize the Model Card Toolkit.
@@ -25,9 +19,6 @@ The
 object generated above can be manually populated. Once you are ready to generate
 a Model Card document, you can pass the `model_card` back into MCT with
 `mct.update_model_card(model_card)`.
-
-In Model Card Toolkit 2.0, Jinja templates will be replaced with a new
-TypeScript/[Lit](https://lit.dev/)-based rendering system.
 
 ### Use a Premade Model Card Template
 

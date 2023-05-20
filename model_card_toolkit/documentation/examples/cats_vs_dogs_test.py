@@ -2,13 +2,17 @@
 
 from absl.testing import absltest
 
-from model_card_toolkit.documentation.examples import cats_vs_dogs
+try:
+  from model_card_toolkit.documentation.examples import cats_vs_dogs
+except ImportError:
+  cats_vs_dogs = None
 
 SLICES = ['combined', 'cat', 'dog']
 FIELDS = ['examples', 'labels']
 
 
 class CatsVsDogsTest(absltest.TestCase):
+  @absltest.skipIf(cats_vs_dogs is None, 'Missing optional dependencies.')
   def test_get_data(self):
     data = cats_vs_dogs.get_data()
     self.assertSameElements(data.keys(), SLICES)

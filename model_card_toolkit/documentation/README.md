@@ -1,12 +1,6 @@
 # Model Card Toolkit
 
-
-
-
-
 <g3mark-stacks product-id="model_card_toolkit" widget-kind="educational" use-name-in-title="true"></g3mark-stacks>
-
-
 
 ## Getting Started
 

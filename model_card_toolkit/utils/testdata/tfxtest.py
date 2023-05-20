@@ -27,7 +27,7 @@ from tensorflow_model_analysis.eval_saved_model.example_trainers import (
 )
 from tfx_bsl.tfxio import raw_tf_record
 
-from model_card_toolkit.utils.tfx_util import (
+from model_card_toolkit.utils.tf_utils import (
     _TFX_METRICS_TYPE, _TFX_STATS_TYPE
 )
 

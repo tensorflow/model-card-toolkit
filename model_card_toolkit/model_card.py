@@ -26,7 +26,7 @@ from typing import Any, Dict, List, Optional, Union
 
 from model_card_toolkit.base_model_card_field import BaseModelCardField
 from model_card_toolkit.proto import model_card_pb2
-from model_card_toolkit.utils import validation
+from model_card_toolkit.utils import json_utils
 
 
 @dataclasses.dataclass
@@ -485,8 +485,8 @@ class ModelCard(BaseModelCardField):
   def to_json(self) -> str:
     """Write ModelCard to JSON."""
     model_card_dict = self.to_dict()
-    model_card_dict[validation.SCHEMA_VERSION_STRING
-                    ] = validation.get_latest_schema_version()
+    model_card_dict[json_utils.SCHEMA_VERSION_STRING
+                    ] = json_utils.get_latest_schema_version()
     return json_lib.dumps(model_card_dict, indent=2)
 
   def from_json(self, json_dict: Dict[str, Any]) -> None:
@@ -506,7 +506,7 @@ class ModelCard(BaseModelCardField):
         definition.
     """
 
-    validation.validate_json_schema(json_dict)
+    json_utils.validate_json_schema(json_dict)
     self.clear()
     self._from_json(json_dict, self)
 
@@ -528,5 +528,5 @@ class ModelCard(BaseModelCardField):
     """
     if isinstance(json, str):
       json = json_lib.loads(json)
-    validation.validate_json_schema(json)
+    json_utils.validate_json_schema(json)
     self._from_json(json, self)
