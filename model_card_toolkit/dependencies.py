@@ -30,8 +30,6 @@ _VERSIONS = {
     'pytest': 'pytest',
     'tensorflow_data_validation': 'tensorflow-data-validation>=1.5.0,<2.0.0',
     'tensorflow_datasets': 'tensorflow-datasets>=4.8.2',
-    'tensorflow_docs':
-    'tensorflow-docs @ git+https://github.com/tensorflow/docs',
     'tensorflow_metadata': 'tensorflow-metadata>=1.5.0,<2.0.0',
     'tensorflow_model_analysis': 'tensorflow-model-analysis>=0.36.0,<0.42.0',
     'yapf': 'yapf',
@@ -43,8 +41,6 @@ _REQUIRED_DEPS = [
     'matplotlib',  # plotting
     'protobuf',  # working with model card protos
 ]
-
-_DOCS_EXTRA_DEPS = ['absl', 'tensorflow_docs']
 
 _EXAMPLES_EXTRA_DEPS = [
     # Required for model_card_toolkit.documentation.examples.cats_vs_dogs
@@ -90,11 +86,6 @@ def make_required_install_packages() -> List[str]:
   return _make_deps_list(_REQUIRED_DEPS)
 
 
-def make_extra_packages_docs() -> List[str]:
-  """Returns the list of packages needed for building documentation."""
-  return _make_deps_list(_DOCS_EXTRA_DEPS)
-
-
 def make_extra_packages_examples() -> List[str]:
   """Returns the list of packages needed for running examples."""
   return _make_deps_list(_EXAMPLES_EXTRA_DEPS)
@@ -122,8 +113,6 @@ def make_extra_packages_test() -> List[str]:
   return _make_deps_list(_TEST_EXTRA_DEPS)
 
 
-# NOTE: Omit `docs` dependencies from `all` since they're not necessary for
-# running all tests and to avoid dependency conflicts.
 def make_extra_packages_all() -> List[str]:
   """Returns the list of all optional packages."""
   return [
@@ -136,7 +125,6 @@ def make_extra_packages_all() -> List[str]:
 def make_required_extra_packages() -> Dict[str, List[str]]:
   """Returns the dict of required extra packages."""
   return {
-      'docs': make_extra_packages_docs(),
       'examples': make_extra_packages_examples(),
       'tensorflow': make_extra_packages_tensorflow(),
       'test': make_extra_packages_test(),
