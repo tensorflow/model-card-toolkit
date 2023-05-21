@@ -193,7 +193,7 @@ class ModelCardToolkit():
     model_card_proto = model_card_pb2.ModelCard()
     with open(path, 'rb') as f:
       model_card_proto.ParseFromString(f.read())
-    return ModelCard().copy_from_proto(model_card_proto)
+    return ModelCard.from_proto(model_card_proto)
 
   def _annotate_eval_results(self, model_card: ModelCard) -> ModelCard:
     """Annotates a model card with info from TFMA evaluation results.

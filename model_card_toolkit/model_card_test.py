@@ -37,10 +37,9 @@ _FULL_JSON = model_card_json_bytestring = pkgutil.get_data(
 
 
 class ModelCardTest(absltest.TestCase):
-  def test_copy_from_proto_and_to_proto_with_all_fields(self):
+  def test_from_proto_and_to_proto_with_all_fields(self):
     want_proto = text_format.Parse(_FULL_PROTO, model_card_pb2.ModelCard())
-    model_card_py = model_card.ModelCard()
-    model_card_py.copy_from_proto(want_proto)
+    model_card_py = model_card.ModelCard.from_proto(want_proto)
     got_proto = model_card_py.to_proto()
 
     self.assertEqual(want_proto, got_proto)
@@ -53,23 +52,27 @@ class ModelCardTest(absltest.TestCase):
 
     self.assertEqual(want_proto, got_proto)
 
-  def test_copy_from_proto_success(self):
+  def test_copy_from_proto_shows_deprecation_warning(self):
+    with self.assertWarns(DeprecationWarning):
+      owner = model_card.Owner(name="my_name1")
+      owner_proto = model_card_pb2.Owner(
+          name="my_name2", contact="my_contact2"
+      )
+      owner.copy_from_proto(owner_proto)
+
+  def test_from_proto_success(self):
     # Test fields convert.
-    owner = model_card.Owner(name="my_name1")
     owner_proto = model_card_pb2.Owner(name="my_name2", contact="my_contact2")
-    owner.copy_from_proto(owner_proto)
+    owner = model_card.Owner.from_proto(owner_proto)
     self.assertEqual(
         owner, model_card.Owner(name="my_name2", contact="my_contact2")
     )
 
     # Test message convert.
-    model_details = model_card.ModelDetails(
-        owners=[model_card.Owner(name="my_name1")]
-    )
     model_details_proto = model_card_pb2.ModelDetails(
         owners=[model_card_pb2.Owner(name="my_name2", contact="my_contact2")]
     )
-    model_details.copy_from_proto(model_details_proto)
+    model_details = model_card.ModelDetails.from_proto(model_details_proto)
     self.assertEqual(
         model_details,
         model_card.ModelDetails(
@@ -104,8 +107,7 @@ class ModelCardTest(absltest.TestCase):
         )
     )
 
-  def test_copy_from_proto_with_invalid_proto(self):
-    owner = model_card.Owner()
+  def test_from_proto_with_invalid_proto(self):
     wrong_proto = model_card_pb2.Version()
     with self.assertRaisesRegex(
         TypeError,
@@ -113,7 +115,7 @@ class ModelCardTest(absltest.TestCase):
         "However <class 'model_card_toolkit.proto.model_card_pb2.Version'> is "
         "provided."
     ):
-      owner.copy_from_proto(wrong_proto)
+      model_card.Owner.from_proto(wrong_proto)
 
   def test_merge_from_proto_with_invalid_proto(self):
     owner = model_card.Owner()
@@ -152,33 +154,15 @@ class ModelCardTest(absltest.TestCase):
     owner = model_card.Owner()
     owner.wrong_field = "wrong"
     with self.assertRaisesRegex(
-        ValueError, "has no such field named 'wrong_field'."
+        ValueError, "has no such field named \"wrong_field\"."
     ):
       owner.to_proto()
 
   def test_from_json_and_to_json_with_all_fields(self):
     want_json = json.loads(_FULL_JSON)
-    model_card_py = model_card.ModelCard()
-    model_card_py.from_json(want_json)
+    model_card_py = model_card.ModelCard.from_json(want_json)
     got_json = json.loads(model_card_py.to_json())
     self.assertEqual(want_json, got_json)
-
-  def test_from_json_overwrites_previous_fields(self):
-    overwritten_limitation = model_card.Limitation(
-        description="This model can only be used on text up to 140 characters."
-    )
-    overwritten_user = model_card.User(description="language researchers")
-    model_card_py = model_card.ModelCard(
-        considerations=model_card.Considerations(
-            limitations=[overwritten_limitation], users=[overwritten_user]
-        )
-    )
-    model_card_json = json.loads(_FULL_JSON)
-    model_card_py.from_json(model_card_json)
-    self.assertNotIn(
-        overwritten_limitation, model_card_py.considerations.limitations
-    )
-    self.assertNotIn(overwritten_user, model_card_py.considerations.users)
 
   def test_merge_from_json_does_not_overwrite_all_fields(self):
     # We want the "Limitations" field to be overwritten, but not "Users".
@@ -222,7 +206,7 @@ class ModelCardTest(absltest.TestCase):
   def test_from_invalid_json(self):
     invalid_json_dict = {"model_name": "the_greatest_model"}
     with self.assertRaises(jsonschema.ValidationError):
-      model_card.ModelCard().from_json(invalid_json_dict)
+      model_card.ModelCard.from_json(invalid_json_dict)
 
   def test_from_invalid_json_vesion(self):
     model_card_dict = {
@@ -238,7 +222,7 @@ class ModelCardTest(absltest.TestCase):
             "model card."
         )
     ):
-      model_card.ModelCard().from_json(model_card_dict)
+      model_card.ModelCard.from_json(model_card_dict)
 
   def test_from_proto_to_json(self):
     model_card_proto = text_format.Parse(
@@ -251,10 +235,10 @@ class ModelCardTest(absltest.TestCase):
         _FULL_JSON,
         model_card_py.merge_from_proto(model_card_proto).to_json()
     )
-    # Use copy_from_proto
+    # Use from_proto
     self.assertJsonEqual(
         _FULL_JSON,
-        model_card_py.copy_from_proto(model_card_proto).to_json()
+        model_card.ModelCard.from_proto(model_card_proto).to_json()
     )
 
   def test_from_json_to_proto(self):
@@ -263,8 +247,7 @@ class ModelCardTest(absltest.TestCase):
     )
 
     model_card_json = json.loads(_FULL_JSON)
-    model_card_py = model_card.ModelCard()
-    model_card_py.from_json(model_card_json)
+    model_card_py = model_card.ModelCard.from_json(model_card_json)
     model_card_json2proto = model_card_py.to_proto()
 
     self.assertEqual(model_card_proto, model_card_json2proto)

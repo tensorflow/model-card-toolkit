@@ -489,10 +489,31 @@ class ModelCard(BaseModelCardField):
                     ] = json_utils.get_latest_schema_version()
     return json_lib.dumps(model_card_dict, indent=2)
 
-  def from_json(self, json_dict: Dict[str, Any]) -> None:
+  def merge_from_json(self, json: Union[Dict[str, Any], str]) -> 'ModelCard':
     """Reads ModelCard from JSON.
 
-    This function will overwrite all existing ModelCard fields.
+    This function will only overwrite ModelCard fields specified in the JSON.
+
+    Args:
+      json: A JSON object from which to populate fields in the model card. This
+        can be provided as either a dictionary or a string.
+
+    Raises:
+      JSONDecodeError: If `json_dict` is not a valid JSON string.
+      ValidationError: If `json_dict` does not follow the model card JSON
+        schema.
+      ValueError: If `json_dict` contains a value not in the class or schema
+        definition.
+    """
+    if isinstance(json, str):
+      json = json_lib.loads(json)
+    json_utils.validate_json_schema(json)
+    self._from_json(json, self)
+    return self
+
+  @classmethod
+  def from_json(cls, json_dict: Dict[str, Any]) -> 'ModelCard':
+    """Constructs a ModelCard from JSON.
 
     Args:
       json_dict: A JSON dict from which to populate fields in the model card
@@ -507,26 +528,6 @@ class ModelCard(BaseModelCardField):
     """
 
     json_utils.validate_json_schema(json_dict)
-    self.clear()
-    self._from_json(json_dict, self)
-
-  def merge_from_json(self, json: Union[Dict[str, Any], str]) -> None:
-    """Reads ModelCard from JSON.
-
-    This function will only overwrite ModelCard fields specified in the JSON.
-
-    Args:
-      json: A JSON object from whichto populate fields in the model card. This
-        can be provided as either a dictionary or a string.
-
-    Raises:
-      JSONDecodeError: If `json_dict` is not a valid JSON string.
-      ValidationError: If `json_dict` does not follow the model card JSON
-        schema.
-      ValueError: If `json_dict` contains a value not in the class or schema
-        definition.
-    """
-    if isinstance(json, str):
-      json = json_lib.loads(json)
-    json_utils.validate_json_schema(json)
-    self._from_json(json, self)
+    model_card = cls()
+    model_card._from_json(json_dict, model_card)
+    return model_card
