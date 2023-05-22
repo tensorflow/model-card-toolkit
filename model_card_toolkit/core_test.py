@@ -20,6 +20,7 @@ from absl.testing import absltest
 
 from model_card_toolkit import core
 from model_card_toolkit.proto import model_card_pb2
+from model_card_toolkit.utils import io_utils
 
 
 class CoreTest(absltest.TestCase):
@@ -61,9 +62,9 @@ class CoreTest(absltest.TestCase):
     mct.update_model_card(valid_model_card)
     proto_path = os.path.join(self.mct_dir, 'data/model_card.proto')
 
-    model_card_proto = model_card_pb2.ModelCard()
-    with open(proto_path, 'rb') as f:
-      model_card_proto.ParseFromString(f.read())
+    model_card_proto = io_utils.parse_proto_file(
+        proto_path, model_card_pb2.ModelCard()
+    )
     self.assertEqual(model_card_proto, valid_model_card.to_proto())
 
   def test_update_model_card_with_valid_model_card_as_proto(self):
@@ -74,9 +75,9 @@ class CoreTest(absltest.TestCase):
     mct.update_model_card(valid_model_card)
     proto_path = os.path.join(self.mct_dir, 'data/model_card.proto')
 
-    model_card_proto = model_card_pb2.ModelCard()
-    with open(proto_path, 'rb') as f:
-      model_card_proto.ParseFromString(f.read())
+    model_card_proto = io_utils.parse_proto_file(
+        proto_path, model_card_pb2.ModelCard()
+    )
     self.assertEqual(model_card_proto, valid_model_card)
 
   def test_export_format(self):
@@ -88,17 +89,17 @@ class CoreTest(absltest.TestCase):
 
     proto_path = os.path.join(self.mct_dir, 'data/model_card.proto')
     self.assertTrue(os.path.exists(proto_path))
-    with open(proto_path, 'rb') as f:
-      model_card_proto = model_card_pb2.ModelCard()
-      model_card_proto.ParseFromString(f.read())
-      self.assertEqual(model_card_proto.model_details.name, 'My Model')
+    model_card_proto = io_utils.parse_proto_file(
+        proto_path, model_card_pb2.ModelCard()
+    )
+    self.assertEqual(model_card_proto.model_details.name, 'My Model')
+
     model_card_path = os.path.join(self.mct_dir, 'model_cards/model_card.html')
     self.assertTrue(os.path.exists(model_card_path))
-    with open(model_card_path) as f:
-      content = f.read()
-      self.assertEqual(content, result)
-      self.assertTrue(content.startswith('<!DOCTYPE html>'))
-      self.assertIn('My Model', content)
+    content = io_utils.read_file(model_card_path)
+    self.assertEqual(content, result)
+    self.assertTrue(content.startswith('<!DOCTYPE html>'))
+    self.assertIn('My Model', content)
 
   def test_export_format_with_customized_template_and_output_name(self):
     mct = core.ModelCardToolkit(output_dir=self.mct_dir)
@@ -116,11 +117,10 @@ class CoreTest(absltest.TestCase):
 
     model_card_path = os.path.join(self.mct_dir, 'model_cards', output_file)
     self.assertTrue(os.path.exists(model_card_path))
-    with open(model_card_path) as f:
-      content = f.read()
-      self.assertEqual(content, result)
-      self.assertTrue(content.startswith('<!DOCTYPE html>'))
-      self.assertIn('My Model', content)
+    content = io_utils.read_file(model_card_path)
+    self.assertEqual(content, result)
+    self.assertTrue(content.startswith('<!DOCTYPE html>'))
+    self.assertIn('My Model', content)
 
   def test_export_format_before_scaffold_assets(self):
     with self.assertRaises(ValueError):

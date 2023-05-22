@@ -26,8 +26,9 @@ from typing import Any, Dict, Optional, Union
 import jinja2
 
 from model_card_toolkit import dependencies
-from model_card_toolkit.model_card import ModelCard
+from model_card_toolkit.model_card import ModelCard, load_model_card
 from model_card_toolkit.proto import model_card_pb2
+from model_card_toolkit.utils import io_utils
 
 # Imports that require optional dependencies.
 try:
@@ -168,32 +169,6 @@ class ModelCardToolkit():
 
   def _jinja_loader(self, template_dir: str) -> jinja2.FileSystemLoader:
     return jinja2.FileSystemLoader(template_dir)
-
-  def _write_file(self, path: str, content: str) -> None:
-    """Write content to the path."""
-    os.makedirs(os.path.dirname(path), exist_ok=True)
-    with open(path, 'w+') as f:
-      f.write(content)
-
-  def _write_proto_file(
-      self, path: str, model_card: Union[ModelCard, model_card_pb2.ModelCard]
-  ) -> None:
-    """Write serialized model card proto to the path."""
-    os.makedirs(os.path.dirname(path), exist_ok=True)
-    with open(path, 'wb') as f:
-      if isinstance(model_card, ModelCard):
-        f.write(model_card.to_proto().SerializeToString())
-      else:
-        f.write(model_card.SerializeToString())
-
-  def _read_proto_file(self, path: str) -> Optional[ModelCard]:
-    """Read serialized model card proto from the path."""
-    if not os.path.exists(path):
-      return None
-    model_card_proto = model_card_pb2.ModelCard()
-    with open(path, 'rb') as f:
-      model_card_proto.ParseFromString(f.read())
-    return ModelCard.from_proto(model_card_proto)
 
   def _annotate_eval_results(self, model_card: ModelCard) -> ModelCard:
     """Annotates a model card with info from TFMA evaluation results.
@@ -361,7 +336,7 @@ class ModelCardToolkit():
       model_card.merge_from_json(json)
 
     # Write Proto file.
-    self._write_proto_file(self._mcta_proto_file, model_card)
+    io_utils.write_proto_file(self._mcta_proto_file, model_card.to_proto())
 
     # Write UI template files.
     for template_path in _UI_TEMPLATES:
@@ -369,7 +344,7 @@ class ModelCardToolkit():
       if template_content is None:
         raise FileNotFoundError(f"Cannot find file: '{template_path}'")
       template_content = template_content.decode('utf8')
-      self._write_file(
+      io_utils.write_file(
           os.path.join(self.output_dir, template_path), template_content
       )
 
@@ -386,7 +361,9 @@ class ModelCardToolkit():
     Raises:
        Error: when the given model_card is invalid w.r.t. the schema.
     """
-    self._write_proto_file(self._mcta_proto_file, model_card)
+    if isinstance(model_card, ModelCard):
+      model_card = model_card.to_proto()
+    io_utils.write_proto_file(self._mcta_proto_file, model_card)
 
   def export_format(
       self, model_card: Optional[Union[ModelCard,
@@ -427,12 +404,13 @@ class ModelCardToolkit():
       self.update_model_card(model_card)
     # If model_card is not passed in, read from Proto file.
     else:
-      model_card = self._read_proto_file(self._mcta_proto_file)
-      if model_card is None:
+      try:
+        model_card = load_model_card(self._mcta_proto_file)
+      except FileNotFoundError as e:
         raise ValueError(
-            'model_card could not be found. '
-            'Call scaffold_assets() to generate model_card.'
-        )
+            'ModelCard proto file could not be found. '
+            'Call scaffold_assets() to generate a Model Card.'
+        ) from e
 
     # Generate Model Card.
     jinja_env = jinja2.Environment(
@@ -449,5 +427,5 @@ class ModelCardToolkit():
 
     # Write the model card document file and return its contents.
     model_card_file_path = os.path.join(self._model_cards_dir, output_file)
-    self._write_file(model_card_file_path, model_card_file_content)
+    io_utils.write_file(model_card_file_path, model_card_file_content)
     return model_card_file_content

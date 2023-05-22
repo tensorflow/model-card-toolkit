@@ -27,6 +27,7 @@ from tensorflow_model_analysis.eval_saved_model.example_trainers import (
 )
 from tfx_bsl.tfxio import raw_tf_record
 
+from model_card_toolkit.utils import io_utils
 from model_card_toolkit.utils.tf_utils import (
     _TFX_METRICS_TYPE, _TFX_STATS_TYPE
 )
@@ -179,9 +180,7 @@ class TfxTest(tfma.eval_saved_model.testutil.TensorflowModelAnalysisTest):
           datasets=[stats]
       )
       stats_file = os.path.join(tfdv_path, split_name, 'FeatureStats.pb')
-      os.makedirs(os.path.dirname(stats_file), exist_ok=True)
-      with open(stats_file, mode='wb') as f:
-        f.write(stats_list.SerializeToString())
+      io_utils.write_proto_file(stats_file, stats_list)
 
     _write(train_dataset_name, train_features, 'Split-train')
     _write(eval_dataset_name, eval_features, 'Split-eval')
