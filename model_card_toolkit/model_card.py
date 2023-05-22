@@ -22,11 +22,24 @@ ModelCardsToolkit serves as an API to read and write MC properties by the users.
 
 import dataclasses
 import json as json_lib
+import os
+from pathlib import Path
 from typing import Any, Dict, List, Optional, Union
 
 from model_card_toolkit.base_model_card_field import BaseModelCardField
 from model_card_toolkit.proto import model_card_pb2
-from model_card_toolkit.utils import json_utils
+from model_card_toolkit.utils import io_utils, json_utils
+
+_SUPPORTED_SAVE_FORMATS = ('.json', '.proto')
+
+
+def _ensure_is_supported_save_format(suffix: str):
+  """Raises ValueError if a file suffix is not a supported save format."""
+  if suffix not in _SUPPORTED_SAVE_FORMATS:
+    raise ValueError(
+        f'Unsupported file format {repr(suffix)}. Supported formats: '
+        f'{", ".join(repr(fmt) for fmt in _SUPPORTED_SAVE_FORMATS)}'
+    )
 
 
 @dataclasses.dataclass
@@ -531,3 +544,53 @@ class ModelCard(BaseModelCardField):
     model_card = cls()
     model_card._from_json(json_dict, model_card)
     return model_card
+
+  def save(self, path: Union[Path, str], overwrite: Optional[bool] = False):
+    """Saves the model card to a file.
+
+    Args:
+      path: The path where to save the model card. Supported formats are '.json'
+        and '.proto'.
+      overwrite: Whether to overwrite the file if it already exists.
+        Defaults to False.
+
+    Raises:
+      ValueError: If the file suffix is not a supported save format or if the
+        file already exists and `overwrite` is False.
+    """
+    suffix = io_utils.suffix(path)
+    _ensure_is_supported_save_format(suffix)
+
+    if not overwrite and os.path.exists(path):
+      raise ValueError(
+          f'File {path} already exists. Set `overwrite=True` to overwrite.'
+      )
+
+    if suffix == '.proto':
+      io_utils.write_proto_file(path, self.to_proto())
+    elif suffix == '.json':
+      io_utils.write_file(path, self.to_json())
+
+
+def load_model_card(path: Union[Path, str]) -> Optional[ModelCard]:
+  """Loads a serialized model card from a file.
+
+  Args:
+    path: The path to the model card file. Supported formats are '.json' and
+      '.proto'.
+
+  Raises:
+    ValueError: If the file suffix is not a supported save format.
+    FileNotFoundError: If the file does not exist.
+  """
+  suffix = io_utils.suffix(path)
+  _ensure_is_supported_save_format(suffix)
+
+  if suffix == '.proto':
+    model_card_proto = io_utils.parse_proto_file(
+        path, model_card_pb2.ModelCard()
+    )
+    return ModelCard.from_proto(model_card_proto)
+  elif suffix == '.json':
+    model_card_json = json_lib.loads(io_utils.read_file(path))
+    return ModelCard.from_json(model_card_json)

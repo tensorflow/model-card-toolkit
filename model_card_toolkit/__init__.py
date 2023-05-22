@@ -17,13 +17,12 @@ from model_card_toolkit.model_card import (
     Citation, ConfidenceInterval, Considerations, Dataset, Graphic,
     GraphicsCollection, KeyVal, License, Limitation, ModelCard, ModelDetails,
     ModelParameters, Owner, PerformanceMetric, QuantitativeAnalysis, Reference,
-    Risk, SensitiveData, Tradeoff, UseCase, User, Version
+    Risk, SensitiveData, Tradeoff, UseCase, User, Version, load_model_card
 )
 from model_card_toolkit.tfx.component import ModelCardGenerator
 from model_card_toolkit.version import __version__
 
 __all__ = [
-    '__version__',
     'Citation',
     'ConfidenceInterval',
     'Considerations',
@@ -48,4 +47,5 @@ __all__ = [
     'UseCase',
     'User',
     'Version',
+    'load_model_card',
 ]

@@ -55,6 +55,31 @@ object.
 The `model_card_toolkit.utils.graphics.figure_to_base64str()` function can be
 used to convert graphics, such as Matplotlib figures, to base64 strings.
 
+#### Saving and Loading Model Cards
+
+If you've finished annotating your model card and would like to serialize it in JSON
+or protobuf format, use the method `ModelCard.save()`.
+
+```python
+
+import model_card_toolkit as mct
+
+model_card = mct.ModelCard()
+model_card.model_details.name = 'Fine-tuned MobileNetV2 Model for Cats vs. Dogs'
+model_card.save('model_cards/cats_vs_dogs.json')
+```
+
+If you'd like to restore and update a saved model card, use the function
+`model_card_toolkit.model_card.load_model_card()`.
+
+```python
+
+import model_card_toolkit as mct
+
+model_card = mct.load_model_card('model_cards/cats_vs_dogs.json')
+model_card.model_details.licenses.append(mct.License(identifier='Apache-2.0'))
+```
+
 ### Model Card Documents
 
 By default, the generated model card document is a HTML file based on
