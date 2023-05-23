@@ -94,12 +94,12 @@ class TfCoreTest(parameterized.TestCase, TfxTest):
     num_eval_artifacts = 1
     output_dir = self.mct_dir
     store = tf_testdata_utils.get_tfx_pipeline_metadata_store(self.tmp_db_path)
-    mct = core.ModelCardToolkit(
+    toolkit = core.ModelCardToolkit(
         output_dir=output_dir, mlmd_source=tf_sources.MlmdSource(
             store=store, model_uri=tf_testdata_utils.TFX_0_21_MODEL_URI
         )
     )
-    mc = mct.scaffold_assets()
+    mc = toolkit.scaffold_assets()
     self.assertIsNotNone(mc.model_details.name)
     self.assertIsNotNone(mc.model_details.version.name)
     self.assertIn(
