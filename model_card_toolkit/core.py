@@ -394,8 +394,6 @@ class ModelCardToolkit():
     """
     if not template_path:
       template_path = self.default_template
-    template_dir = os.path.dirname(template_path)
-    template_file = os.path.basename(template_path)
     if not output_file:
       output_file = _DEFAULT_MODEL_CARD_FILE_NAME
 
@@ -412,20 +410,10 @@ class ModelCardToolkit():
             'Call scaffold_assets() to generate a Model Card.'
         ) from e
 
-    # Generate Model Card.
-    jinja_env = jinja2.Environment(
-        loader=self._jinja_loader(template_dir), autoescape=True,
-        auto_reload=True, cache_size=0
-    )
-    template = jinja_env.get_template(template_file)
-    model_card_file_content = template.render(
-        model_details=model_card.model_details,
-        model_parameters=model_card.model_parameters,
-        quantitative_analysis=model_card.quantitative_analysis,
-        considerations=model_card.considerations
+    # Generate model card document.
+    model_card_file_content = model_card.render(
+      template_path=template_path,
+      output_path=os.path.join(self._model_cards_dir, output_file),
     )
 
-    # Write the model card document file and return its contents.
-    model_card_file_path = os.path.join(self._model_cards_dir, output_file)
-    io_utils.write_file(model_card_file_path, model_card_file_content)
     return model_card_file_content
