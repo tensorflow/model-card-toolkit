@@ -28,7 +28,7 @@ from typing import Any, Dict, List, Optional, Union
 
 from model_card_toolkit.base_model_card_field import BaseModelCardField
 from model_card_toolkit.proto import model_card_pb2
-from model_card_toolkit.utils import io_utils, json_utils
+from model_card_toolkit.utils import io_utils, json_utils, template_utils
 
 _SUPPORTED_SAVE_FORMATS = ('.json', '.proto')
 
@@ -544,6 +544,40 @@ class ModelCard(BaseModelCardField):
     model_card = cls()
     model_card._from_json(json_dict, model_card)
     return model_card
+
+  def render(
+      self,
+      template_path: Optional[Union[Path, str]] = None,
+      output_path: Optional[Union[Path, str]] = None,
+      template_variables: Optional[Dict[str, Any]] = None,
+  ) -> str:
+    """Renders the model card using a Jinja template.
+
+    Args:
+      template_path: The path to a Jinja template file. If not provided, the
+        default HTML template will be used.
+      output_path: The path to write the rendered template to. If not provided,
+        the rendered template will not be written to a file. If the file already
+        exists, it will be overwritten.
+      template_variables: A dictionary of variables to pass to the template in
+        addition to model card fields.
+
+    Returns:
+      The rendered model card as a string.
+    """
+    template_path = template_path or template_utils.default_html_template()
+    template_variables = template_variables or {}
+    return template_utils.render(
+        template_path=template_path,
+        output_path=output_path,
+        template_variables={
+            'model_details': self.model_details,
+            'model_parameters': self.model_parameters,
+            'quantitative_analysis': self.quantitative_analysis,
+            'considerations': self.considerations,
+            **template_variables,
+        },
+    )
 
   def save(self, path: Union[Path, str], overwrite: Optional[bool] = False):
     """Saves the model card to a file.

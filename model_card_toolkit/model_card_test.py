@@ -252,6 +252,13 @@ class ModelCardTest(absltest.TestCase):
 
     self.assertEqual(model_card_proto, model_card_json2proto)
 
+  def test_render(self):
+    model_card_py = model_card.ModelCard()
+    model_card_py.model_details.overview = 'This is an example model.'
+    content = model_card_py.render()
+    self.assertTrue(content.startswith('<!DOCTYPE html>'))
+    self.assertIn('This is an example model.', content)
+
   def test_save_and_load_model_card(self):
     temp_dir = self.create_tempdir()
     model_card_py = model_card.ModelCard(
