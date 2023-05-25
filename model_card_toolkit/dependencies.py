@@ -19,6 +19,7 @@ from typing import Dict, List
 
 _VERSIONS = {
     'absl': 'absl-py>=0.9,<1.1',
+    'importlib_resources': 'importlib-resources>=1.3.0; python_version<"3.9"',
     'isort': 'isort',
     'jinja2': 'jinja2>=3.1,<3.2',
     'jsonschema': 'jsonschema>=3.2.0,<4',
@@ -36,6 +37,7 @@ _VERSIONS = {
 }
 
 _REQUIRED_DEPS = [
+    'importlib_resources',  # reading resource files, e.g. model card templates
     'jinja2',  # rendering model card templates
     'jsonschema',  # validating JSON schema
     'matplotlib',  # plotting
