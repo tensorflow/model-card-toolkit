@@ -361,9 +361,11 @@ class ModelCardToolkit():
     io_utils.write_proto_file(self._mcta_proto_file, model_card)
 
   def export_format(
-      self, model_card: Optional[Union[ModelCard,
-                                       model_card_pb2.ModelCard]] = None,
-      template_path: Optional[str] = None, output_file: Optional[str] = None
+      self,
+      model_card: Optional[Union[ModelCard, model_card_pb2.ModelCard]] = None,
+      template_path: Optional[str] = None,
+      output_file: Optional[str] = None,
+      template_variables: Optional[Dict[str, Any]] = None,
   ) -> str:
     """Generates a model card document based on the MCT assets.
 
@@ -379,6 +381,8 @@ class ModelCardToolkit():
       output_file: The file name of the generated model card. If not provided,
         the default 'model_card.html' will be used. If the file already exists,
         then it will be overwritten.
+      template_variables: A dictionary of variables to pass to the template in
+        addition to model card fields.
 
     Returns:
       The model card file content.
@@ -409,6 +413,7 @@ class ModelCardToolkit():
     model_card_file_content = model_card.render(
         template_path=template_path,
         output_path=os.path.join(self._model_cards_dir, output_file),
+        template_variables=template_variables,
     )
 
     return model_card_file_content
