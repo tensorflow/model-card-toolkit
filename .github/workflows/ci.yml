@@ -40,13 +40,13 @@ jobs:
             tests: model_card_toolkit --fail-if-skipped
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: Set up Python 3.7
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v4
       with:
         python-version: 3.7
     - name: Cache python environment
-      uses: actions/cache@v2
+      uses: actions/cache@v3
       with:
         # Cache pip
         path: ~/.cache/pip
