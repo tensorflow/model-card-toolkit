@@ -1,0 +1,51 @@
+name: 🐛 Bug Report
+description: Report a bug to help us improve
+body:
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: Please describe what went wrong.
+    validations:
+      required: true
+  - type: textarea
+    id: expected-behavior
+    attributes:
+      label: What is the expected behavior?
+      description: Please describe what you expected to happen.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction-steps
+    attributes:
+      label: How can we reproduce the problem?
+      description: Please provide steps to reproduce the problem. If possible, please include a minimal test case as a code snippet or Jupyter notebook.
+    validations:
+      required: false
+  - type: input
+    id: library-version
+    attributes:
+      label: Model Card Toolkit Version
+      description: Which version of model-card-toolkit are you using?
+    validations:
+      required: false
+  - type: input
+    id: python-version
+    attributes:
+      label: Python Version
+      description: Which version of Python are you using?
+    validations:
+      required: false
+  - type: input
+    id: platforms
+    attributes:
+      label: Platforms
+      description: Which platforms are you seeing the problem on?
+    validations:
+      required: false
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant log output
+      description: Please copy and paste any relevant log output. This will be automatically formatted into code, so no need for backticks.
+      render: shell
