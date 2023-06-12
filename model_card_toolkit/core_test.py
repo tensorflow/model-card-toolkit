@@ -33,9 +33,9 @@ class CoreTest(absltest.TestCase):
 
   def test_scaffold_assets(self):
     output_dir = self.mct_dir
-    mct = core.ModelCardToolkit(output_dir=output_dir)
-    self.assertEqual(mct.output_dir, output_dir)
-    mct.scaffold_assets()
+    toolkit = core.ModelCardToolkit(output_dir=output_dir)
+    self.assertEqual(toolkit.output_dir, output_dir)
+    toolkit.scaffold_assets()
     self.assertIn(
         'default_template.html.jinja',
         os.listdir(os.path.join(output_dir, 'template/html'))
@@ -49,17 +49,17 @@ class CoreTest(absltest.TestCase):
     )
 
   def test_scaffold_assets_with_json(self):
-    mct = core.ModelCardToolkit(output_dir=self.mct_dir)
-    mc = mct.scaffold_assets({'model_details': {
+    toolkit = core.ModelCardToolkit(output_dir=self.mct_dir)
+    mc = toolkit.scaffold_assets({'model_details': {
         'name': 'json_test',
     }})
     self.assertEqual(mc.model_details.name, 'json_test')
 
   def test_update_model_card_with_valid_model_card(self):
-    mct = core.ModelCardToolkit(output_dir=self.mct_dir)
-    valid_model_card = mct.scaffold_assets()
+    toolkit = core.ModelCardToolkit(output_dir=self.mct_dir)
+    valid_model_card = toolkit.scaffold_assets()
     valid_model_card.model_details.name = 'My Model'
-    mct.update_model_card(valid_model_card)
+    toolkit.update_model_card(valid_model_card)
     proto_path = os.path.join(self.mct_dir, 'data/model_card.proto')
 
     model_card_proto = io_utils.parse_proto_file(
@@ -71,8 +71,8 @@ class CoreTest(absltest.TestCase):
     valid_model_card = model_card_pb2.ModelCard()
     valid_model_card.model_details.name = 'My Model'
 
-    mct = core.ModelCardToolkit(output_dir=self.mct_dir)
-    mct.update_model_card(valid_model_card)
+    toolkit = core.ModelCardToolkit(output_dir=self.mct_dir)
+    toolkit.update_model_card(valid_model_card)
     proto_path = os.path.join(self.mct_dir, 'data/model_card.proto')
 
     model_card_proto = io_utils.parse_proto_file(
@@ -81,11 +81,11 @@ class CoreTest(absltest.TestCase):
     self.assertEqual(model_card_proto, valid_model_card)
 
   def test_export_format(self):
-    mct = core.ModelCardToolkit(output_dir=self.mct_dir)
-    mc = mct.scaffold_assets()
+    toolkit = core.ModelCardToolkit(output_dir=self.mct_dir)
+    mc = toolkit.scaffold_assets()
     mc.model_details.name = 'My Model'
-    mct.update_model_card(mc)
-    result = mct.export_format()
+    toolkit.update_model_card(mc)
+    result = toolkit.export_format()
 
     proto_path = os.path.join(self.mct_dir, 'data/model_card.proto')
     self.assertTrue(os.path.exists(proto_path))
@@ -102,16 +102,16 @@ class CoreTest(absltest.TestCase):
     self.assertIn('My Model', content)
 
   def test_export_format_with_customized_template_and_output_name(self):
-    mct = core.ModelCardToolkit(output_dir=self.mct_dir)
-    mc = mct.scaffold_assets()
+    toolkit = core.ModelCardToolkit(output_dir=self.mct_dir)
+    mc = toolkit.scaffold_assets()
     mc.model_details.name = 'My Model'
-    mct.update_model_card(mc)
+    toolkit.update_model_card(mc)
 
     template_path = os.path.join(
         self.mct_dir, 'template/html/default_template.html.jinja'
     )
     output_file = 'my_model_card.html'
-    result = mct.export_format(
+    result = toolkit.export_format(
         template_path=template_path, output_file=output_file
     )
 

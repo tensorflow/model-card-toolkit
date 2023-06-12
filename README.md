@@ -44,21 +44,21 @@ for more installation options.
 
 ## Getting Started
 
-    import model_card_toolkit
+    import model_card_toolkit as mct
 
     # Initialize the Model Card Toolkit with a path to store generate assets
     model_card_output_path = ...
-    mct = model_card_toolkit.ModelCardToolkit(model_card_output_path)
+    toolkit = mct.ModelCardToolkit(model_card_output_path)
 
-    # Initialize the model_card_toolkit.ModelCard, which can be freely populated
-    model_card = mct.scaffold_assets()
+    # Initialize the ModelCard, which can be freely populated
+    model_card = toolkit.scaffold_assets()
     model_card.model_details.name = 'My Model'
 
     # Write the model card data to a proto file
-    mct.update_model_card(model_card)
+    toolkit.update_model_card(model_card)
 
     # Return the model card document as an HTML page
-    html = mct.export_format()
+    html = toolkit.export_format()
 
 ## Model Card Generation on TFX
 
