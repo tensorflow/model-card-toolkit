@@ -20,7 +20,7 @@ jobs:
     container:
       image: gcr.io/tfx-oss-public/tfx_base:py37-20200729
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
 
     - name: Build wheel
       run: |
@@ -30,7 +30,7 @@ jobs:
         MCT_WHEEL=$(find dist -name 'model_card_toolkit-*.whl'); \
 
     - name: Publish Model Card Toolkit distribution package to Test PyPI
-      uses: pypa/gh-action-pypi-publish@v1.5.0
+      uses: pypa/gh-action-pypi-publish@v1.8.6
       with:
         password: ${{ secrets.TEST_PYPI_API_TOKEN }}
         repository_url: https://test.pypi.org/legacy/
@@ -38,12 +38,12 @@ jobs:
 
     - name: Publish Model Card Toolkit distribution package to PyPI
       if: github.event_name == 'release'
-      uses: pypa/gh-action-pypi-publish@v1.5.0
+      uses: pypa/gh-action-pypi-publish@v1.8.6
       with:
         password: ${{ secrets.PYPI_API_TOKEN }}
 
     - name: Upload files to a GitHub release
-      uses: svenstaro/upload-release-action@2.2.1
+      uses: svenstaro/upload-release-action@2.6.1
       if: github.event_name == 'release'
       with:
         repo_token: ${{ secrets.GITHUB_TOKEN }}
