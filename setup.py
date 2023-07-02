@@ -31,7 +31,7 @@ REQUIRED_PACKAGES = [
     'matplotlib>=3.2.0,<4',
     'jsonschema>=3.2.0,<4',
     'tensorflow-data-validation>=1.5.0,<2.0.0',
-    'tensorflow-model-analysis>=0.36.0,<0.42.0',
+    'tensorflow-model-analysis>=0.36.0,<0.45.0',
     'tensorflow-metadata>=1.5.0,<2.0.0',
     'ml-metadata>=1.5.0,<2.0.0',
 ]
