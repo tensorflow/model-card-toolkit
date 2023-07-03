@@ -17,33 +17,35 @@ import os
 
 from absl.testing import absltest
 
-from model_card_toolkit.utils.testdata import testdata_utils
+from model_card_toolkit.utils.testdata import tf_testdata_utils
 
 
-class TestDataUtilsTest(absltest.TestCase):
+class TfTestDataUtilsTest(absltest.TestCase):
   def setUp(self):
     super().setUp()
     tmp_db_path = os.path.join(absltest.get_default_test_tmpdir(), 'test.db')
-    self.store = testdata_utils.get_tfx_pipeline_metadata_store(tmp_db_path)
+    self.store = tf_testdata_utils.get_tfx_pipeline_metadata_store(tmp_db_path)
     self.assertIsNotNone(self.store)
 
   def test_get_tfx_pipeline_metadata_store_model_uri_exists(self):
     self.assertNotEmpty(
-        self.store.get_artifacts_by_uri(testdata_utils.TFX_0_21_MODEL_URI)
+        self.store.get_artifacts_by_uri(tf_testdata_utils.TFX_0_21_MODEL_URI)
     )
 
   def test_get_tfx_pipeline_metadata_store_stats_artifact_exists(self):
     stats = self.store.get_artifacts_by_id(
-        [testdata_utils.TFX_0_21_STATS_ARTIFACT_ID]
+        [tf_testdata_utils.TFX_0_21_STATS_ARTIFACT_ID]
     )
     self.assertLen(stats, 1)
     self.assertTrue(os.path.exists(stats[-1].uri))
 
   def test_get_tfx_pipeline_metadata_store_metrics_artifact_exists(self):
     metrics = self.store.get_artifacts_by_id(
-        testdata_utils.TFX_0_21_METRICS_ARTIFACT_IDS
+        tf_testdata_utils.TFX_0_21_METRICS_ARTIFACT_IDS
     )
-    self.assertLen(metrics, len(testdata_utils.TFX_0_21_METRICS_ARTIFACT_IDS))
+    self.assertLen(
+        metrics, len(tf_testdata_utils.TFX_0_21_METRICS_ARTIFACT_IDS)
+    )
     for artifact in metrics:
       self.assertTrue(os.path.exists(artifact.uri))
 

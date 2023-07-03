@@ -17,20 +17,26 @@ The Model Card Toolkit (MCT) provides a set of utilities to generate Model Cards
 from trained models, evaluations, and datasets in ML pipelines.
 """
 
+import logging
 import os
 import pkgutil
 import tempfile
 from typing import Any, Dict, Optional, Union
 
-import jinja2
-import tensorflow_model_analysis as tfma
-from absl import logging
-
-from model_card_toolkit.model_card import ModelCard
+from model_card_toolkit import dependencies
+from model_card_toolkit.model_card import ModelCard, load_model_card
 from model_card_toolkit.proto import model_card_pb2
-from model_card_toolkit.utils import graphics
-from model_card_toolkit.utils import source as src
-from model_card_toolkit.utils import tfx_util
+from model_card_toolkit.utils import io_utils
+
+# Imports that require optional dependencies.
+try:
+  import tensorflow_model_analysis as tfma  # pylint: disable=ungrouped-imports
+
+  from model_card_toolkit.utils import tf_graphics, tf_utils
+  from model_card_toolkit.utils.tf_sources import MlmdSource, Source
+except ImportError:
+  MlmdSource = None
+  Source = None
 
 # Constants about provided UI templates.
 _UI_TEMPLATES = (
@@ -70,28 +76,28 @@ class ModelCardToolkit():
   Standard workflow:
 
   ```python
-  import model_card_toolkit
+  import model_card_toolkit as mct
 
   # Initialize the Model Card Toolkit with a path to store generate assets
   model_card_dir_path = ...
-  mct = model_card_toolkit.ModelCardToolkit(model_card_dir_path)
+  toolkit = mct.ModelCardToolkit(model_card_dir_path)
 
   # Initialize the ModelCard, which can be freely populated
-  model_card = mct.scaffold_assets()
+  model_card = toolkit.scaffold_assets()
   model_card.model_details.name = 'My Model'
 
   # Write the model card data to a proto file
-  mct.update_model_card(model_card)
+  toolkit.update_model_card(model_card)
 
   # Return the model card document as an HTML page
-  html = mct.export_format()
+  html = toolkit.export_format()
   ```
   """
   def __init__(
       self,
       output_dir: Optional[str] = None,
-      mlmd_source: Optional[src.MlmdSource] = None,
-      source: Optional[src.Source] = None,
+      mlmd_source: Optional[MlmdSource] = None,
+      source: Optional[Source] = None,
   ):
     """Initializes the ModelCardToolkit.
 
@@ -112,7 +118,12 @@ class ModelCardToolkit():
 
     Raises:
       ValueError: If a model cannot be found at mlmd_source.model_uri.
+      ImportError: If a `source` or `mlmd_source` is provided but necessary
+      extra dependencies are not installed.
     """
+
+    if source or mlmd_source:
+      dependencies.ensure_tensorflow_extra_deps_installed()
 
     self.output_dir = output_dir or tempfile.mkdtemp()
     self._mcta_proto_file = os.path.join(self.output_dir, _MCTA_PROTO_FILE)
@@ -129,7 +140,7 @@ class ModelCardToolkit():
     if mlmd_source:
       self._process_mlmd_source(mlmd_source)
 
-  def _process_mlmd_source(self, mlmd_source: src.MlmdSource) -> None:
+  def _process_mlmd_source(self, mlmd_source: MlmdSource) -> None:
     """Process the MLMD source.
 
     This gets the MLMD store, and the artifact corresponding to model_uri.
@@ -153,35 +164,6 @@ class ModelCardToolkit():
           'The last one is used.', len(models), mlmd_source.model_uri
       )
     self._artifact_with_model_uri = models[-1]
-
-  def _jinja_loader(self, template_dir: str) -> jinja2.FileSystemLoader:
-    return jinja2.FileSystemLoader(template_dir)
-
-  def _write_file(self, path: str, content: str) -> None:
-    """Write content to the path."""
-    os.makedirs(os.path.dirname(path), exist_ok=True)
-    with open(path, 'w+') as f:
-      f.write(content)
-
-  def _write_proto_file(
-      self, path: str, model_card: Union[ModelCard, model_card_pb2.ModelCard]
-  ) -> None:
-    """Write serialized model card proto to the path."""
-    os.makedirs(os.path.dirname(path), exist_ok=True)
-    with open(path, 'wb') as f:
-      if isinstance(model_card, ModelCard):
-        f.write(model_card.to_proto().SerializeToString())
-      else:
-        f.write(model_card.SerializeToString())
-
-  def _read_proto_file(self, path: str) -> Optional[ModelCard]:
-    """Read serialized model card proto from the path."""
-    if not os.path.exists(path):
-      return None
-    model_card_proto = model_card_pb2.ModelCard()
-    with open(path, 'rb') as f:
-      model_card_proto.ParseFromString(f.read())
-    return ModelCard().copy_from_proto(model_card_proto)
 
   def _annotate_eval_results(self, model_card: ModelCard) -> ModelCard:
     """Annotates a model card with info from TFMA evaluation results.
@@ -213,23 +195,23 @@ class ModelCardToolkit():
               self._source.tfma.metrics_include
               or self._source.tfma.metrics_exclude
           ):
-            eval_result = tfx_util.filter_metrics(
+            eval_result = tf_utils.filter_metrics(
                 eval_result, self._source.tfma.metrics_include,
                 self._source.tfma.metrics_exclude
             )
-          tfx_util.annotate_eval_result_metrics(model_card, eval_result)
-          graphics.annotate_eval_result_plots(model_card, eval_result)
+          tf_utils.annotate_eval_result_metrics(model_card, eval_result)
+          tf_graphics.annotate_eval_result_plots(model_card, eval_result)
         else:
           logging.info('EvalResult not found at path %s', eval_result_path)
     if self._store:
-      metrics_artifacts = tfx_util.get_metrics_artifacts_for_model(
+      metrics_artifacts = tf_utils.get_metrics_artifacts_for_model(
           self._store, self._artifact_with_model_uri.id
       )
       for metrics_artifact in metrics_artifacts:
-        eval_result = tfx_util.read_metrics_eval_result(metrics_artifact.uri)
+        eval_result = tf_utils.read_metrics_eval_result(metrics_artifact.uri)
         if eval_result is not None:
-          tfx_util.annotate_eval_result_metrics(model_card, eval_result)
-          graphics.annotate_eval_result_plots(model_card, eval_result)
+          tf_utils.annotate_eval_result_metrics(model_card, eval_result)
+          tf_graphics.annotate_eval_result_plots(model_card, eval_result)
     return model_card
 
   def _annotate_dataset_statistics(self, model_card: ModelCard) -> ModelCard:
@@ -255,22 +237,22 @@ class ModelCardToolkit():
             self._source.tfdv.features_include
             or self._source.tfdv.features_exclude
         ):
-          data_stats = tfx_util.read_stats_protos_and_filter_features(
+          data_stats = tf_utils.read_stats_protos_and_filter_features(
               dataset_stats_path, self._source.tfdv.features_include,
               self._source.tfdv.features_exclude
           )
         else:
-          data_stats = tfx_util.read_stats_protos(dataset_stats_path)
-        graphics.annotate_dataset_feature_statistics_plots(
+          data_stats = tf_utils.read_stats_protos(dataset_stats_path)
+        tf_graphics.annotate_dataset_feature_statistics_plots(
             model_card, data_stats
         )
     if self._store:
-      stats_artifacts = tfx_util.get_stats_artifacts_for_model(
+      stats_artifacts = tf_utils.get_stats_artifacts_for_model(
           self._store, self._artifact_with_model_uri.id
       )
       for stats_artifact in stats_artifacts:
-        data_stats = tfx_util.read_stats_protos(stats_artifact.uri)
-        graphics.annotate_dataset_feature_statistics_plots(
+        data_stats = tf_utils.read_stats_protos(stats_artifact.uri)
+        tf_graphics.annotate_dataset_feature_statistics_plots(
             model_card, data_stats
         )
     return model_card
@@ -297,7 +279,7 @@ class ModelCardToolkit():
 
     If Source is provided, pre-populate ModelCard fields with data from Source.
     If MLMD store is provided, pre-populate ModelCard fields with data from
-    MLMD. See `model_card_toolkit.utils.tfx_util` and
+    MLMD. See `model_card_toolkit.utils.tf_utils` and
     `model_card_toolkit.utils.graphics` documentation for more details.
 
     Returns:
@@ -305,7 +287,7 @@ class ModelCardToolkit():
     """
     # Pre-populate ModelCard fields
     if self._store:
-      model_card = tfx_util.generate_model_card_for_model(
+      model_card = tf_utils.generate_model_card_for_model(
           self._store, self._artifact_with_model_uri.id
       )
     else:
@@ -349,7 +331,7 @@ class ModelCardToolkit():
       model_card.merge_from_json(json)
 
     # Write Proto file.
-    self._write_proto_file(self._mcta_proto_file, model_card)
+    io_utils.write_proto_file(self._mcta_proto_file, model_card.to_proto())
 
     # Write UI template files.
     for template_path in _UI_TEMPLATES:
@@ -357,7 +339,7 @@ class ModelCardToolkit():
       if template_content is None:
         raise FileNotFoundError(f"Cannot find file: '{template_path}'")
       template_content = template_content.decode('utf8')
-      self._write_file(
+      io_utils.write_file(
           os.path.join(self.output_dir, template_path), template_content
       )
 
@@ -374,12 +356,16 @@ class ModelCardToolkit():
     Raises:
        Error: when the given model_card is invalid w.r.t. the schema.
     """
-    self._write_proto_file(self._mcta_proto_file, model_card)
+    if isinstance(model_card, ModelCard):
+      model_card = model_card.to_proto()
+    io_utils.write_proto_file(self._mcta_proto_file, model_card)
 
   def export_format(
-      self, model_card: Optional[Union[ModelCard,
-                                       model_card_pb2.ModelCard]] = None,
-      template_path: Optional[str] = None, output_file: Optional[str] = None
+      self,
+      model_card: Optional[Union[ModelCard, model_card_pb2.ModelCard]] = None,
+      template_path: Optional[str] = None,
+      output_file: Optional[str] = None,
+      template_variables: Optional[Dict[str, Any]] = None,
   ) -> str:
     """Generates a model card document based on the MCT assets.
 
@@ -395,6 +381,8 @@ class ModelCardToolkit():
       output_file: The file name of the generated model card. If not provided,
         the default 'model_card.html' will be used. If the file already exists,
         then it will be overwritten.
+      template_variables: A dictionary of variables to pass to the template in
+        addition to model card fields.
 
     Returns:
       The model card file content.
@@ -405,8 +393,6 @@ class ModelCardToolkit():
     """
     if not template_path:
       template_path = self.default_template
-    template_dir = os.path.dirname(template_path)
-    template_file = os.path.basename(template_path)
     if not output_file:
       output_file = _DEFAULT_MODEL_CARD_FILE_NAME
 
@@ -415,27 +401,19 @@ class ModelCardToolkit():
       self.update_model_card(model_card)
     # If model_card is not passed in, read from Proto file.
     else:
-      model_card = self._read_proto_file(self._mcta_proto_file)
-      if model_card is None:
+      try:
+        model_card = load_model_card(self._mcta_proto_file)
+      except FileNotFoundError as e:
         raise ValueError(
-            'model_card could not be found. '
-            'Call scaffold_assets() to generate model_card.'
-        )
+            'ModelCard proto file could not be found. '
+            'Call scaffold_assets() to generate a Model Card.'
+        ) from e
 
-    # Generate Model Card.
-    jinja_env = jinja2.Environment(
-        loader=self._jinja_loader(template_dir), autoescape=True,
-        auto_reload=True, cache_size=0
-    )
-    template = jinja_env.get_template(template_file)
-    model_card_file_content = template.render(
-        model_details=model_card.model_details,
-        model_parameters=model_card.model_parameters,
-        quantitative_analysis=model_card.quantitative_analysis,
-        considerations=model_card.considerations
+    # Generate model card document.
+    model_card_file_content = model_card.render(
+        template_path=template_path,
+        output_path=os.path.join(self._model_cards_dir, output_file),
+        template_variables=template_variables,
     )
 
-    # Write the model card document file and return its contents.
-    mode_card_file_path = os.path.join(self._model_cards_dir, output_file)
-    self._write_file(mode_card_file_path, model_card_file_content)
     return model_card_file_content

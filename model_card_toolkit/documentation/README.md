@@ -1,32 +1,26 @@
 # Model Card Toolkit
 
-
-
-
-
 <g3mark-stacks product-id="model_card_toolkit" widget-kind="educational" use-name-in-title="true"></g3mark-stacks>
-
-
 
 ## Getting Started
 
 ```
-import model_card_toolkit
+import model_card_toolkit as mct
 
 # Initialize the Model Card Toolkit with a path to store generate assets
 model_card_output_path = ...
-mct = model_card_toolkit.ModelCardToolkit(model_card_output_path)
+toolkit = mct.ModelCardToolkit(model_card_output_path)
 
-# Initialize the model_card_toolkit.ModelCard, which can be freely populated
-model_card = mct.scaffold_assets()
+# Initialize the ModelCard, which can be freely populated
+model_card = toolkit.scaffold_assets()
 model_card.model_details.name = 'My Model'
 
 # Write the model card data to a file
-mct.update_model_card(model_card)       # writes to proto
-mct.update_model_card_json(model_card)  # writes to JSON
+toolkit.update_model_card(model_card)       # writes to proto
+toolkit.update_model_card_json(model_card)  # writes to JSON
 
 # Return the model card document as an HTML page, and save to file
-html = mct.export_format()
+html = toolkit.export_format()
 ```
 
 ## Tutorials

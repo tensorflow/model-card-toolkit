@@ -20,11 +20,15 @@ see model_card.py).
 import abc
 import dataclasses
 import json as json_lib
-from typing import Any, Dict
+from textwrap import dedent
+from typing import Any, Dict, Type, TypeVar
+from warnings import warn
 
 from google.protobuf import descriptor, message
 
-from model_card_toolkit.utils import validation
+from model_card_toolkit.utils import json_utils
+
+T = TypeVar('T', bound='BaseModelCardField')
 
 
 class BaseModelCardField(abc.ABC):
@@ -32,7 +36,7 @@ class BaseModelCardField(abc.ABC):
 
   This is an abstract class. All the model card fields should inherit this class
   and override the _proto_type property to the corresponding proto type. This
-  abstract class provides methods `copy_from_proto`, `merge_from_proto` and
+  abstract class provides methods `from_proto`, `merge_from_proto` and
   `to_proto` to convert the class from and to proto. The child class does not
   need to override this unless it needs some special process.
   """
@@ -55,7 +59,7 @@ class BaseModelCardField(abc.ABC):
     for field_name, field_value in self.__dict__.items():
       if not hasattr(proto, field_name):
         raise ValueError(
-            "%s has no such field named '%s'." % (type(proto), field_name)
+            '%s has no such field named "%s".' % (type(proto), field_name)
         )
       if not field_value:
         continue
@@ -80,11 +84,11 @@ class BaseModelCardField(abc.ABC):
 
     return proto
 
-  def _from_proto(self, proto: message.Message) -> "BaseModelCardField":
+  def _from_proto(self: T, proto: message.Message) -> T:
     """Convert proto to this class object."""
     if not isinstance(proto, self._proto_type):
       raise TypeError(
-          "%s is expected. However %s is provided." %
+          '%s is expected. However %s is provided.' %
           (self._proto_type, type(proto))
       )
 
@@ -92,7 +96,7 @@ class BaseModelCardField(abc.ABC):
       field_name = field_descriptor.name
       if not hasattr(self, field_name):
         raise ValueError(
-            "%s has no such field named '%s.'" % (self, field_name)
+            '%s has no such field named "%s".' % (self, field_name)
         )
 
       # Process Message type.
@@ -102,8 +106,9 @@ class BaseModelCardField(abc.ABC):
           setattr(self, field_name, [])
           for p in getattr(proto, field_name):
             # To get the type hint of a list is not easy.
-            field = \
-              self.__annotations__[field_name].__args__[0]()  # pytype: disable=attribute-error
+            field = (
+                self.__annotations__[field_name].__args__[0]()  # pytype: disable=attribute-error
+            )
             field._from_proto(p)  # pylint: disable=protected-access
             getattr(self, field_name).append(field)
 
@@ -119,28 +124,44 @@ class BaseModelCardField(abc.ABC):
 
     return self
 
-  def merge_from_proto(self, proto: message.Message) -> "BaseModelCardField":
+  def merge_from_proto(self: T, proto: message.Message) -> T:
     """Merges the contents of the model card proto into current object."""
     current = self.to_proto()
     current.MergeFrom(proto)
     self.clear()
     return self._from_proto(current)
 
-  def copy_from_proto(self, proto: message.Message) -> "BaseModelCardField":
+  def copy_from_proto(self: T, proto: message.Message) -> T:
     """Copies the contents of the model card proto into current object."""
+    notice = dedent(
+        '''
+        This function is deprecated and will be removed in a future version.
+
+        If you would like to create a new model card from a proto, please use
+        `ModelCard.from_proto(proto)` instead.
+
+        If you would like to copy the contents of a proto into an existing model
+        card, please use `model_card.clear()` and `model_card.merge_from_proto(proto)`
+        instead.
+        '''
+    )
+    warn(notice, DeprecationWarning, stacklevel=2)
     self.clear()
     return self._from_proto(proto)
 
-  def _from_json(
-      self, json_dict: Dict[str, Any], field: "BaseModelCardField"
-  ) -> "BaseModelCardField":
+  @classmethod
+  def from_proto(cls: Type[T], proto: message.Message) -> T:
+    """Constructs an object of this class from a model card proto."""
+    return cls()._from_proto(proto)
+
+  def _from_json(self: T, json_dict: Dict[str, Any], field: T) -> T:
     """Parses a JSON dictionary into the current object."""
     for subfield_key, subfield_json_value in json_dict.items():
-      if subfield_key.startswith(validation.SCHEMA_VERSION_STRING):
+      if subfield_key.startswith(json_utils.SCHEMA_VERSION_STRING):
         continue
       elif not hasattr(field, subfield_key):
         raise ValueError(
-            "BaseModelCardField %s has no such field named '%s.'" %
+            'BaseModelCardField %s has no such field named "%s".' %
             (field, subfield_key)
         )
       elif isinstance(subfield_json_value, dict):
@@ -151,8 +172,9 @@ class BaseModelCardField(abc.ABC):
         subfield_value = []
         for item in subfield_json_value:
           if isinstance(item, dict):
-            new_object = \
-              field.__annotations__[subfield_key].__args__[0]()  # pytype: disable=attribute-error
+            new_object = (
+                field.__annotations__[subfield_key].__args__[0]()  # pytype: disable=attribute-error
+            )
             subfield_value.append(self._from_json(item, new_object))
           else:  # if primitive
             subfield_value.append(item)

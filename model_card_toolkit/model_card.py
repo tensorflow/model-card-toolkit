@@ -22,11 +22,24 @@ ModelCardsToolkit serves as an API to read and write MC properties by the users.
 
 import dataclasses
 import json as json_lib
+import os
+from pathlib import Path
 from typing import Any, Dict, List, Optional, Union
 
 from model_card_toolkit.base_model_card_field import BaseModelCardField
 from model_card_toolkit.proto import model_card_pb2
-from model_card_toolkit.utils import validation
+from model_card_toolkit.utils import io_utils, json_utils, template_utils
+
+_SUPPORTED_SAVE_FORMATS = ('.json', '.proto')
+
+
+def _ensure_is_supported_save_format(suffix: str):
+  """Raises ValueError if a file suffix is not a supported save format."""
+  if suffix not in _SUPPORTED_SAVE_FORMATS:
+    raise ValueError(
+        f'Unsupported file format {repr(suffix)}. Supported formats: '
+        f'{", ".join(repr(fmt) for fmt in _SUPPORTED_SAVE_FORMATS)}'
+    )
 
 
 @dataclasses.dataclass
@@ -485,14 +498,35 @@ class ModelCard(BaseModelCardField):
   def to_json(self) -> str:
     """Write ModelCard to JSON."""
     model_card_dict = self.to_dict()
-    model_card_dict[validation.SCHEMA_VERSION_STRING
-                    ] = validation.get_latest_schema_version()
+    model_card_dict[json_utils.SCHEMA_VERSION_STRING
+                    ] = json_utils.get_latest_schema_version()
     return json_lib.dumps(model_card_dict, indent=2)
 
-  def from_json(self, json_dict: Dict[str, Any]) -> None:
+  def merge_from_json(self, json: Union[Dict[str, Any], str]) -> 'ModelCard':
     """Reads ModelCard from JSON.
 
-    This function will overwrite all existing ModelCard fields.
+    This function will only overwrite ModelCard fields specified in the JSON.
+
+    Args:
+      json: A JSON object from which to populate fields in the model card. This
+        can be provided as either a dictionary or a string.
+
+    Raises:
+      JSONDecodeError: If `json_dict` is not a valid JSON string.
+      ValidationError: If `json_dict` does not follow the model card JSON
+        schema.
+      ValueError: If `json_dict` contains a value not in the class or schema
+        definition.
+    """
+    if isinstance(json, str):
+      json = json_lib.loads(json)
+    json_utils.validate_json_schema(json)
+    self._from_json(json, self)
+    return self
+
+  @classmethod
+  def from_json(cls, json_dict: Dict[str, Any]) -> 'ModelCard':
+    """Constructs a ModelCard from JSON.
 
     Args:
       json_dict: A JSON dict from which to populate fields in the model card
@@ -506,27 +540,91 @@ class ModelCard(BaseModelCardField):
         definition.
     """
 
-    validation.validate_json_schema(json_dict)
-    self.clear()
-    self._from_json(json_dict, self)
+    json_utils.validate_json_schema(json_dict)
+    model_card = cls()
+    model_card._from_json(json_dict, model_card)
+    return model_card
 
-  def merge_from_json(self, json: Union[Dict[str, Any], str]) -> None:
-    """Reads ModelCard from JSON.
-
-    This function will only overwrite ModelCard fields specified in the JSON.
+  def render(
+      self,
+      template_path: Optional[Union[Path, str]] = None,
+      output_path: Optional[Union[Path, str]] = None,
+      template_variables: Optional[Dict[str, Any]] = None,
+  ) -> str:
+    """Renders the model card using a Jinja template.
 
     Args:
-      json: A JSON object from whichto populate fields in the model card. This
-        can be provided as either a dictionary or a string.
+      template_path: The path to a Jinja template file. If not provided, the
+        default HTML template will be used.
+      output_path: The path to write the rendered template to. If not provided,
+        the rendered template will not be written to a file. If the file already
+        exists, it will be overwritten.
+      template_variables: A dictionary of variables to pass to the template in
+        addition to model card fields.
+
+    Returns:
+      The rendered model card as a string.
+    """
+    template_path = template_path or template_utils.default_html_template()
+    template_variables = template_variables or {}
+    return template_utils.render(
+        template_path=template_path,
+        output_path=output_path,
+        template_variables={
+            'model_details': self.model_details,
+            'model_parameters': self.model_parameters,
+            'quantitative_analysis': self.quantitative_analysis,
+            'considerations': self.considerations,
+            **template_variables,
+        },
+    )
+
+  def save(self, path: Union[Path, str], overwrite: Optional[bool] = False):
+    """Saves the model card to a file.
+
+    Args:
+      path: The path where to save the model card. Supported formats are '.json'
+        and '.proto'.
+      overwrite: Whether to overwrite the file if it already exists.
+        Defaults to False.
 
     Raises:
-      JSONDecodeError: If `json_dict` is not a valid JSON string.
-      ValidationError: If `json_dict` does not follow the model card JSON
-        schema.
-      ValueError: If `json_dict` contains a value not in the class or schema
-        definition.
+      ValueError: If the file suffix is not a supported save format or if the
+        file already exists and `overwrite` is False.
     """
-    if isinstance(json, str):
-      json = json_lib.loads(json)
-    validation.validate_json_schema(json)
-    self._from_json(json, self)
+    suffix = io_utils.suffix(path)
+    _ensure_is_supported_save_format(suffix)
+
+    if not overwrite and os.path.exists(path):
+      raise ValueError(
+          f'File {path} already exists. Set `overwrite=True` to overwrite.'
+      )
+
+    if suffix == '.proto':
+      io_utils.write_proto_file(path, self.to_proto())
+    elif suffix == '.json':
+      io_utils.write_file(path, self.to_json())
+
+
+def load_model_card(path: Union[Path, str]) -> Optional[ModelCard]:
+  """Loads a serialized model card from a file.
+
+  Args:
+    path: The path to the model card file. Supported formats are '.json' and
+      '.proto'.
+
+  Raises:
+    ValueError: If the file suffix is not a supported save format.
+    FileNotFoundError: If the file does not exist.
+  """
+  suffix = io_utils.suffix(path)
+  _ensure_is_supported_save_format(suffix)
+
+  if suffix == '.proto':
+    model_card_proto = io_utils.parse_proto_file(
+        path, model_card_pb2.ModelCard()
+    )
+    return ModelCard.from_proto(model_card_proto)
+  elif suffix == '.json':
+    model_card_json = json_lib.loads(io_utils.read_file(path))
+    return ModelCard.from_json(model_card_json)

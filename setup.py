@@ -12,10 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ==============================================================================
-"""Setup to install the Model Card Toolkit.
-
-Run with `python3 setup.py sdist bdist_wheel`.
-"""
+"""Setup to install the Model Card Toolkit."""
 
 import platform
 import shutil
@@ -25,23 +22,13 @@ from distutils.command import build
 
 from setuptools import Command, setup
 
-REQUIRED_PACKAGES = [
-    'absl-py>=0.9,<1.1',
-    'jinja2>=3.1,<3.2',
-    'matplotlib>=3.2.0,<4',
-    'jsonschema>=3.2.0,<4',
-    'tensorflow-data-validation>=1.5.0,<2.0.0',
-    'tensorflow-model-analysis>=0.36.0,<0.45.0',
-    'tensorflow-metadata>=1.5.0,<2.0.0',
-    'ml-metadata>=1.5.0,<2.0.0',
-]
-
-TESTS_REQUIRE = [
-    'pytest',
-    'tensorflow-datasets>=4.8.2',
-]
-
-EXTRAS_REQUIRE = {'test': TESTS_REQUIRE}
+# Get dependency lists.
+with open('model_card_toolkit/dependencies.py') as fp:
+  globals_dict = {}
+  exec(fp.read(), globals_dict)  # pylint: disable=exec-used
+make_required_install_packages = globals_dict['make_required_install_packages']
+make_required_extra_packages = globals_dict['make_required_extra_packages']
+make_extra_packages_test = globals_dict['make_extra_packages_test']
 
 # Get version from version module.
 with open('model_card_toolkit/version.py') as fp:
@@ -49,6 +36,7 @@ with open('model_card_toolkit/version.py') as fp:
   exec(fp.read(), globals_dict)  # pylint: disable=exec-used
 __version__ = globals_dict['__version__']
 
+# Get long description.
 with open('README.md', 'r', encoding='utf-8') as fh:
   _LONG_DESCRIPTION = fh.read()
 
@@ -100,7 +88,7 @@ class _BazelBuildCommand(Command):
         [
             self._bazel_cmd, 'run', '--verbose_failures',
             *self._additional_build_options,
-            'model_card_toolkit:move_generated_files'
+            '//proto_build:move_generated_files'
         ]
     )
 
@@ -109,11 +97,14 @@ setup(
     name='model-card-toolkit',
     version=__version__,
     description='Model Card Toolkit',
+    author='The TensorFlow Authors',
     long_description=_LONG_DESCRIPTION,
     long_description_content_type='text/markdown',
     url='https://github.com/tensorflow/model-card-toolkit',
-    author='Google LLC',
-    author_email='tensorflow-extended-dev@googlegroups.com',
+    project_urls={
+        'Bug Tracker': 'https://github.com/tensorflow/model-card-toolkit/issues',
+        'Documentation': 'https://www.tensorflow.org/responsible_ai/model_card_toolkit/guide',
+    },
     packages=[
         'model_card_toolkit',
         'model_card_toolkit.documentation',
@@ -125,11 +116,11 @@ setup(
     package_data={
         'model_card_toolkit': ['schema/**/*.json', 'template/**/*.jinja']
     },
+
     python_requires='>=3.8,<4',
-    install_requires=REQUIRED_PACKAGES,
-    tests_require=TESTS_REQUIRE,
-    extras_require=EXTRAS_REQUIRE,
-    # PyPI package information.
+    install_requires=make_required_install_packages(),
+    tests_require=make_extra_packages_test(),
+    extras_require=make_required_extra_packages(),
     classifiers=[
         'Development Status :: 4 - Beta',
         'Intended Audience :: Developers',
@@ -148,9 +139,9 @@ setup(
         'Topic :: Software Development :: Libraries :: Python Modules',
     ],
     license='Apache 2.0',
-    keywords='model card toolkit ml metadata machine learning',
+    keywords=['model card toolkit', 'ml metadata', 'machine learning'],
     cmdclass={
         'build': _BuildCommand,
         'bazel_build': _BazelBuildCommand,
     }
-)
+)  # yapf: disable

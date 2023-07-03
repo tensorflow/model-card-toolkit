@@ -102,7 +102,14 @@ Follow these steps to install `model-card-toolkit`:
    pip install --upgrade pip
    ```
 
-5. Install the `model-card-toolkit` development package in editable mode:
+5. Install the `model-card-toolkit[all]` development package in editable mode:
+
+   ```sh
+   pip install -e ".[all]"
+   ```
+
+   If you only plan to make changes to parts of the codebase that don't require
+   optional dependencies, you may install `model-card-toolkit[test]` instead.
 
    ```sh
    pip install -e ".[test]"
@@ -119,7 +126,7 @@ automatically invoked once when you first install `model-card-toolkit` in
 editable mode, but further stub generation requires manual invocation.
 
 ```sh
-bazel run //model_card_toolkit:move_generated_files
+bazel run //proto_build:move_generated_files
 ```
 
 ### Licenses
@@ -142,14 +149,11 @@ with indentation width of 2 spaces.
 
 ### Linting your code
 
-Please check your code for linting errors before submitting your PR for review. Pull requests are lint checked using `pre-commit` and `pylint`.
-If you want to run the [`pre-commit`](https://pre-commit.com/) checks locally, please install
+Please check your code for linting errors before submitting your pull request for review.
+Pull requests are lint checked using [`pre-commit`](https://pre-commit.com/) and `pylint`.
+If you want to run the `pre-commit` checks locally, run following command
+from your local project directory:
 
-```sh
-pip install pre-commit
-```
-
-When you have `pre-commit` installed, you can run follow command from your local project folder to check for linting errors.
 ```sh
 pre-commit run --all-files
 ```
@@ -167,6 +171,12 @@ test coverage.
 In general, all Python files have at least one corresponding test file. For example,
 `awesome.py` should have a corresponding `awesome_test.py`.
 
+If a test suite requires an optional dependency, check [conftest.py](conftest.py)
+to verify if it can be automatically ignored with `--ignore-requires-optional-deps`
+based on its file pattern. If it can't be automatically ignored, either update
+the list of patterns to ignore in `conftest.py` or mark the tests to be skipped
+if the dependency is not installed.
+
 #### Running unit tests
 
 To run a specific test suite, e.g. `ModelCardTest`, run its test file:
@@ -175,8 +185,34 @@ To run a specific test suite, e.g. `ModelCardTest`, run its test file:
 pytest model_card_toolkit/model_card_test.py
 ```
 
-Use the following command to run all unit tests:
+To run all tests, run:
 
 ```sh
 pytest model_card_toolkit
 ```
+
+Use the following command to skip tests that require optional dependencies:
+
+```sh
+pytest model_card_toolkit --ignore-requires-optional-deps
+```
+
+Use the following command to fail skipped tests:
+
+```sh
+pytest model_card_toolkit --fail-if-skipped
+```
+
+In general, tests are marked as `skip` if they require optional dependencies
+that aren't installed. Failing skipped tests let us catch when tests are skipped
+even though all optional dependencies are installed.
+
+## Being a Code Owner
+
+Code owners are automatically requested for review when someone opens a pull
+request that modifies code that they own. Code ownership is tracked through the
+[CODEOWNERS](CODEOWNERS) file.
+
+You may request to become a code owner if you have made substantial contributions
+to the project such as guiding project meetings, contributing a major feature,
+or maintaining code.

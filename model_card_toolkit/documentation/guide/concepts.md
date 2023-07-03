@@ -1,11 +1,5 @@
 # Model Card Toolkit Concepts
 
-
-
-
-
-
-
 ## Model Card
 
 [Model Cards](https://arxiv.org/abs/1810.03993) are machine learning documents that provide context and transparency into a model's development and performance. They can be used to share model metadata and metrics with researchers, developers, reporters, and more.
@@ -61,6 +55,31 @@ object.
 The `model_card_toolkit.utils.graphics.figure_to_base64str()` function can be
 used to convert graphics, such as Matplotlib figures, to base64 strings.
 
+#### Saving and Loading Model Cards
+
+If you've finished annotating your model card and would like to serialize it in JSON
+or protobuf format, use the method `ModelCard.save()`.
+
+```python
+
+import model_card_toolkit as mct
+
+model_card = mct.ModelCard()
+model_card.model_details.name = 'Fine-tuned MobileNetV2 Model for Cats vs. Dogs'
+model_card.save('model_cards/cats_vs_dogs.json')
+```
+
+If you'd like to restore and update a saved model card, use the function
+`model_card_toolkit.model_card.load_model_card()`.
+
+```python
+
+import model_card_toolkit as mct
+
+model_card = mct.load_model_card('model_cards/cats_vs_dogs.json')
+model_card.model_details.licenses.append(mct.License(identifier='Apache-2.0'))
+```
+
 ### Model Card Documents
 
 By default, the generated model card document is a HTML file based on
@@ -99,7 +118,15 @@ used by MCT:
 *   [Trainer](https://www.tensorflow.org/tfx/api_docs/python/tfx/v1/components/Trainer):
     used to populate model name and version
 
-The `ModelCardGenerator` component introduced in Model Card Toolkit 1.3.0 is
-moving to the [TFX Addons](https://github.com/tensorflow/tfx-addons) library.
-This page will be updated to include the new links for the Model Cards in TFX
-guide and the end-to-end demo when that migration is completed.
+The `ModelCardGenerator` component has moved to the
+[TFX Addons](https://github.com/tensorflow/tfx-addons) library and is no longer
+packaged in Model Card Toolkit from version 2.0.0. Before you can use the
+component, you will need to install the `tfx-addons` package:
+
+```sh
+pip install tfx-addons[model_card_generator]
+```
+
+See the [ModelCardGenerator guide](https://github.com/tensorflow/tfx-addons/blob/main/tfx_addons/model_card_generator/README.md)
+and run the [case study notebook](https://github.com/tensorflow/tfx-addons/blob/main/examples/model_card_generator/MLMD_Model_Card_Toolkit_Demo.ipynb)
+to learn more about the component.

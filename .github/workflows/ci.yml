@@ -28,25 +28,35 @@ jobs:
   ci:
     runs-on: ubuntu-latest
     timeout-minutes: 60
+    strategy:
+      matrix:
+        name: [base, all]
+        include:
+          - name: base
+            dependencies: test
+            tests: model_card_toolkit --ignore-requires-optional-deps
+          - name: all
+            dependencies: all
+            tests: model_card_toolkit --fail-if-skipped
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: Set up Python 3.9
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v4
       with:
         python-version: 3.9
     - name: Cache python environment
-      uses: actions/cache@v2
+      uses: actions/cache@v3
       with:
         # Cache pip
         path: ~/.cache/pip
         # Check the cache for a given setup.py + MCT version
-        key: ${{ runner.os }}-pip-${{ hashFiles('model_card_toolkit/version.py') }}
+        key: ${{ runner.os }}-pip-${{ matrix.name }}-${{ hashFiles('model_card_toolkit/version.py') }}
         restore-keys: |
           ${{ runner.os }}-pip
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip wheel
-        python -m pip install -e ".[test]"
+        python -m pip install -e ".[${{ matrix.dependencies }}]"
     - name: Run tests
-      run: pytest model_card_toolkit
+      run: pytest ${{ matrix.tests }}
