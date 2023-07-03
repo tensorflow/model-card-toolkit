@@ -116,7 +116,6 @@ setup(
     package_data={
         'model_card_toolkit': ['schema/**/*.json', 'template/**/*.jinja']
     },
-
     python_requires='>=3.8,<4',
     install_requires=make_required_install_packages(),
     tests_require=make_extra_packages_test(),
