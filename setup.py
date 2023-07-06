@@ -116,7 +116,7 @@ setup(
     package_data={
         'model_card_toolkit': ['schema/**/*.json', 'template/**/*.jinja']
     },
-    python_requires='>=3.7,<4',
+    python_requires='>=3.8,<4',
     install_requires=make_required_install_packages(),
     tests_require=make_extra_packages_test(),
     extras_require=make_required_extra_packages(),
@@ -128,7 +128,6 @@ setup(
         'License :: OSI Approved :: Apache Software License',
         'Operating System :: OS Independent',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',
         'Programming Language :: Python :: 3.9',
         'Topic :: Scientific/Engineering',

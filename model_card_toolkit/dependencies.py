@@ -32,7 +32,7 @@ _VERSIONS = {
     'tensorflow_data_validation': 'tensorflow-data-validation>=1.5.0,<2.0.0',
     'tensorflow_datasets': 'tensorflow-datasets>=4.8.2',
     'tensorflow_metadata': 'tensorflow-metadata>=1.5.0,<2.0.0',
-    'tensorflow_model_analysis': 'tensorflow-model-analysis>=0.36.0,<0.42.0',
+    'tensorflow_model_analysis': 'tensorflow-model-analysis>=0.36.0,<0.45.0',
     'yapf': 'yapf',
 }
 
