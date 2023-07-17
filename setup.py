@@ -17,7 +17,6 @@
 import platform
 import shutil
 import subprocess
-# TODO(b/188859752): deprecate distutils
 from distutils.command import build
 
 from setuptools import Command, setup
