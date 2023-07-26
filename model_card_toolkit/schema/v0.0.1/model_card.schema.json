@@ -219,7 +219,7 @@
         "collection": {
           "description": "A collection of graphics.",
           "type": "array",
-          "items": { "$ref": "#definitions/graphic" }
+          "items": { "$ref": "#/definitions/graphic" }
         }
       }
     },
