@@ -58,13 +58,13 @@ _TENSORFLOW_EXTRA_DEPS = [
 
 _TEST_EXTRA_DEPS = ['absl', 'isort', 'pre-commit', 'pylint', 'pytest', 'yapf']
 
-TENSORFLOW_EXTRA_IMPORT_ERROR_MSG = """
+TENSORFLOW_EXTRA_IMPORT_ERROR_MSG = '''
 This functionaliy requires `tensorflow` extra dependencies but they were not
 found in your environment. You can install them with:
 ```
 pip install model-card-toolkit[tensorflow]
 ```
-"""
+'''
 
 
 def _make_deps_list(package_names: List[str]) -> List[str]:

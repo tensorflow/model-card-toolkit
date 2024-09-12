@@ -12,7 +12,7 @@ message Owner {
   optional string contact = 2;
 }
 
-// The information about verions of a model.
+// The information about version of a model.
 // If there are multiple versions of the model, or there may be in the future,
 // it’s useful for your audience to know which version of the model is discussed
 // in the Model Card. If there are previous versions of this model, briefly
@@ -177,7 +177,7 @@ message ConfidenceInterval {
 
 // The details of the performance metric.
 message PerformanceMetric {
-  // TODO(b/179415408): revist the design the of message
+  // TODO(b/179415408): revisit the design the of message
   // The following fields are EXPERIMENTAL and introduced for migration purpose.
   // For proto users, please do not rely on the fields.
 

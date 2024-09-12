@@ -40,13 +40,13 @@ class TfGraphicsTest(absltest.TestCase):
 
   def test_extract_graph_data_from_dataset_feature_statistics(self):
     empty_numeric_feature_stats = text_format.Parse(
-        """
+        '''
         path {
-          step: "numeric_feature"
+          step: 'numeric_feature'
         }
         type: INT
         num_stats {
-        }""", statistics_pb2.FeatureNameStatistics()
+        }''', statistics_pb2.FeatureNameStatistics()
     )
     self.assertIsNone(
         tf_graphics._extract_graph_data_from_dataset_feature_statistics(
@@ -55,9 +55,9 @@ class TfGraphicsTest(absltest.TestCase):
     )
 
     numeric_feature_stats = text_format.Parse(
-        """
+        '''
         path {
-          step: "numeric_feature"
+          step: 'numeric_feature'
         }
         type: INT
         num_stats {
@@ -73,7 +73,7 @@ class TfGraphicsTest(absltest.TestCase):
               sample_count: 4.0
             }
           }
-        }""", statistics_pb2.FeatureNameStatistics()
+        }''', statistics_pb2.FeatureNameStatistics()
     )
     self.assertGraphEqual(
         tf_graphics._extract_graph_data_from_dataset_feature_statistics(
@@ -87,9 +87,9 @@ class TfGraphicsTest(absltest.TestCase):
     )
 
     string_feature_stats = text_format.Parse(
-        """
+        '''
         path {
-          step: "string_feature"
+          step: 'string_feature'
         }
         type: STRING
         string_stats {
@@ -107,7 +107,7 @@ class TfGraphicsTest(absltest.TestCase):
               sample_count: 2395.0
             }
           }
-        }""", statistics_pb2.FeatureNameStatistics()
+        }''', statistics_pb2.FeatureNameStatistics()
     )
     self.assertGraphEqual(
         tf_graphics._extract_graph_data_from_dataset_feature_statistics(
@@ -121,12 +121,12 @@ class TfGraphicsTest(absltest.TestCase):
     )
 
     bytes_feature_stats = text_format.Parse(
-        """
+        '''
         path {
-          step: "bytes_feature"
+          step: 'bytes_feature'
         }
         type: BYTES
-        bytes_stats {}""", statistics_pb2.FeatureNameStatistics()
+        bytes_stats {}''', statistics_pb2.FeatureNameStatistics()
     )
     self.assertIsNone(
         tf_graphics._extract_graph_data_from_dataset_feature_statistics(
@@ -135,12 +135,12 @@ class TfGraphicsTest(absltest.TestCase):
     )
 
     struct_feature_stats = text_format.Parse(
-        """
+        '''
         path {
-          step: "struct_feature"
+          step: 'struct_feature'
         }
         type: STRUCT
-        struct_stats {}""", statistics_pb2.FeatureNameStatistics()
+        struct_stats {}''', statistics_pb2.FeatureNameStatistics()
     )
     self.assertIsNone(
         tf_graphics._extract_graph_data_from_dataset_feature_statistics(
@@ -150,11 +150,11 @@ class TfGraphicsTest(absltest.TestCase):
 
   def test_annotate_dataset_feature_statistics_plots(self):
     train_stats = text_format.Parse(
-        """
+        '''
     datasets {
       features {
         path {
-          step: "LDA_00"
+          step: 'LDA_00'
         }
         type: FLOAT
         num_stats {
@@ -182,7 +182,7 @@ class TfGraphicsTest(absltest.TestCase):
       }
       features {
         path {
-          step: "LDA_01"
+          step: 'LDA_01'
         }
         type: FLOAT
         num_stats {
@@ -210,7 +210,7 @@ class TfGraphicsTest(absltest.TestCase):
       }
       features {
         path {
-          step: "LDA_02"
+          step: 'LDA_02'
         }
         type: FLOAT
         num_stats {
@@ -238,7 +238,7 @@ class TfGraphicsTest(absltest.TestCase):
       }
       features {
         path {
-          step: "LDA_03"
+          step: 'LDA_03'
         }
         type: STRING
         bytes_stats {
@@ -246,14 +246,14 @@ class TfGraphicsTest(absltest.TestCase):
         }
       }
     }
-    """, statistics_pb2.DatasetFeatureStatisticsList()
+    ''', statistics_pb2.DatasetFeatureStatisticsList()
     )
     eval_stats = text_format.Parse(
-        """
+        '''
     datasets {
       features {
         path {
-          step: "data_channel"
+          step: 'data_channel'
         }
         type: STRING
         string_stats {
@@ -310,7 +310,7 @@ class TfGraphicsTest(absltest.TestCase):
         }
       }
     }
-    """, statistics_pb2.DatasetFeatureStatisticsList()
+    ''', statistics_pb2.DatasetFeatureStatisticsList()
     )
 
     model_card = model_card_module.ModelCard()

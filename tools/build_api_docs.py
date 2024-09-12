@@ -10,24 +10,24 @@ import model_card_toolkit
 FLAGS = flags.FLAGS
 
 flags.DEFINE_string(
-    "output_dir", default="/tmp/model_card_toolkit",
-    help="Where to output the docs"
+    'output_dir', default='/tmp/model_card_toolkit',
+    help='Where to output the docs'
 )
 
 flags.DEFINE_string(
-    "code_url_prefix", default=
-    "https://github.com/tensorflow/model-card-toolkit/tree/main/model-card-toolkit",
-    help="The URL prefix for links to code."
+    'code_url_prefix', default=
+    'https://github.com/tensorflow/model-card-toolkit/tree/main/model-card-toolkit',
+    help='The URL prefix for links to code.'
 )
 
 flags.DEFINE_bool(
-    "search_hints", default=True,
-    help="Include metadata search hints in the generated files"
+    'search_hints', default=True,
+    help='Include metadata search hints in the generated files'
 )
 
 flags.DEFINE_string(
-    "site_path", default="responsible-ai/model_card_toolkit/api_docs/python",
-    help="Path prefix in the _toc.yaml"
+    'site_path', default='responsible-ai/model_card_toolkit/api_docs/python',
+    help='Path prefix in the _toc.yaml'
 )
 
 
@@ -39,8 +39,8 @@ def execute(
   # TODO(b/175031010): add missing class vars, or remove all class vars
 
   doc_generator = generate_lib.DocGenerator(
-      root_title="Model Card Toolkit", py_modules=[
-          ("model_card_toolkit", model_card_toolkit)
+      root_title='Model Card Toolkit', py_modules=[
+          ('model_card_toolkit', model_card_toolkit)
       ], base_dir=os.path.dirname(model_card_toolkit.__file__),
       search_hints=search_hints, code_url_prefix=code_url_prefix,
       site_path=site_path, callbacks=[
@@ -59,5 +59,5 @@ def main(unused_argv):
   )
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
   app.run(main)
